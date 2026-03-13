@@ -1,11 +1,12 @@
 'use client'
 
-import { Bell } from 'lucide-react'
+import { Bell, Menu } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { cn } from '@/lib/utils'
 
+import { useMobileMenu } from './app-shell'
 import { SearchInput } from './search-input'
 
 export interface PageHeaderAction {
@@ -38,6 +39,7 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   const [searchValue, setSearchValue] = useState('')
+  const openMenu = useMobileMenu()
 
   function handleSearchChange(value: string) {
     setSearchValue(value)
@@ -50,22 +52,37 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        'flex h-[72px] shrink-0 items-center justify-between bg-white px-8 shadow-[0_1px_8px_rgba(26,25,24,0.03)]',
+        'flex h-[72px] shrink-0 items-center justify-between bg-white px-4 shadow-[0_1px_8px_rgba(26,25,24,0.03)] md:px-8',
         className,
       )}
     >
-      <div className="flex flex-col gap-[2px]">
-        <h1 className="text-[22px] font-semibold tracking-[-0.3px] text-[#1A1918]">{title}</h1>
-        {subtitle && <p className="text-[13px] text-[#6D6C6A]">{subtitle}</p>}
+      {/* Left — hamburger (mobile only) + title */}
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          aria-label="Abrir menu"
+          onClick={openMenu}
+          className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] md:hidden"
+        >
+          <Menu className="size-[18px] text-[#6D6C6A]" />
+        </button>
+
+        <div className="flex min-w-0 flex-col gap-[2px]">
+          <h1 className="truncate text-[18px] font-semibold tracking-[-0.3px] text-[#1A1918] md:text-[22px]">
+            {title}
+          </h1>
+          {subtitle && <p className="hidden text-[13px] text-[#6D6C6A] md:block">{subtitle}</p>}
+        </div>
       </div>
 
-      <div className="flex flex-row items-center gap-3">
+      {/* Right — search (desktop only) + bell + action */}
+      <div className="flex shrink-0 flex-row items-center gap-2 md:gap-3">
         <SearchInput
           variant="muted"
           placeholder={searchPlaceholder ?? 'Buscar...'}
           value={searchValue}
           onChange={handleSearchChange}
-          className="w-[220px]"
+          className="hidden w-[220px] md:flex"
         />
 
         <button
@@ -81,12 +98,12 @@ export function PageHeader({
             type="button"
             onClick={action.onClick}
             className={cn(
-              'flex h-[38px] items-center gap-2 rounded-xl px-4 text-[13px] font-semibold transition-colors',
+              'flex h-[38px] items-center gap-2 rounded-xl px-3 text-[13px] font-semibold transition-colors md:px-4',
               actionVariantClasses[actionVariant],
             )}
           >
             {ActionIcon && <ActionIcon className="size-4" />}
-            {action.label}
+            <span className="hidden sm:inline">{action.label}</span>
           </button>
         )}
       </div>
