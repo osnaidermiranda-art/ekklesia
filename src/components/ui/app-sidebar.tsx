@@ -7,6 +7,8 @@ import {
   LayoutDashboard,
   MapPin,
   Settings,
+  UserCircle,
+  UserCog,
   Users,
   Wallet,
 } from 'lucide-react'
@@ -59,8 +61,13 @@ export const DEFAULT_NAV_SECTIONS: NavSection[] = [
       { icon: Wallet, label: 'Finanzas', href: '/finanzas' },
       { icon: BarChart2, label: 'Reportes', href: '/reportes' },
       { icon: Users, label: 'Sociedades', href: '/sociedades' },
+      { icon: UserCog, label: 'Usuarios y Roles', href: '/usuarios' },
       { icon: Settings, label: 'Configuracion', href: '/configuracion' },
     ],
+  },
+  {
+    label: 'CUENTA',
+    items: [{ icon: UserCircle, label: 'Mi Cuenta', href: '/mi-cuenta' }],
   },
 ]
 
