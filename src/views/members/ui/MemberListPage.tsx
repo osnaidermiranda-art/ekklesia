@@ -347,11 +347,13 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
 // Main page component
 // ---------------------------------------------------------------------------
 
-export function MiembrosPage() {
+// Before: MiembrosPage (src/views/miembros/ui/MiembrosPage.tsx)
+// After:  MemberListPage (src/views/members/ui/MemberListPage.tsx)
+export function MemberListPage() {
   const [search, setSearch] = useState('')
-  const [iglesia, setIglesia] = useState('Todas')
-  const [rol, setRol] = useState('Todos')
-  const [estado, setEstado] = useState('Todos')
+  const [church, setChurch] = useState('Todas')
+  const [role, setRole] = useState('Todos')
+  const [statusFilter, setStatusFilter] = useState('Todos')
   const [currentPage, setCurrentPage] = useState(1)
 
   const totalPages = Math.ceil(TOTAL_MEMBERS / PAGE_SIZE)
@@ -361,14 +363,14 @@ export function MiembrosPage() {
       search === '' ||
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.email.toLowerCase().includes(search.toLowerCase())
-    const matchIglesia = iglesia === 'Todas' || m.church === iglesia
-    const matchRol = rol === 'Todos' || m.role === rol
-    const matchEstado =
-      estado === 'Todos' ||
-      (estado === 'Activo' && m.status === 'active') ||
-      (estado === 'Pendiente' && m.status === 'pending') ||
-      (estado === 'Inactivo' && m.status === 'inactive')
-    return matchSearch && matchIglesia && matchRol && matchEstado
+    const matchChurch = church === 'Todas' || m.church === church
+    const matchRole = role === 'Todos' || m.role === role
+    const matchStatus =
+      statusFilter === 'Todos' ||
+      (statusFilter === 'Activo' && m.status === 'active') ||
+      (statusFilter === 'Pendiente' && m.status === 'pending') ||
+      (statusFilter === 'Inactivo' && m.status === 'inactive')
+    return matchSearch && matchChurch && matchRole && matchStatus
   })
 
   return (
@@ -390,7 +392,7 @@ export function MiembrosPage() {
             className="w-full sm:w-[280px]"
           />
 
-          <Select value={iglesia} onValueChange={setIglesia}>
+          <Select value={church} onValueChange={setChurch}>
             <SelectTrigger className="h-[38px] rounded-xl border-[#E5E4E1] bg-white text-[13px] text-[#1A1918]">
               <span className="shrink-0 font-medium text-[#9C9B99]">Iglesia:</span>
               <SelectValue className="font-semibold" />
@@ -404,7 +406,7 @@ export function MiembrosPage() {
             </SelectContent>
           </Select>
 
-          <Select value={rol} onValueChange={setRol}>
+          <Select value={role} onValueChange={setRole}>
             <SelectTrigger className="h-[38px] rounded-xl border-[#E5E4E1] bg-white text-[13px] text-[#1A1918]">
               <span className="shrink-0 font-medium text-[#9C9B99]">Rol:</span>
               <SelectValue className="font-semibold" />
@@ -418,7 +420,7 @@ export function MiembrosPage() {
             </SelectContent>
           </Select>
 
-          <Select value={estado} onValueChange={setEstado}>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="h-[38px] rounded-xl border-[#E5E4E1] bg-white text-[13px] text-[#1A1918]">
               <span className="shrink-0 font-medium text-[#9C9B99]">Estado:</span>
               <SelectValue className="font-semibold" />

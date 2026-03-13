@@ -50,8 +50,8 @@ interface StatItem {
 
 interface MembershipDataPoint {
   month: string
-  nuevos: number
-  traslados: number
+  newMembers: number
+  transfers: number
 }
 
 interface FinanceDataPoint {
@@ -141,12 +141,12 @@ const STATS: StatItem[] = [
 ]
 
 const MEMBERSHIP_DATA: MembershipDataPoint[] = [
-  { month: 'Ene', nuevos: 45, traslados: 18 },
-  { month: 'Feb', nuevos: 38, traslados: 14 },
-  { month: 'Mar', nuevos: 55, traslados: 23 },
-  { month: 'Abr', nuevos: 42, traslados: 16 },
-  { month: 'May', nuevos: 58, traslados: 25 },
-  { month: 'Jun', nuevos: 52, traslados: 20 },
+  { month: 'Ene', newMembers: 45, transfers: 18 },
+  { month: 'Feb', newMembers: 38, transfers: 14 },
+  { month: 'Mar', newMembers: 55, transfers: 23 },
+  { month: 'Abr', newMembers: 42, transfers: 16 },
+  { month: 'May', newMembers: 58, transfers: 25 },
+  { month: 'Jun', newMembers: 52, transfers: 20 },
 ]
 
 const FINANCE_DATA: FinanceDataPoint[] = [
@@ -332,8 +332,8 @@ function MembershipChart() {
               fontSize: 12,
             }}
           />
-          <Bar dataKey="nuevos" fill="#3D8A5A" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="traslados" fill="#D89575" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="newMembers" fill="#3D8A5A" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="transfers" fill="#D89575" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </DashboardCard>

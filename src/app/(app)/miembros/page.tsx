@@ -1,5 +1,5 @@
-import { MiembrosPage } from '@/views/miembros'
+import { MemberListPage } from '@/views/members'
 
 export default function Page() {
-  return <MiembrosPage />
+  return <MemberListPage />
 }

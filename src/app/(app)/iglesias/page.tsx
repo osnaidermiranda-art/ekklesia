@@ -1,5 +1,5 @@
-import { IglesiasPage } from '@/views/iglesias'
+import { ChurchListPage } from '@/views/churches'
 
 export default function Iglesias() {
-  return <IglesiasPage />
+  return <ChurchListPage />
 }

@@ -406,7 +406,9 @@ function ChurchCard({ church, viewMode }: ChurchCardProps) {
 // Main page component
 // ---------------------------------------------------------------------------
 
-export function IglesiasPage() {
+// Before: IglesiasPage (src/views/iglesias/ui/IglesiasPage.tsx)
+// After:  ChurchListPage (src/views/churches/ui/ChurchListPage.tsx)
+export function ChurchListPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
 
