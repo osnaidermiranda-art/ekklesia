@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type EventType = 'culto' | 'iglesia' | 'actividad' | 'contribe'
+type EventType = 'worship' | 'church' | 'activity' | 'fellowship'
 
 interface CalendarEvent {
   id: string
@@ -29,28 +29,28 @@ const TYPE_CONFIG: Record<
   EventType,
   { bg: string; border: string; text: string; textMuted: string; label: string }
 > = {
-  culto: {
+  worship: {
     bg: '#C8F0D8',
     border: '#3D8A5A',
     text: '#3D8A5A',
     textMuted: '#3D8A5A',
     label: 'Culto',
   },
-  iglesia: {
+  church: {
     bg: '#D6E8F5',
     border: '#5B8DB8',
     text: '#5B8DB8',
     textMuted: '#5B8DB8',
     label: 'Iglesia',
   },
-  actividad: {
+  activity: {
     bg: '#F5EDD8',
     border: '#C49A3C',
     text: '#C49A3C',
     textMuted: '#C49A3C',
     label: 'Actividad',
   },
-  contribe: {
+  fellowship: {
     bg: '#FDE8D8',
     border: '#D08068',
     text: '#D08068',
@@ -76,14 +76,14 @@ const MONTH_NAMES = [
   'Diciembre',
 ]
 
-const EVENT_TYPE_OPTIONS: EventType[] = ['culto', 'iglesia', 'actividad', 'contribe']
+const EVENT_TYPE_OPTIONS: EventType[] = ['worship', 'church', 'activity', 'fellowship']
 
 const INITIAL_EVENTS: CalendarEvent[] = [
   {
     id: '1',
     title: 'Santa Cena',
     time: '9:00 AM',
-    type: 'culto',
+    type: 'worship',
     date: '2026-03-08',
     location: 'Iglesia Betania',
   },
@@ -91,7 +91,7 @@ const INITIAL_EVENTS: CalendarEvent[] = [
     id: '2',
     title: 'Practica Especial',
     time: '3:00 PM',
-    type: 'contribe',
+    type: 'fellowship',
     date: '2026-03-10',
     location: 'Sala de reuniones',
   },
@@ -99,17 +99,17 @@ const INITIAL_EVENTS: CalendarEvent[] = [
     id: '3',
     title: 'Evangelismo Marina',
     time: '6:00 PM',
-    type: 'iglesia',
+    type: 'church',
     date: '2026-03-10',
     location: 'Parque Central',
   },
-  { id: '4', title: 'Reunion Jovenes', time: '10:00 AM', type: 'actividad', date: '2026-03-11' },
-  { id: '5', title: 'Estudio Apologetica', time: '3:00 PM', type: 'iglesia', date: '2026-03-11' },
+  { id: '4', title: 'Reunion Jovenes', time: '10:00 AM', type: 'activity', date: '2026-03-11' },
+  { id: '5', title: 'Estudio Apologetica', time: '3:00 PM', type: 'church', date: '2026-03-11' },
   {
     id: '6',
     title: 'Estudio Biblico',
     time: '7:00 PM',
-    type: 'iglesia',
+    type: 'church',
     date: '2026-03-11',
     location: 'Iglesia Emanuel',
   },
@@ -117,16 +117,16 @@ const INITIAL_EVENTS: CalendarEvent[] = [
     id: '7',
     title: 'Confraternidad',
     time: '9:00 AM',
-    type: 'contribe',
+    type: 'fellowship',
     date: '2026-03-12',
     location: 'Centro Comunitario',
   },
-  { id: '8', title: 'Culto Thomas', time: '11:00 AM', type: 'culto', date: '2026-03-13' },
+  { id: '8', title: 'Culto Thomas', time: '11:00 AM', type: 'worship', date: '2026-03-13' },
   {
     id: '9',
     title: 'Rio Bartolome',
     time: '8:00 AM',
-    type: 'culto',
+    type: 'worship',
     date: '2026-03-14',
     location: 'Iglesia Betania',
   },
@@ -134,18 +134,18 @@ const INITIAL_EVENTS: CalendarEvent[] = [
     id: '10',
     title: 'Culto Central',
     time: '10:00 AM',
-    type: 'culto',
+    type: 'worship',
     date: '2026-03-14',
     location: 'Iglesia Canaan',
   },
-  { id: '11', title: 'Reunion Jovenes', time: '3:00 PM', type: 'actividad', date: '2026-03-14' },
-  { id: '12', title: 'Rio Diamante', time: '5:00 PM', type: 'culto', date: '2026-03-14' },
-  { id: '13', title: 'Reunion Liderazgo', time: '9:00 AM', type: 'iglesia', date: '2026-03-16' },
+  { id: '11', title: 'Reunion Jovenes', time: '3:00 PM', type: 'activity', date: '2026-03-14' },
+  { id: '12', title: 'Rio Diamante', time: '5:00 PM', type: 'worship', date: '2026-03-14' },
+  { id: '13', title: 'Reunion Liderazgo', time: '9:00 AM', type: 'church', date: '2026-03-16' },
   {
     id: '14',
     title: 'Culto Domingo',
     time: '10:00 AM',
-    type: 'culto',
+    type: 'worship',
     date: '2026-03-15',
     location: 'Iglesia Filadelfia',
   },
@@ -153,7 +153,7 @@ const INITIAL_EVENTS: CalendarEvent[] = [
     id: '15',
     title: 'Jovenes Unidos',
     time: '6:00 PM',
-    type: 'actividad',
+    type: 'activity',
     date: '2026-03-15',
     location: 'Salon Jovenes',
   },
@@ -214,7 +214,7 @@ function CreateEventModal({ initialDate, onClose, onSave }: CreateEventModalProp
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(initialDate)
   const [time, setTime] = useState('09:00')
-  const [type, setType] = useState<EventType>('culto')
+  const [type, setType] = useState<EventType>('worship')
   const [location, setLocation] = useState('')
 
   function handleSubmit(e: React.FormEvent) {

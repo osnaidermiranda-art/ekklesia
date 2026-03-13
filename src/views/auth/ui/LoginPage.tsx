@@ -173,7 +173,7 @@ export function LoginPage() {
                     Contrasena
                   </Label>
                   <Link
-                    href="/recuperar-contrasena"
+                    href="/recover-password"
                     className="text-xs font-medium text-[#3D8A5A] hover:underline"
                   >
                     Olvidaste tu contrasena?

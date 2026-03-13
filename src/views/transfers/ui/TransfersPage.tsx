@@ -19,8 +19,8 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type TransferStatus = 'pendiente' | 'aprobado' | 'rechazado'
-type FilterTab = 'todos' | TransferStatus
+type TransferStatus = 'pending' | 'approved' | 'rejected'
+type FilterTab = 'all' | TransferStatus
 
 interface Transfer {
   id: string
@@ -40,29 +40,29 @@ interface Transfer {
 // ---------------------------------------------------------------------------
 
 const FILTER_TABS: { key: FilterTab; label: string }[] = [
-  { key: 'todos', label: 'Todos' },
-  { key: 'pendiente', label: 'Pendientes' },
-  { key: 'aprobado', label: 'Aprobados' },
-  { key: 'rechazado', label: 'Rechazados' },
+  { key: 'all', label: 'Todos' },
+  { key: 'pending', label: 'Pendientes' },
+  { key: 'approved', label: 'Aprobados' },
+  { key: 'rejected', label: 'Rechazados' },
 ]
 
 const STATUS_CONFIG: Record<
   TransferStatus,
   { bg: string; text: string; label: string; dot: string }
 > = {
-  pendiente: {
+  pending: {
     bg: '#FEF3C7',
     text: '#92400E',
     label: 'Pendiente',
     dot: '#F59E0B',
   },
-  aprobado: {
+  approved: {
     bg: '#C8F0D8',
     text: '#3D8A5A',
     label: 'Aprobado',
     dot: '#3D8A5A',
   },
-  rechazado: {
+  rejected: {
     bg: '#FEE2E2',
     text: '#B91C1C',
     label: 'Rechazado',
@@ -113,7 +113,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Central',
     destinationChurch: 'Iglesia Norte',
     requestDate: '10 Mar 2026',
-    status: 'pendiente',
+    status: 'pending',
     reason: 'Cambio de domicilio',
     avatarInitials: 'AM',
     avatarColor: '#5B8DB8',
@@ -125,7 +125,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Sur',
     destinationChurch: 'Iglesia Central',
     requestDate: '8 Mar 2026',
-    status: 'aprobado',
+    status: 'approved',
     reason: 'Ministerio asignado',
     avatarInitials: 'RS',
     avatarColor: '#3D8A5A',
@@ -137,7 +137,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Este',
     destinationChurch: 'Iglesia Oeste',
     requestDate: '7 Mar 2026',
-    status: 'rechazado',
+    status: 'rejected',
     reason: 'Solicitud incompleta',
     avatarInitials: 'CL',
     avatarColor: '#D89575',
@@ -149,7 +149,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Norte',
     destinationChurch: 'Iglesia Sur',
     requestDate: '5 Mar 2026',
-    status: 'pendiente',
+    status: 'pending',
     reason: 'Reunificacion familiar',
     avatarInitials: 'MT',
     avatarColor: '#8B7CB8',
@@ -161,7 +161,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Central',
     destinationChurch: 'Iglesia Este',
     requestDate: '3 Mar 2026',
-    status: 'aprobado',
+    status: 'approved',
     reason: 'Proximidad geografica',
     avatarInitials: 'SH',
     avatarColor: '#5B8DB8',
@@ -173,7 +173,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Oeste',
     destinationChurch: 'Iglesia Central',
     requestDate: '1 Mar 2026',
-    status: 'pendiente',
+    status: 'pending',
     reason: 'Trabajo en zona central',
     avatarInitials: 'DR',
     avatarColor: '#3D8A5A',
@@ -185,7 +185,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Sur',
     destinationChurch: 'Iglesia Norte',
     requestDate: '28 Feb 2026',
-    status: 'aprobado',
+    status: 'approved',
     reason: 'Cambio de domicilio',
     avatarInitials: 'LM',
     avatarColor: '#D89575',
@@ -197,7 +197,7 @@ const TRANSFERS: Transfer[] = [
     originChurch: 'Iglesia Norte',
     destinationChurch: 'Iglesia Este',
     requestDate: '25 Feb 2026',
-    status: 'rechazado',
+    status: 'rejected',
     reason: 'Falta documentacion',
     avatarInitials: 'CV',
     avatarColor: '#8B7CB8',
@@ -304,7 +304,7 @@ function TransferRow({ transfer, onApprove, onReject }: TransferRowProps) {
       {/* Actions */}
       <td className="py-3.5 pr-4">
         <div className="flex items-center justify-end gap-1">
-          {transfer.status === 'pendiente' && (
+          {transfer.status === 'pending' && (
             <>
               <button
                 type="button"
@@ -342,12 +342,12 @@ function TransferRow({ transfer, onApprove, onReject }: TransferRowProps) {
 // ---------------------------------------------------------------------------
 
 export function TransfersPage() {
-  const [activeFilter, setActiveFilter] = useState<FilterTab>('todos')
+  const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
   const [searchValue, setSearchValue] = useState('')
   const [transfers, setTransfers] = useState<Transfer[]>(TRANSFERS)
 
   const filteredTransfers = transfers.filter((t) => {
-    const matchesFilter = activeFilter === 'todos' || t.status === activeFilter
+    const matchesFilter = activeFilter === 'all' || t.status === activeFilter
     const matchesSearch =
       searchValue === '' ||
       t.memberName.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -358,21 +358,21 @@ export function TransfersPage() {
 
   function handleApprove(id: string) {
     setTransfers((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, status: 'aprobado' as TransferStatus } : t)),
+      prev.map((t) => (t.id === id ? { ...t, status: 'approved' as TransferStatus } : t)),
     )
   }
 
   function handleReject(id: string) {
     setTransfers((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, status: 'rechazado' as TransferStatus } : t)),
+      prev.map((t) => (t.id === id ? { ...t, status: 'rejected' as TransferStatus } : t)),
     )
   }
 
   const counts = {
-    todos: transfers.length,
-    pendiente: transfers.filter((t) => t.status === 'pendiente').length,
-    aprobado: transfers.filter((t) => t.status === 'aprobado').length,
-    rechazado: transfers.filter((t) => t.status === 'rechazado').length,
+    all: transfers.length,
+    pending: transfers.filter((t) => t.status === 'pending').length,
+    approved: transfers.filter((t) => t.status === 'approved').length,
+    rejected: transfers.filter((t) => t.status === 'rejected').length,
   }
 
   return (
@@ -397,7 +397,7 @@ export function TransfersPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E4E1] px-6 py-4">
             <div className="inline-flex items-center gap-0.5 rounded-lg bg-[#F5F4F1] p-1">
               {FILTER_TABS.map((tab) => {
-                const count = tab.key === 'todos' ? counts.todos : counts[tab.key]
+                const count = tab.key === 'all' ? counts.all : counts[tab.key]
                 return (
                   <button
                     key={tab.key}
@@ -411,7 +411,7 @@ export function TransfersPage() {
                     )}
                   >
                     {tab.label}
-                    {tab.key === 'pendiente' && count > 0 && (
+                    {tab.key === 'pending' && count > 0 && (
                       <span
                         className={cn(
                           'inline-flex size-4 items-center justify-center rounded-full text-[10px] font-bold',

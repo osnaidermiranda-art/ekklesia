@@ -1,11 +1,16 @@
 import {
   BarChart2,
+  Bell,
   BookOpen,
   Building,
+  Cake,
   Calendar,
   ClipboardList,
+  ArrowLeftRight,
   LayoutDashboard,
+  Layers,
   MapPin,
+  MessageSquare,
   Settings,
   UserCircle,
   UserCog,
@@ -17,6 +22,7 @@ import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import { Avatar } from './avatar'
+import { NavDropdown } from './nav-dropdown'
 import { NavItem } from './nav-item'
 
 export interface NavItemConfig {
@@ -47,28 +53,35 @@ export const DEFAULT_NAV_SECTIONS: NavSection[] = [
     label: 'PRINCIPAL',
     items: [
       { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-      { icon: Building, label: 'Iglesias', href: '/iglesias' },
-      { icon: Users, label: 'Miembros', href: '/miembros' },
-      { icon: Calendar, label: 'Calendario', href: '/calendario' },
-      { icon: BookOpen, label: 'Servicios', href: '/servicios' },
-      { icon: ClipboardList, label: 'Actividades', href: '/actividades' },
-      { icon: MapPin, label: 'Evangelismo', href: '/evangelismo' },
+      { icon: Building, label: 'Iglesias', href: '/churches' },
+      { icon: Users, label: 'Miembros', href: '/members' },
+      { icon: Calendar, label: 'Calendario', href: '/calendar' },
+      { icon: BookOpen, label: 'Servicios', href: '/services' },
+      { icon: ClipboardList, label: 'Actividades', href: '/activities' },
+      { icon: MapPin, label: 'Evangelismo', href: '/evangelism' },
     ],
   },
   {
     label: 'ADMINISTRACION',
     items: [
-      { icon: Wallet, label: 'Finanzas', href: '/finanzas' },
-      { icon: BarChart2, label: 'Reportes', href: '/reportes' },
-      { icon: Users, label: 'Sociedades', href: '/sociedades' },
-      { icon: UserCog, label: 'Usuarios y Roles', href: '/usuarios' },
-      { icon: Settings, label: 'Configuracion', href: '/configuracion' },
+      { icon: Wallet, label: 'Finanzas', href: '/finances' },
+      { icon: BarChart2, label: 'Reportes', href: '/reports' },
+      { icon: Users, label: 'Sociedades', href: '/societies' },
+      { icon: UserCog, label: 'Usuarios y Roles', href: '/users' },
+      { icon: Settings, label: 'Configuracion', href: '/settings' },
     ],
   },
   {
     label: 'CUENTA',
-    items: [{ icon: UserCircle, label: 'Mi Cuenta', href: '/mi-cuenta' }],
+    items: [{ icon: UserCircle, label: 'Mi Cuenta', href: '/account' }],
   },
+]
+
+export const PAGES_DROPDOWN_ITEMS = [
+  { icon: Bell, label: 'Notificaciones', href: '/notifications' },
+  { icon: MessageSquare, label: 'Mensajeria', href: '/messaging' },
+  { icon: ArrowLeftRight, label: 'Transferencias', href: '/transfers' },
+  { icon: Cake, label: 'Cumpleanos', href: '/birthdays' },
 ]
 
 export function AppSidebar({ sections, activeHref, onNavigate, user, className }: AppSidebarProps) {
@@ -88,8 +101,8 @@ export function AppSidebar({ sections, activeHref, onNavigate, user, className }
         <span className="text-xl font-bold tracking-[-0.5px] text-[#1A1918]">Ekklesia</span>
       </div>
 
-      {/* Nav sections */}
-      <nav className="flex flex-col gap-4 pt-4">
+      {/* Scrollable nav area */}
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4 scrollbar-none">
         {sections.map((section) => (
           <div key={section.label}>
             <p className="pb-1 text-[11px] font-semibold uppercase tracking-[1px] text-[#9C9B99]">
@@ -108,10 +121,21 @@ export function AppSidebar({ sections, activeHref, onNavigate, user, className }
             </div>
           </div>
         ))}
-      </nav>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+        {/* Pages dropdown */}
+        <div>
+          <p className="pb-1 text-[11px] font-semibold uppercase tracking-[1px] text-[#9C9B99]">
+            PAGES
+          </p>
+          <NavDropdown
+            icon={Layers}
+            label="Pages"
+            items={PAGES_DROPDOWN_ITEMS}
+            activeHref={activeHref}
+            onNavigate={onNavigate}
+          />
+        </div>
+      </div>
 
       {/* Divider */}
       <div className="h-px bg-[#E5E4E1]" />

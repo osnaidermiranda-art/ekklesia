@@ -1,5 +1,29 @@
 # Git Workflow
 
+## MANDATORY -- Branch and PR Workflow
+
+Every implementation MUST follow this exact workflow. No exceptions.
+
+1. Pull latest changes from `main`:
+
+   ```bash
+   git switch main
+   git pull origin main --rebase
+   ```
+
+2. Create a new branch from the updated `main`:
+
+   ```bash
+   git switch -c <type>/<branch-name>
+   ```
+
+3. Implement the task. Commit frequently with conventional commits.
+
+4. Push the branch and create a Pull Request against `main`:
+   ```bash
+   git push origin <type>/<branch-name>
+   ```
+
 ## Commit Convention
 
 Format: `<type>(<scope>): <subject>`
@@ -21,28 +45,6 @@ Rules:
 - No emojis in commit messages
 - No references to AI assistants or code generation tools
 - Subject line in imperative mood, lowercase, no period at the end
-
-## MANDATORY -- Branch and PR Workflow
-
-Every implementation MUST follow this exact workflow. No exceptions.
-
-1. Pull latest changes from `main`:
-   ```bash
-   git switch main
-   git pull origin main --rebase
-   ```
-
-2. Create a new branch from the updated `main`:
-   ```bash
-   git switch -c <type>/<branch-name>
-   ```
-
-3. Implement the task. Commit frequently with conventional commits.
-
-4. Push the branch and create a Pull Request against `main`:
-   ```bash
-   git push origin <type>/<branch-name>
-   ```
 
 ## PR Rules
 

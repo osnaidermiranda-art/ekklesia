@@ -14,21 +14,21 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const DEFAULT_TABS: PillTab[] = [
-  { value: 'todos', label: 'Todos' },
-  { value: 'plantillas', label: 'Plantillas' },
-  { value: 'programados', label: 'Programados' },
-  { value: 'reemplazos', label: 'Reemplazos', count: 3 },
+  { value: 'all', label: 'Todos' },
+  { value: 'templates', label: 'Plantillas' },
+  { value: 'scheduled', label: 'Programados' },
+  { value: 'replacements', label: 'Reemplazos', count: 3 },
 ]
 
 export const Default: Story = {
   name: 'Default',
   render: (args) => {
-    const [value, setValue] = useState('todos')
+    const [value, setValue] = useState('all')
     return <PillTabs {...args} tabs={DEFAULT_TABS} value={value} onChange={setValue} />
   },
   args: {
     tabs: DEFAULT_TABS,
-    value: 'todos',
+    value: 'all',
     onChange: () => {},
   },
 }

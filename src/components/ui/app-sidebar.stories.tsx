@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     sections: DEFAULT_NAV_SECTIONS,
-    activeHref: '/miembros',
+    activeHref: '/members',
     user: {
       name: 'Juan Perez',
       role: 'Admin Concilio',

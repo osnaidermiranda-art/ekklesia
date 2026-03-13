@@ -32,9 +32,9 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type PeriodTab = 'semanal' | 'mensual' | 'trimestral' | 'anual'
-type TransactionStatus = 'entrada' | 'salida'
-type TransactionCategory = 'diezmo' | 'ofrenda' | 'egreso' | 'donacion'
+type PeriodTab = 'weekly' | 'monthly' | 'quarterly' | 'annual'
+type TransactionStatus = 'income' | 'expense'
+type TransactionCategory = 'tithe' | 'offering' | 'expenditure' | 'donation'
 
 interface Transaction {
   id: string
@@ -61,22 +61,22 @@ interface StatCard {
 // ---------------------------------------------------------------------------
 
 const PERIOD_TABS: { key: PeriodTab; label: string }[] = [
-  { key: 'semanal', label: 'Semanal' },
-  { key: 'mensual', label: 'Mensual' },
-  { key: 'trimestral', label: 'Trimestral' },
-  { key: 'anual', label: 'Anual' },
+  { key: 'weekly', label: 'Semanal' },
+  { key: 'monthly', label: 'Mensual' },
+  { key: 'quarterly', label: 'Trimestral' },
+  { key: 'annual', label: 'Anual' },
 ]
 
 const STATUS_CONFIG: Record<TransactionStatus, { bg: string; text: string; label: string }> = {
-  entrada: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Entrada' },
-  salida: { bg: '#FEE2E2', text: '#B91C1C', label: 'Salida' },
+  income: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Entrada' },
+  expense: { bg: '#FEE2E2', text: '#B91C1C', label: 'Salida' },
 }
 
 const CATEGORY_CONFIG: Record<TransactionCategory, { bg: string; text: string; label: string }> = {
-  diezmo: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Diezmo' },
-  ofrenda: { bg: '#F3E8FF', text: '#7C3AED', label: 'Ofrenda' },
-  egreso: { bg: '#FEE2E2', text: '#B91C1C', label: 'Egreso' },
-  donacion: { bg: '#DBEAFE', text: '#1D4ED8', label: 'Donacion' },
+  tithe: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Diezmo' },
+  offering: { bg: '#F3E8FF', text: '#7C3AED', label: 'Ofrenda' },
+  expenditure: { bg: '#FEE2E2', text: '#B91C1C', label: 'Egreso' },
+  donation: { bg: '#DBEAFE', text: '#1D4ED8', label: 'Donacion' },
 }
 
 const STAT_CARDS: StatCard[] = [
@@ -137,8 +137,8 @@ const TRANSACTIONS: Transaction[] = [
     id: '1',
     concept: 'Diezmo mensual',
     person: 'Maria Garcia',
-    status: 'entrada',
-    category: 'diezmo',
+    status: 'income',
+    category: 'tithe',
     date: '7 Mar',
     amount: 380,
   },
@@ -146,8 +146,8 @@ const TRANSACTIONS: Transaction[] = [
     id: '2',
     concept: 'Ofrenda especial',
     person: 'Diana Montero',
-    status: 'entrada',
-    category: 'ofrenda',
+    status: 'income',
+    category: 'offering',
     date: '4 Mar',
     amount: 6000,
   },
@@ -155,8 +155,8 @@ const TRANSACTIONS: Transaction[] = [
     id: '3',
     concept: 'Pago Sala de Video',
     person: 'Admin Concilio',
-    status: 'salida',
-    category: 'egreso',
+    status: 'expense',
+    category: 'expenditure',
     date: '6 Mar',
     amount: -70,
   },
@@ -164,8 +164,8 @@ const TRANSACTIONS: Transaction[] = [
     id: '4',
     concept: 'Diezmo mensual',
     person: 'Pedro Lopez',
-    status: 'entrada',
-    category: 'diezmo',
+    status: 'income',
+    category: 'tithe',
     date: '4 Mar',
     amount: 250,
   },
@@ -173,8 +173,8 @@ const TRANSACTIONS: Transaction[] = [
     id: '5',
     concept: 'Donacion edificio',
     person: 'Carlos Mendez',
-    status: 'entrada',
-    category: 'donacion',
+    status: 'income',
+    category: 'donation',
     date: '3 Mar',
     amount: 1200,
   },
@@ -182,8 +182,8 @@ const TRANSACTIONS: Transaction[] = [
     id: '6',
     concept: 'Compra materiales',
     person: 'Admin Concilio',
-    status: 'salida',
-    category: 'egreso',
+    status: 'expense',
+    category: 'expenditure',
     date: '2 Mar',
     amount: -340,
   },
@@ -402,7 +402,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
 // ---------------------------------------------------------------------------
 
 export function FinancesPage() {
-  const [activeTab, setActiveTab] = useState<PeriodTab>('semanal')
+  const [activeTab, setActiveTab] = useState<PeriodTab>('weekly')
 
   return (
     <div className="flex h-full flex-col overflow-hidden">

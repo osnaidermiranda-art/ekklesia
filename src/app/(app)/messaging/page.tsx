@@ -1,5 +1,5 @@
 import { MessagingPage } from '@/views/messaging'
 
-export default function Mensajeria() {
+export default function Page() {
   return <MessagingPage />
 }

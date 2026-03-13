@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type ChurchType = 'madre' | 'hija' | 'nieta'
+type ChurchType = 'mother' | 'daughter' | 'granddaughter'
 type FilterTab = 'all' | ChurchType
 type ViewMode = 'grid' | 'list'
 
@@ -54,7 +54,7 @@ const TYPE_CONFIG: Record<
     avatarColor: string
   }
 > = {
-  madre: {
+  mother: {
     topBarColor: '#3D8A5A',
     badgeBg: '#C8F0D8',
     badgeText: '#3D8A5A',
@@ -62,7 +62,7 @@ const TYPE_CONFIG: Record<
     avatarBg: '#C8F0D8',
     avatarColor: '#3D8A5A',
   },
-  hija: {
+  daughter: {
     topBarColor: '#5B8DB8',
     badgeBg: '#D6E8F5',
     badgeText: '#5B8DB8',
@@ -70,7 +70,7 @@ const TYPE_CONFIG: Record<
     avatarBg: '#D6E8F5',
     avatarColor: '#5B8DB8',
   },
-  nieta: {
+  granddaughter: {
     topBarColor: '#8B7CB8',
     badgeBg: '#E8E0F5',
     badgeText: '#8B7CB8',
@@ -88,7 +88,7 @@ const CHURCHES: Church[] = [
   {
     id: '1',
     name: 'Iglesia Betania',
-    type: 'madre',
+    type: 'mother',
     pastor: 'Ricardo Alvarez',
     pastorInitials: 'RA',
     pastorSince: 'Ene 2023',
@@ -100,7 +100,7 @@ const CHURCHES: Church[] = [
   {
     id: '2',
     name: 'Iglesia Emanuel',
-    type: 'madre',
+    type: 'mother',
     pastor: 'Carlos Perez',
     pastorInitials: 'CP',
     pastorSince: 'Feb 2020',
@@ -112,7 +112,7 @@ const CHURCHES: Church[] = [
   {
     id: '3',
     name: 'Iglesia Sion',
-    type: 'madre',
+    type: 'mother',
     pastor: 'Felipe Silva',
     pastorInitials: 'FS',
     pastorSince: 'Jun 2019',
@@ -124,7 +124,7 @@ const CHURCHES: Church[] = [
   {
     id: '4',
     name: 'Iglesia Getsemani',
-    type: 'hija',
+    type: 'daughter',
     pastor: 'Luis Martinez',
     pastorInitials: 'LM',
     pastorSince: 'Mar 2024',
@@ -136,7 +136,7 @@ const CHURCHES: Church[] = [
   {
     id: '5',
     name: 'Iglesia Mision',
-    type: 'hija',
+    type: 'daughter',
     pastor: 'Maria Flores',
     pastorInitials: 'MF',
     pastorSince: 'Ago 2022',
@@ -148,7 +148,7 @@ const CHURCHES: Church[] = [
   {
     id: '6',
     name: 'Iglesia Canaan',
-    type: 'madre',
+    type: 'mother',
     pastor: 'Pedro Ruiz',
     pastorInitials: 'PR',
     pastorSince: 'Ene 2015',
@@ -160,7 +160,7 @@ const CHURCHES: Church[] = [
   {
     id: '7',
     name: 'Iglesia Nazaret',
-    type: 'nieta',
+    type: 'granddaughter',
     pastor: 'Sofia Garcia',
     pastorInitials: 'SG',
     pastorSince: 'Nov 2023',
@@ -172,7 +172,7 @@ const CHURCHES: Church[] = [
   {
     id: '8',
     name: 'Iglesia Monte Sinai',
-    type: 'hija',
+    type: 'daughter',
     pastor: 'Juan Lopez',
     pastorInitials: 'JL',
     pastorSince: 'May 2021',
@@ -184,7 +184,7 @@ const CHURCHES: Church[] = [
   {
     id: '9',
     name: 'Iglesia Filadelfia',
-    type: 'madre',
+    type: 'mother',
     pastor: 'Carmen Vega',
     pastorInitials: 'CV',
     pastorSince: 'Feb 2018',
@@ -196,7 +196,7 @@ const CHURCHES: Church[] = [
   {
     id: '10',
     name: 'Iglesia Renuevo',
-    type: 'hija',
+    type: 'daughter',
     pastor: 'Andres Mora',
     pastorInitials: 'AM',
     pastorSince: 'Jul 2022',
@@ -208,7 +208,7 @@ const CHURCHES: Church[] = [
   {
     id: '11',
     name: 'Iglesia Betel',
-    type: 'nieta',
+    type: 'granddaughter',
     pastor: 'Gloria Sanchez',
     pastorInitials: 'GS',
     pastorSince: 'Ene 2024',
@@ -220,7 +220,7 @@ const CHURCHES: Church[] = [
   {
     id: '12',
     name: 'Iglesia Elim',
-    type: 'madre',
+    type: 'mother',
     pastor: 'Ricardo Castro',
     pastorInitials: 'RC',
     pastorSince: 'Oct 2017',
@@ -233,9 +233,9 @@ const CHURCHES: Church[] = [
 
 const COUNTS = {
   all: CHURCHES.length,
-  madre: CHURCHES.filter((c) => c.type === 'madre').length,
-  hija: CHURCHES.filter((c) => c.type === 'hija').length,
-  nieta: CHURCHES.filter((c) => c.type === 'nieta').length,
+  mother: CHURCHES.filter((c) => c.type === 'mother').length,
+  daughter: CHURCHES.filter((c) => c.type === 'daughter').length,
+  granddaughter: CHURCHES.filter((c) => c.type === 'granddaughter').length,
 }
 
 // ---------------------------------------------------------------------------
@@ -434,19 +434,19 @@ export function ChurchListPage() {
               onClick={() => setActiveFilter('all')}
             />
             <PillTab
-              label={`Madre (${COUNTS.madre})`}
-              active={activeFilter === 'madre'}
-              onClick={() => setActiveFilter('madre')}
+              label={`Madre (${COUNTS.mother})`}
+              active={activeFilter === 'mother'}
+              onClick={() => setActiveFilter('mother')}
             />
             <PillTab
-              label={`Hija (${COUNTS.hija})`}
-              active={activeFilter === 'hija'}
-              onClick={() => setActiveFilter('hija')}
+              label={`Hija (${COUNTS.daughter})`}
+              active={activeFilter === 'daughter'}
+              onClick={() => setActiveFilter('daughter')}
             />
             <PillTab
-              label={`Nieta (${COUNTS.nieta})`}
-              active={activeFilter === 'nieta'}
-              onClick={() => setActiveFilter('nieta')}
+              label={`Nieta (${COUNTS.granddaughter})`}
+              active={activeFilter === 'granddaughter'}
+              onClick={() => setActiveFilter('granddaughter')}
             />
           </div>
 

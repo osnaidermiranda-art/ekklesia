@@ -1,5 +1,5 @@
 import { NotificationsPage } from '@/views/notifications'
 
-export default function Notificaciones() {
+export default function Page() {
   return <NotificationsPage />
 }

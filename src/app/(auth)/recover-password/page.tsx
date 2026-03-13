@@ -1,5 +1,5 @@
 import { RecoverPasswordPage } from '@/views/auth'
 
-export default function RecuperarContrasena() {
+export default function Page() {
   return <RecoverPasswordPage />
 }

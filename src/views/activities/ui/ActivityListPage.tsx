@@ -11,9 +11,9 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type CategoryType = 'liturgica' | 'devocional' | 'comunitaria' | 'civica' | 'evangelismo'
+type CategoryType = 'liturgical' | 'devotional' | 'community' | 'civic' | 'evangelism'
 type ActivityStatus = 'active' | 'paused' | 'cancelled'
-type FilterTab = 'all' | 'liturgica' | 'devocional' | 'comunitaria' | 'civica'
+type FilterTab = 'all' | 'liturgical' | 'devotional' | 'community' | 'civic'
 
 interface Activity {
   id: string
@@ -32,11 +32,11 @@ interface Activity {
 // ---------------------------------------------------------------------------
 
 const CATEGORY_CONFIG: Record<CategoryType, { bg: string; text: string; label: string }> = {
-  liturgica: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Liturgica' },
-  devocional: { bg: '#E8E0F5', text: '#8B7CB8', label: 'Devocional' },
-  comunitaria: { bg: '#F5EDD8', text: '#C49A3C', label: 'Comunitaria' },
-  civica: { bg: '#D6E8F5', text: '#5B8DB8', label: 'Civica' },
-  evangelismo: { bg: '#D6E8F5', text: '#5B8DB8', label: 'Evangelismo' },
+  liturgical: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Liturgica' },
+  devotional: { bg: '#E8E0F5', text: '#8B7CB8', label: 'Devocional' },
+  community: { bg: '#F5EDD8', text: '#C49A3C', label: 'Comunitaria' },
+  civic: { bg: '#D6E8F5', text: '#5B8DB8', label: 'Civica' },
+  evangelism: { bg: '#D6E8F5', text: '#5B8DB8', label: 'Evangelismo' },
 }
 
 const STATUS_CONFIG: Record<
@@ -50,10 +50,10 @@ const STATUS_CONFIG: Record<
 
 const TABS: { key: FilterTab; label: string; count: number }[] = [
   { key: 'all', label: 'Todas', count: 5 },
-  { key: 'liturgica', label: 'Liturgicas', count: 3 },
-  { key: 'devocional', label: 'Devocionales', count: 1 },
-  { key: 'comunitaria', label: 'Comunitarias', count: 1 },
-  { key: 'civica', label: 'Civicas', count: 7 },
+  { key: 'liturgical', label: 'Liturgicas', count: 3 },
+  { key: 'devotional', label: 'Devocionales', count: 1 },
+  { key: 'community', label: 'Comunitarias', count: 1 },
+  { key: 'civic', label: 'Civicas', count: 7 },
 ]
 
 // ---------------------------------------------------------------------------
@@ -65,7 +65,7 @@ const ACTIVITIES: Activity[] = [
     id: '1',
     name: 'Limpieza General del Templo',
     description: 'Mantenimiento y limpieza del edificio principal',
-    category: 'liturgica',
+    category: 'liturgical',
     church: 'Iglesia Betania',
     recurrence: 'Semanal',
     visibility: 'Miembros',
@@ -76,7 +76,7 @@ const ACTIVITIES: Activity[] = [
     id: '2',
     name: 'Consejo Extraordinario',
     description: 'Reunion de lideres y pastores del concilio',
-    category: 'liturgica',
+    category: 'liturgical',
     church: 'Iglesia Emanuel',
     recurrence: 'Mensual',
     visibility: 'Lideres',
@@ -87,7 +87,7 @@ const ACTIVITIES: Activity[] = [
     id: '3',
     name: 'Recital de Heroes de la Fe',
     description: 'Presentacion musical y testimonios para la comunidad',
-    category: 'comunitaria',
+    category: 'community',
     church: 'Iglesia Canaan',
     recurrence: 'Quincenal',
     visibility: 'Publica',
@@ -98,7 +98,7 @@ const ACTIVITIES: Activity[] = [
     id: '4',
     name: 'Mantenimiento de Jardin',
     description: 'Cuidado de areas verdes y jardines del templo',
-    category: 'liturgica',
+    category: 'liturgical',
     church: 'Iglesia Filadelfia',
     recurrence: 'Mensual',
     visibility: 'Miembros',
@@ -109,7 +109,7 @@ const ACTIVITIES: Activity[] = [
     id: '5',
     name: 'Donacion de Ropa Usada',
     description: 'Campana de recoleccion de ropa para familias necesitadas',
-    category: 'evangelismo',
+    category: 'evangelism',
     church: 'Iglesia Nueva Vida',
     recurrence: 'Quincenal',
     visibility: 'Publica',
@@ -120,7 +120,7 @@ const ACTIVITIES: Activity[] = [
     id: '6',
     name: 'Estudio Biblico Profundo',
     description: 'Estudio inductivo de la Biblia para adultos',
-    category: 'devocional',
+    category: 'devotional',
     church: 'Iglesia Betania',
     recurrence: 'Semanal',
     visibility: 'Miembros',
@@ -131,7 +131,7 @@ const ACTIVITIES: Activity[] = [
     id: '7',
     name: 'Desfile Civico Nacional',
     description: 'Participacion en el desfile de independencia',
-    category: 'civica',
+    category: 'civic',
     church: 'Iglesia Emanuel',
     recurrence: 'Anual',
     visibility: 'Publica',
@@ -266,11 +266,10 @@ export function ActivityListPage() {
 
   const filteredActivities = ACTIVITIES.filter((a) => {
     if (activeTab === 'all') return true
-    if (activeTab === 'liturgica') return a.category === 'liturgica'
-    if (activeTab === 'devocional') return a.category === 'devocional'
-    if (activeTab === 'comunitaria')
-      return a.category === 'comunitaria' || a.category === 'evangelismo'
-    if (activeTab === 'civica') return a.category === 'civica'
+    if (activeTab === 'liturgical') return a.category === 'liturgical'
+    if (activeTab === 'devotional') return a.category === 'devotional'
+    if (activeTab === 'community') return a.category === 'community' || a.category === 'evangelism'
+    if (activeTab === 'civic') return a.category === 'civic'
     return true
   }).filter((a) => {
     if (churchFilter === 'all') return true

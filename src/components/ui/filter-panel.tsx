@@ -10,23 +10,23 @@ import { cn } from '@/lib/utils'
 // ---------------------------------------------------------------------------
 
 interface FilterState {
-  zonaNorte: boolean
-  zonaSur: boolean
-  zonaEste: boolean
-  zonaOeste: boolean
-  zonaCentro: boolean
-  soloActivos: boolean
-  conHijas: boolean
+  zoneNorth: boolean
+  zoneSouth: boolean
+  zoneEast: boolean
+  zoneWest: boolean
+  zoneCenter: boolean
+  activeOnly: boolean
+  withDaughters: boolean
 }
 
 const INITIAL_FILTER_STATE: FilterState = {
-  zonaNorte: false,
-  zonaSur: false,
-  zonaEste: false,
-  zonaOeste: false,
-  zonaCentro: false,
-  soloActivos: false,
-  conHijas: false,
+  zoneNorth: false,
+  zoneSouth: false,
+  zoneEast: false,
+  zoneWest: false,
+  zoneCenter: false,
+  activeOnly: false,
+  withDaughters: false,
 }
 
 interface FilterCheckboxProps {
@@ -151,34 +151,34 @@ export function FilterPanel({ className }: FilterPanelProps) {
             <p className="text-[12px] font-semibold uppercase tracking-wide text-[#9C9B99]">Zona</p>
             <div className="flex flex-col gap-2.5">
               <FilterCheckbox
-                id="filter-zona-norte"
+                id="filter-zone-north"
                 label="Zona Norte"
-                checked={pending.zonaNorte}
-                onChange={(v) => handleToggle('zonaNorte', v)}
+                checked={pending.zoneNorth}
+                onChange={(v) => handleToggle('zoneNorth', v)}
               />
               <FilterCheckbox
-                id="filter-zona-sur"
+                id="filter-zone-south"
                 label="Zona Sur"
-                checked={pending.zonaSur}
-                onChange={(v) => handleToggle('zonaSur', v)}
+                checked={pending.zoneSouth}
+                onChange={(v) => handleToggle('zoneSouth', v)}
               />
               <FilterCheckbox
-                id="filter-zona-este"
+                id="filter-zone-east"
                 label="Zona Este"
-                checked={pending.zonaEste}
-                onChange={(v) => handleToggle('zonaEste', v)}
+                checked={pending.zoneEast}
+                onChange={(v) => handleToggle('zoneEast', v)}
               />
               <FilterCheckbox
-                id="filter-zona-oeste"
+                id="filter-zone-west"
                 label="Zona Oeste"
-                checked={pending.zonaOeste}
-                onChange={(v) => handleToggle('zonaOeste', v)}
+                checked={pending.zoneWest}
+                onChange={(v) => handleToggle('zoneWest', v)}
               />
               <FilterCheckbox
-                id="filter-zona-centro"
+                id="filter-zone-center"
                 label="Zona Centro"
-                checked={pending.zonaCentro}
-                onChange={(v) => handleToggle('zonaCentro', v)}
+                checked={pending.zoneCenter}
+                onChange={(v) => handleToggle('zoneCenter', v)}
               />
             </div>
           </div>
@@ -193,16 +193,16 @@ export function FilterPanel({ className }: FilterPanelProps) {
             </p>
             <div className="flex flex-col gap-2.5">
               <FilterCheckbox
-                id="filter-solo-activos"
+                id="filter-active-only"
                 label="Solo con miembros activos"
-                checked={pending.soloActivos}
-                onChange={(v) => handleToggle('soloActivos', v)}
+                checked={pending.activeOnly}
+                onChange={(v) => handleToggle('activeOnly', v)}
               />
               <FilterCheckbox
-                id="filter-con-hijas"
+                id="filter-with-daughters"
                 label="Con iglesias hijas"
-                checked={pending.conHijas}
-                onChange={(v) => handleToggle('conHijas', v)}
+                checked={pending.withDaughters}
+                onChange={(v) => handleToggle('withDaughters', v)}
               />
             </div>
           </div>

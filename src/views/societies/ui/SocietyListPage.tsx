@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type SocietyType = 'damas' | 'caballeros' | 'jovenes' | 'ninos'
+type SocietyType = 'women' | 'men' | 'youth' | 'children'
 type FilterTab = 'all' | SocietyType
 type ViewMode = 'grid' | 'list'
 
@@ -38,28 +38,28 @@ const TYPE_CONFIG: Record<
   SocietyType,
   { topBar: string; badgeBg: string; badgeText: string; label: string; avatarBg: string }
 > = {
-  damas: {
+  women: {
     topBar: '#D89575',
     badgeBg: '#FDE8D8',
     badgeText: '#D89575',
     label: 'Damas',
     avatarBg: '#D89575',
   },
-  caballeros: {
+  men: {
     topBar: '#5B8DB8',
     badgeBg: '#D6E8F5',
     badgeText: '#5B8DB8',
     label: 'Caballeros',
     avatarBg: '#5B8DB8',
   },
-  jovenes: {
+  youth: {
     topBar: '#8B7CB8',
     badgeBg: '#E8E0F5',
     badgeText: '#8B7CB8',
     label: 'Jovenes',
     avatarBg: '#8B7CB8',
   },
-  ninos: {
+  children: {
     topBar: '#3D8A5A',
     badgeBg: '#C8F0D8',
     badgeText: '#3D8A5A',
@@ -70,10 +70,10 @@ const TYPE_CONFIG: Record<
 
 const TABS: { key: FilterTab; label: string; count: number }[] = [
   { key: 'all', label: 'Todas', count: 4 },
-  { key: 'damas', label: 'Damas', count: 1 },
-  { key: 'caballeros', label: 'Caballeros', count: 1 },
-  { key: 'jovenes', label: 'Jovenes', count: 1 },
-  { key: 'ninos', label: 'Ninos', count: 1 },
+  { key: 'women', label: 'Damas', count: 1 },
+  { key: 'men', label: 'Caballeros', count: 1 },
+  { key: 'youth', label: 'Jovenes', count: 1 },
+  { key: 'children', label: 'Ninos', count: 1 },
 ]
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ const SOCIETIES: Society[] = [
   {
     id: '1',
     name: 'Sociedad de Damas',
-    type: 'damas',
+    type: 'women',
     leaderName: 'Maria Lopez',
     leaderInitials: 'ML',
     leaderTitle: 'Presidenta',
@@ -98,7 +98,7 @@ const SOCIETIES: Society[] = [
   {
     id: '2',
     name: 'Sociedad de Caballeros',
-    type: 'caballeros',
+    type: 'men',
     leaderName: 'Pedro Lopez',
     leaderInitials: 'PL',
     leaderTitle: 'Presidente',
@@ -112,7 +112,7 @@ const SOCIETIES: Society[] = [
   {
     id: '3',
     name: 'Sociedad de Jovenes',
-    type: 'jovenes',
+    type: 'youth',
     leaderName: 'Alex Medina',
     leaderInitials: 'AM',
     leaderTitle: 'Lider',
@@ -126,7 +126,7 @@ const SOCIETIES: Society[] = [
   {
     id: '4',
     name: 'Escuela Dominical Ninos',
-    type: 'ninos',
+    type: 'children',
     leaderName: 'Carmen Reyes',
     leaderInitials: 'CR',
     leaderTitle: 'Maestra',
