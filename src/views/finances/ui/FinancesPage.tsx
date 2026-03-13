@@ -1,6 +1,13 @@
 'use client'
 
-import { ArrowDownRight, ArrowUpRight, Download, MoreVertical, TrendingUp } from 'lucide-react'
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CalendarDays,
+  Download,
+  MoreVertical,
+  TrendingUp,
+} from 'lucide-react'
 import { useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
@@ -10,13 +17,15 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type FinanceTab = 'general' | 'ingresos' | 'egresos' | 'ahorro'
+type PeriodTab = 'semanal' | 'mensual' | 'trimestral' | 'anual'
+type TransactionStatus = 'entrada' | 'salida'
 type TransactionCategory = 'diezmo' | 'ofrenda' | 'egreso' | 'donacion'
 
 interface Transaction {
   id: string
   concept: string
   person: string
+  status: TransactionStatus
   category: TransactionCategory
   date: string
   amount: number
@@ -27,8 +36,7 @@ interface StatCard {
   value: string
   delta: string
   positive: boolean
-  accentBg: string
-  accentText: string
+  iconBg: string
   icon: string
 }
 
@@ -36,221 +44,236 @@ interface StatCard {
 // Config
 // ---------------------------------------------------------------------------
 
-const TABS: { key: FinanceTab; label: string }[] = [
-  { key: 'general', label: 'General' },
-  { key: 'ingresos', label: 'Ingresos' },
-  { key: 'egresos', label: 'Egresos' },
-  { key: 'ahorro', label: 'Ahorro' },
+const PERIOD_TABS: { key: PeriodTab; label: string }[] = [
+  { key: 'semanal', label: 'Semanal' },
+  { key: 'mensual', label: 'Mensual' },
+  { key: 'trimestral', label: 'Trimestral' },
+  { key: 'anual', label: 'Anual' },
 ]
 
+const STATUS_CONFIG: Record<TransactionStatus, { bg: string; text: string; label: string }> = {
+  entrada: { bg: '#DCFCE7', text: '#166534', label: 'Entrada' },
+  salida: { bg: '#FEE2E2', text: '#B91C1C', label: 'Salida' },
+}
+
 const CATEGORY_CONFIG: Record<TransactionCategory, { bg: string; text: string; label: string }> = {
-  diezmo: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Diezmo' },
-  ofrenda: { bg: '#E8E0F5', text: '#8B7CB8', label: 'Ofrenda' },
-  egreso: { bg: '#F5DDD8', text: '#D08068', label: 'Egreso' },
-  donacion: { bg: '#D6E8F5', text: '#5B8DB8', label: 'Donacion' },
+  diezmo: { bg: '#DCFCE7', text: '#166534', label: 'Diezmo' },
+  ofrenda: { bg: '#F3E8FF', text: '#7C3AED', label: 'Ofrenda' },
+  egreso: { bg: '#FEE2E2', text: '#B91C1C', label: 'Egreso' },
+  donacion: { bg: '#DBEAFE', text: '#1D4ED8', label: 'Donacion' },
 }
 
 const STAT_CARDS: StatCard[] = [
   {
     label: 'Ingresos Totales',
     value: '$45,280',
-    delta: '+12.4%',
+    delta: '+6.2%',
     positive: true,
-    accentBg: '#C8F0D8',
-    accentText: '#3D8A5A',
+    iconBg: '#DCFCE7',
     icon: '💰',
   },
   {
-    label: 'Gastos',
+    label: 'Diezmos',
     value: '$28,450',
-    delta: '+3.1%',
-    positive: false,
-    accentBg: '#F5DDD8',
-    accentText: '#D08068',
-    icon: '📤',
+    delta: '+42.3%',
+    positive: true,
+    iconBg: '#DBEAFE',
+    icon: '📋',
   },
   {
     label: 'Ofrendas',
     value: '$12,830',
-    delta: '+8.7%',
+    delta: '+0.8%',
     positive: true,
-    accentBg: '#E8E0F5',
-    accentText: '#8B7CB8',
+    iconBg: '#F3E8FF',
     icon: '🙏',
   },
   {
-    label: 'Diezmos',
+    label: 'Egresos',
     value: '$8,960',
-    delta: '+5.2%',
-    positive: true,
-    accentBg: '#D6E8F5',
-    accentText: '#5B8DB8',
-    icon: '📋',
+    delta: '-2.6%',
+    positive: false,
+    iconBg: '#FEE2E2',
+    icon: '📤',
   },
 ]
 
-// Bar chart data — weekly
 const BAR_DATA = [
-  { week: 'S1', gastos: 6200, ofrendas: 3100, egresos: 2100 },
-  { week: 'S2', gastos: 7800, ofrendas: 2900, egresos: 1800 },
-  { week: 'S3', gastos: 5400, ofrendas: 3600, egresos: 2400 },
-  { week: 'S4', gastos: 8600, ofrendas: 3230, egresos: 2660 },
+  { week: 'S1', diezmos: 5800, ofrendas: 2900, egresos: 1800 },
+  { week: 'S2', diezmos: 7200, ofrendas: 3400, egresos: 2200 },
+  { week: 'S3', diezmos: 6100, ofrendas: 2600, egresos: 1600 },
+  { week: 'S4', diezmos: 8900, ofrendas: 3800, egresos: 2800 },
+  { week: 'S5', diezmos: 7600, ofrendas: 3100, egresos: 2100 },
 ]
 
-// Donut chart data
-const DONUT_DATA = [
-  { label: 'Diezmos', value: 48109, color: '#3D8A5A', pct: 34.9 },
-  { label: 'Ofrendas', value: 28300, color: '#8B7CB8', pct: 28.3 },
-  { label: 'Donaciones', value: 40500, color: '#5B8DB8', pct: 40.5 },
+const DONUT_SEGMENTS = [
+  { label: 'Diezmos', value: 48097, pct: 64.9, color: '#16A34A' },
+  { label: 'Ofrendas', value: 13889, pct: 28.4, color: '#2563EB' },
+  { label: 'Egresos', value: 4444, pct: 6.1, color: '#F97316' },
 ]
 
 const TRANSACTIONS: Transaction[] = [
   {
     id: '1',
     concept: 'Diezmo mensual',
-    person: 'Mario Garcia',
+    person: 'Maria Garcia',
+    status: 'entrada',
     category: 'diezmo',
-    date: '10 Mar',
-    amount: 389,
+    date: '7 Mar',
+    amount: 380,
   },
   {
     id: '2',
     concept: 'Ofrenda especial',
-    person: 'Maria Hernandez',
+    person: 'Diana Montero',
+    status: 'entrada',
     category: 'ofrenda',
-    date: '9 Mar',
-    amount: 5000,
+    date: '4 Mar',
+    amount: 6000,
   },
   {
     id: '3',
-    concept: 'Pago de Sala de Video',
+    concept: 'Pago Sala de Video',
     person: 'Admin Concilio',
+    status: 'salida',
     category: 'egreso',
-    date: '8 Mar',
-    amount: -75,
+    date: '6 Mar',
+    amount: -70,
   },
   {
     id: '4',
-    concept: 'Diezmo quincenal',
-    person: 'Jose Ramirez',
+    concept: 'Diezmo mensual',
+    person: 'Pedro Lopez',
+    status: 'entrada',
     category: 'diezmo',
-    date: '7 Mar',
+    date: '4 Mar',
     amount: 250,
   },
   {
     id: '5',
     concept: 'Donacion edificio',
     person: 'Carlos Mendez',
+    status: 'entrada',
     category: 'donacion',
-    date: '6 Mar',
+    date: '3 Mar',
     amount: 1200,
   },
   {
     id: '6',
     concept: 'Compra materiales',
     person: 'Admin Concilio',
+    status: 'salida',
     category: 'egreso',
-    date: '5 Mar',
+    date: '2 Mar',
     amount: -340,
   },
 ]
 
 // ---------------------------------------------------------------------------
-// Sub-components
+// Stat card
 // ---------------------------------------------------------------------------
 
 function StatCardItem({ card }: { card: StatCard }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-[#E5E4E1] bg-white p-5 shadow-[0_2px_8px_rgba(26,25,24,0.04)]">
+    <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-5">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.4px] text-[#9C9B99]">
-          {card.label}
-        </p>
+        <p className="text-[12px] font-medium text-[#6B7280]">{card.label}</p>
         <div
-          className="flex size-9 shrink-0 items-center justify-center rounded-xl text-lg"
-          style={{ backgroundColor: card.accentBg }}
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg text-lg"
+          style={{ backgroundColor: card.iconBg }}
         >
           {card.icon}
         </div>
       </div>
-      <p className="text-[26px] font-bold tracking-tight text-[#1A1918]">{card.value}</p>
-      <div className="flex items-center gap-1.5">
-        {card.positive ? (
-          <ArrowUpRight className="size-3.5 text-[#3D8A5A]" />
-        ) : (
-          <ArrowDownRight className="size-3.5 text-[#D08068]" />
-        )}
+      <p className="text-[26px] font-bold tracking-tight text-[#111827]">{card.value}</p>
+      <div className="flex items-center gap-2">
         <span
           className={cn(
-            'text-[12px] font-semibold',
-            card.positive ? 'text-[#3D8A5A]' : 'text-[#D08068]',
+            'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold',
+            card.positive ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEE2E2] text-[#B91C1C]',
           )}
         >
+          {card.positive ? (
+            <ArrowUpRight className="size-3" />
+          ) : (
+            <ArrowDownRight className="size-3" />
+          )}
           {card.delta}
         </span>
-        <span className="text-[11px] text-[#9C9B99]">vs mes anterior</span>
+        <span className="text-[11px] text-[#9CA3AF]">vs periodo anterior</span>
       </div>
     </div>
   )
 }
 
-// Simple SVG bar chart
+// ---------------------------------------------------------------------------
+// Bar chart (SVG)
+// ---------------------------------------------------------------------------
+
 function BarChart() {
-  const maxVal = Math.max(...BAR_DATA.flatMap((d) => [d.gastos, d.ofrendas, d.egresos]))
-  const barW = 6
-  const gap = 2
-  const groupW = barW * 3 + gap * 4
-  const chartH = 80
+  const maxVal = Math.max(...BAR_DATA.flatMap((d) => [d.diezmos, d.ofrendas, d.egresos]))
+  const chartH = 120
+  const barW = 10
+  const barGap = 3
+  const groupW = barW * 3 + barGap * 2
+  const groupGap = 18
+  const totalW = BAR_DATA.length * (groupW + groupGap) - groupGap
+
+  const BARS: { key: 'diezmos' | 'ofrendas' | 'egresos'; color: string; label: string }[] = [
+    { key: 'diezmos', color: '#16A34A', label: 'Diezmos' },
+    { key: 'ofrendas', color: '#2563EB', label: 'Ofrendas' },
+    { key: 'egresos', color: '#F97316', label: 'Egresos' },
+  ]
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-[#E5E4E1] bg-white p-5">
+    <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6">
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-[#1A1918]">Ingresos por Semana</p>
-        <div className="flex items-center gap-3">
-          {[
-            { color: '#3D8A5A', label: 'Gastos' },
-            { color: '#8B7CB8', label: 'Ofrendas' },
-            { color: '#C49A3C', label: 'Egresos' },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-1">
-              <span className="size-2 rounded-full" style={{ backgroundColor: item.color }} />
-              <span className="text-[11px] text-[#9C9B99]">{item.label}</span>
+        <p className="text-[14px] font-semibold text-[#111827]">Ingresos por Semana</p>
+        <div className="flex items-center gap-4">
+          {BARS.map((b) => (
+            <div key={b.key} className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full" style={{ backgroundColor: b.color }} />
+              <span className="text-[11px] text-[#6B7280]">{b.label}</span>
             </div>
           ))}
         </div>
       </div>
-
-      <svg viewBox={`0 0 ${BAR_DATA.length * (groupW + 4)} ${chartH + 20}`} className="w-full">
+      <svg viewBox={`0 0 ${totalW} ${chartH + 20}`} className="w-full">
+        {[0.25, 0.5, 0.75, 1].map((t) => (
+          <line
+            key={t}
+            x1={0}
+            y1={chartH - chartH * t}
+            x2={totalW}
+            y2={chartH - chartH * t}
+            stroke="#F3F4F6"
+            strokeWidth="1"
+          />
+        ))}
         {BAR_DATA.map((d, i) => {
-          const x = i * (groupW + 4) + 2
-          const bars = [
-            { val: d.gastos, color: '#3D8A5A' },
-            { val: d.ofrendas, color: '#8B7CB8' },
-            { val: d.egresos, color: '#C49A3C' },
-          ]
+          const gx = i * (groupW + groupGap)
           return (
             <g key={d.week}>
-              {bars.map((bar, j) => {
-                const h = (bar.val / maxVal) * chartH
+              {BARS.map((bar, j) => {
+                const h = Math.max(2, (d[bar.key] / maxVal) * chartH)
                 return (
                   <rect
-                    key={j}
-                    x={x + j * (barW + gap)}
+                    key={bar.key}
+                    x={gx + j * (barW + barGap)}
                     y={chartH - h}
                     width={barW}
                     height={h}
                     fill={bar.color}
-                    rx={1.5}
-                    opacity={0.85}
+                    rx={2}
                   />
                 )
               })}
               <text
-                x={x + groupW / 2}
-                y={chartH + 12}
+                x={gx + groupW / 2}
+                y={chartH + 13}
                 textAnchor="middle"
-                fontSize="7"
-                fill="#9C9B99"
+                fontSize="8"
+                fill="#9CA3AF"
                 fontWeight="600"
               >
                 {d.week}
@@ -263,81 +286,80 @@ function BarChart() {
   )
 }
 
-// Simple SVG donut chart
-function DonutChart() {
-  const total = DONUT_DATA.reduce((sum, d) => sum + d.value, 0)
-  const r = 30
-  const cx = 45
-  const cy = 45
-  const circumference = 2 * Math.PI * r
+// ---------------------------------------------------------------------------
+// Donut chart (SVG)
+// ---------------------------------------------------------------------------
 
-  // Pre-compute offsets and dash lengths outside JSX to avoid mutation during render
-  const segments = DONUT_DATA.reduce<
-    { label: string; color: string; value: number; pct: number; dash: number; offset: number }[]
-  >((acc, segment) => {
-    const pct = segment.value / total
-    const prevCumulative = acc.reduce((sum, s) => sum + s.pct, 0)
-    acc.push({
-      ...segment,
-      pct,
-      dash: circumference * pct,
-      offset: circumference * (1 - prevCumulative),
-    })
+function DonutChart() {
+  const total = DONUT_SEGMENTS.reduce((s, d) => s + d.value, 0)
+  const r = 52
+  const cx = 70
+  const cy = 70
+  const c = 2 * Math.PI * r
+
+  const segments = DONUT_SEGMENTS.reduce<
+    { label: string; value: number; pct: number; color: string; dash: number; offset: number }[]
+  >((acc, seg) => {
+    const pct = seg.value / total
+    const prevPct = acc.reduce((s, x) => s + x.value / total, 0)
+    acc.push({ ...seg, dash: c * pct, offset: c * (1 - prevPct) })
     return acc
   }, [])
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-[#E5E4E1] bg-white p-5">
+    <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6">
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold text-[#1A1918]">Distribucion por Categoria</p>
-        <TrendingUp className="size-4 text-[#9C9B99]" />
+        <p className="text-[14px] font-semibold text-[#111827]">Distribucion por Categoria</p>
+        <TrendingUp className="size-4 text-[#9CA3AF]" />
       </div>
-
-      <div className="flex items-center gap-4">
-        <div className="relative shrink-0">
-          <svg viewBox="0 0 90 90" className="w-[90px]">
-            {segments.map((segment) => (
+      <div className="flex items-center gap-6">
+        <div className="shrink-0">
+          <svg viewBox="0 0 140 140" className="w-[120px]">
+            {segments.map((seg) => (
               <circle
-                key={segment.label}
+                key={seg.label}
                 cx={cx}
                 cy={cy}
                 r={r}
                 fill="none"
-                stroke={segment.color}
-                strokeWidth={10}
-                strokeDasharray={`${segment.dash} ${circumference - segment.dash}`}
-                strokeDashoffset={segment.offset}
+                stroke={seg.color}
+                strokeWidth={18}
+                strokeDasharray={`${seg.dash} ${c - seg.dash}`}
+                strokeDashoffset={seg.offset}
                 transform={`rotate(-90 ${cx} ${cy})`}
               />
             ))}
+            <circle cx={cx} cy={cy} r={r - 16} fill="white" />
             <text
               x={cx}
-              y={cy - 3}
+              y={cy - 4}
               textAnchor="middle"
-              fontSize="8"
+              fontSize="12"
               fontWeight="700"
-              fill="#1A1918"
+              fill="#111827"
             >
               $45.3k
             </text>
-            <text x={cx} y={cx + 8} textAnchor="middle" fontSize="5" fill="#9C9B99">
+            <text x={cx} y={cy + 11} textAnchor="middle" fontSize="9" fill="#9CA3AF">
               total
             </text>
           </svg>
         </div>
-
-        <div className="flex flex-col gap-2.5">
-          {DONUT_DATA.map((d) => (
-            <div key={d.label} className="flex items-center gap-2">
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: d.color }}
-              />
-              <div>
-                <p className="text-[12px] font-semibold text-[#1A1918]">{d.label}</p>
-                <p className="text-[11px] text-[#9C9B99]">
-                  ${d.value.toLocaleString()} · {d.pct}%
-                </p>
+        <div className="flex flex-1 flex-col gap-3">
+          {DONUT_SEGMENTS.map((seg) => (
+            <div key={seg.label} className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className="size-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: seg.color }}
+                />
+                <span className="text-[12px] font-medium text-[#374151]">{seg.label}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-[12px] font-semibold text-[#111827]">
+                  ${seg.value.toLocaleString()}
+                </span>
+                <span className="ml-1 text-[11px] text-[#9CA3AF]">({seg.pct}%)</span>
               </div>
             </div>
           ))}
@@ -347,32 +369,45 @@ function DonutChart() {
   )
 }
 
+// ---------------------------------------------------------------------------
+// Transaction row
+// ---------------------------------------------------------------------------
+
 function TransactionRow({ tx }: { tx: Transaction }) {
-  const cat = CATEGORY_CONFIG[tx.category]
+  const statusCfg = STATUS_CONFIG[tx.status]
+  const catCfg = CATEGORY_CONFIG[tx.category]
   const isNegative = tx.amount < 0
 
   return (
-    <tr className="group border-b border-[#E5E4E1] transition-colors last:border-b-0 hover:bg-[#FAFAF9]">
+    <tr className="group border-b border-[#F3F4F6] transition-colors last:border-b-0 hover:bg-[#F9FAFB]">
       <td className="py-3.5 pl-6 pr-4">
         <div className="flex flex-col gap-0.5">
-          <p className="text-[13px] font-semibold text-[#1A1918]">{tx.concept}</p>
-          <p className="text-[11px] text-[#9C9B99]">{tx.person}</p>
+          <p className="text-[13px] font-semibold text-[#111827]">{tx.concept}</p>
+          <p className="text-[11px] text-[#9CA3AF]">{tx.person}</p>
         </div>
       </td>
       <td className="px-4 py-3.5">
         <span
-          className="inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-semibold"
-          style={{ backgroundColor: cat.bg, color: cat.text }}
+          className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
+          style={{ backgroundColor: statusCfg.bg, color: statusCfg.text }}
         >
-          {cat.label}
+          {statusCfg.label}
         </span>
       </td>
-      <td className="hidden px-4 py-3.5 text-[13px] text-[#6D6C6A] sm:table-cell">{tx.date}</td>
+      <td className="px-4 py-3.5">
+        <span
+          className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
+          style={{ backgroundColor: catCfg.bg, color: catCfg.text }}
+        >
+          {catCfg.label}
+        </span>
+      </td>
+      <td className="hidden px-4 py-3.5 text-[13px] text-[#6B7280] sm:table-cell">{tx.date}</td>
       <td className="px-4 py-3.5 text-right">
         <span
           className={cn(
             'text-[13px] font-semibold',
-            isNegative ? 'text-[#D08068]' : 'text-[#3D8A5A]',
+            isNegative ? 'text-[#DC2626]' : 'text-[#16A34A]',
           )}
         >
           {isNegative ? '-' : '+'}${Math.abs(tx.amount).toLocaleString()}
@@ -381,7 +416,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
       <td className="py-3.5 pr-4">
         <button
           type="button"
-          className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F5F4F1]"
+          className="flex size-7 items-center justify-center rounded-lg text-[#9CA3AF] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F3F4F6]"
         >
           <MoreVertical className="size-3.5" />
         </button>
@@ -395,30 +430,30 @@ function TransactionRow({ tx }: { tx: Transaction }) {
 // ---------------------------------------------------------------------------
 
 export function FinancesPage() {
-  const [activeTab, setActiveTab] = useState<FinanceTab>('general')
+  const [activeTab, setActiveTab] = useState<PeriodTab>('semanal')
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <PageHeader
         title="Finanzas"
-        subtitle="Administra los ingresos y egresos del concilio"
+        subtitle="Gestionar, registrar y reportar finanzas"
         action={{ label: 'Exportar', icon: Download, variant: 'primary' }}
       />
 
-      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4 lg:px-8 lg:py-8">
-        {/* Tabs + date range */}
+      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
+        {/* Period segment control + date range */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            {TABS.map((tab) => (
+          <div className="inline-flex items-center gap-0.5 rounded-lg bg-[#F3F4F6] p-1">
+            {PERIOD_TABS.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={cn(
-                  'flex h-9 items-center rounded-full px-4 text-[13px] transition-colors',
+                  'flex h-8 items-center rounded-md px-4 text-[13px] font-medium transition-all',
                   activeTab === tab.key
-                    ? 'bg-[#3D8A5A] font-semibold text-white'
-                    : 'border border-[#E5E4E1] bg-white font-medium text-[#6D6C6A] hover:bg-[#F5F4F1]',
+                    ? 'bg-white font-semibold text-[#111827] shadow-sm'
+                    : 'text-[#6B7280] hover:text-[#374151]',
                 )}
               >
                 {tab.label}
@@ -426,8 +461,9 @@ export function FinancesPage() {
             ))}
           </div>
 
-          <div className="flex h-9 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-4">
-            <span className="text-[13px] font-medium text-[#6D6C6A]">Mar — Mar 2026</span>
+          <div className="flex h-9 items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-3">
+            <CalendarDays className="size-4 text-[#6B7280]" />
+            <span className="text-[13px] font-medium text-[#374151]">1 Mar – 7 Mar 2026</span>
           </div>
         </div>
 
@@ -444,30 +480,33 @@ export function FinancesPage() {
           <DonutChart />
         </div>
 
-        {/* Transactions table */}
-        <div className="overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
-          <div className="flex items-center justify-between border-b border-[#E5E4E1] px-6 py-4">
-            <p className="text-[14px] font-semibold text-[#1A1918]">Ultimas Transacciones</p>
+        {/* Transactions */}
+        <div className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
+          <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
+            <p className="text-[14px] font-semibold text-[#111827]">Ultimas Transacciones</p>
             <button
               type="button"
-              className="text-[12px] font-semibold text-[#3D8A5A] transition-opacity hover:opacity-70"
+              className="text-[13px] font-semibold text-[#16A34A] hover:opacity-70"
             >
               Ver todo
             </button>
           </div>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E4E1] bg-[#F5F4F1]">
-                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+              <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
                   Concepto
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
+                  Estado
+                </th>
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
                   Categoria
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] sm:table-cell">
+                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF] sm:table-cell">
                   Fecha
                 </th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
                   Monto
                 </th>
                 <th className="py-3 pr-4" />
