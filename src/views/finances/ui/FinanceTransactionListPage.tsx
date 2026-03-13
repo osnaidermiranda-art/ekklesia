@@ -339,14 +339,28 @@ export function FinanceTransactionListPage() {
   const [headerSearch, setHeaderSearch] = useState('')
   const [page, setPage] = useState(1)
 
-  const filtered =
-    activeTab === 'all' ? TRANSACTIONS : TRANSACTIONS.filter((tx) => tx.status === activeTab)
+  const q = headerSearch.toLowerCase().trim()
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const filtered = TRANSACTIONS.filter((tx) => {
+    const matchesTab = activeTab === 'all' || tx.status === activeTab
+    const matchesSearch =
+      q === '' ||
+      tx.concept.toLowerCase().includes(q) ||
+      tx.person.toLowerCase().includes(q) ||
+      tx.date.toLowerCase().includes(q)
+    return matchesTab && matchesSearch
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function handleTabChange(tab: FilterTab) {
     setActiveTab(tab)
+    setPage(1)
+  }
+
+  function handleSearch(value: string) {
+    setHeaderSearch(value)
     setPage(1)
   }
 
@@ -372,7 +386,7 @@ export function FinanceTransactionListPage() {
             variant="muted"
             placeholder="Buscar..."
             value={headerSearch}
-            onChange={setHeaderSearch}
+            onChange={handleSearch}
             className="hidden w-[220px] md:flex"
           />
           <button
@@ -424,38 +438,88 @@ export function FinanceTransactionListPage() {
         </div>
 
         {/* Filter bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            {FILTER_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => handleTabChange(tab.key)}
-                className={cn(
-                  'flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-[13px] transition-colors',
-                  activeTab === tab.key
-                    ? 'bg-[#3D8A5A] font-semibold text-white'
-                    : 'border border-[#E5E4E1] bg-white font-medium text-[#6D6C6A] hover:bg-[#F5F4F1]',
-                )}
-              >
-                {tab.label}
-                <span
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          {/* Left: tabs + inline search on mobile */}
+          <div className="flex flex-1 flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
+              {FILTER_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => handleTabChange(tab.key)}
                   className={cn(
-                    'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold',
+                    'flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-[13px] transition-colors',
                     activeTab === tab.key
-                      ? 'bg-white/25 text-white'
-                      : 'bg-[#EDECEA] text-[#6D6C6A]',
+                      ? 'bg-[#3D8A5A] font-semibold text-white'
+                      : 'border border-[#E5E4E1] bg-white font-medium text-[#6D6C6A] hover:bg-[#F5F4F1]',
                   )}
                 >
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+                  {tab.label}
+                  <span
+                    className={cn(
+                      'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold',
+                      activeTab === tab.key
+                        ? 'bg-white/25 text-white'
+                        : 'bg-[#EDECEA] text-[#6D6C6A]',
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Inline search — visible on all sizes */}
+            <div className="flex h-9 flex-1 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-3 sm:max-w-[260px]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="shrink-0 text-[#9C9B99]"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar por concepto o persona..."
+                value={headerSearch}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full bg-transparent text-[13px] text-[#1A1918] placeholder:text-[#9C9B99] focus:outline-none"
+              />
+              {headerSearch && (
+                <button
+                  type="button"
+                  onClick={() => handleSearch('')}
+                  className="shrink-0 text-[#9C9B99] hover:text-[#1A1918]"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
           <button
             type="button"
-            className="flex h-9 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-3.5 text-[13px] font-medium text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
+            className="flex h-9 shrink-0 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-3.5 text-[13px] font-medium text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
           >
             <ArrowUpDown size={14} className="text-[#9C9B99]" />
             Mas recientes
