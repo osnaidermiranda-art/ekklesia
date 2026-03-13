@@ -12,6 +12,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Bar,
   BarChart as RechartsBarChart,
@@ -345,13 +346,21 @@ function DistributionDonutChart() {
 // Transaction row
 // ---------------------------------------------------------------------------
 
-function TransactionRow({ tx }: { tx: Transaction }) {
+interface TransactionRowProps {
+  tx: Transaction
+  onClick: () => void
+}
+
+function TransactionRow({ tx, onClick }: TransactionRowProps) {
   const statusCfg = STATUS_CONFIG[tx.status]
   const catCfg = CATEGORY_CONFIG[tx.category]
   const isNegative = tx.amount < 0
 
   return (
-    <tr className="group border-b border-[#F5F4F1] transition-colors last:border-b-0 hover:bg-[#FAFAF8]">
+    <tr
+      className="group cursor-pointer border-b border-[#F5F4F1] transition-colors last:border-b-0 hover:bg-[#FAFAF8]"
+      onClick={onClick}
+    >
       <td className="py-3.5 pl-6 pr-4">
         <div className="flex flex-col gap-0.5">
           <p className="text-[13px] font-semibold text-[#1A1918]">{tx.concept}</p>
@@ -402,6 +411,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
 // ---------------------------------------------------------------------------
 
 export function FinancesPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<PeriodTab>('weekly')
 
   return (
@@ -458,6 +468,7 @@ export function FinancesPage() {
             <p className="text-[14px] font-semibold text-[#1A1918]">Ultimas Transacciones</p>
             <button
               type="button"
+              onClick={() => router.push('/finances/transactions')}
               className="text-[13px] font-semibold text-[#3D8A5A] hover:opacity-70"
             >
               Ver todo
@@ -486,7 +497,11 @@ export function FinancesPage() {
             </thead>
             <tbody>
               {TRANSACTIONS.map((tx) => (
-                <TransactionRow key={tx.id} tx={tx} />
+                <TransactionRow
+                  key={tx.id}
+                  tx={tx}
+                  onClick={() => router.push(`/finances/transactions/${tx.id}`)}
+                />
               ))}
             </tbody>
           </table>
