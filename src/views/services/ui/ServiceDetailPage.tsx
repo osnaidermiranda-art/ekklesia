@@ -380,7 +380,7 @@ export function ServiceDetailPage() {
       {/* Body */}
       <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5 lg:gap-6 lg:p-8">
         {/* Status banner */}
-        <div className="flex items-center justify-between rounded-2xl bg-[#C8F0D8]/50 px-5 py-4">
+        <div className="flex flex-col gap-3 rounded-2xl bg-[#C8F0D8]/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <CheckCircle2 size={22} className="shrink-0 text-[#3D8A5A]" />
             <div className="flex flex-col gap-[2px]">
@@ -397,7 +397,7 @@ export function ServiceDetailPage() {
         </div>
 
         {/* Two-column layout */}
-        <div className="flex gap-5 lg:gap-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:gap-6">
           {/* LEFT — Role assignments */}
           <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
             {/* Card header */}
@@ -437,7 +437,7 @@ export function ServiceDetailPage() {
           </div>
 
           {/* RIGHT — Details + Notes stacked */}
-          <div className="flex w-[340px] shrink-0 flex-col gap-5 lg:gap-6">
+          <div className="flex w-full shrink-0 flex-col gap-5 lg:w-[340px] lg:gap-6">
             {/* Service details card */}
             <div className="rounded-2xl bg-white px-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
               <h3 className="py-4 text-[15px] font-bold text-[#1A1918]">Detalles del Servicio</h3>
