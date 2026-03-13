@@ -60,7 +60,7 @@ export function AppShell({ user, children }: AppShellProps) {
 
         {/* Mobile sidebar drawer */}
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetContent side="left" className="w-[260px] p-0">
+          <SheetContent side="left" className="w-[260px] p-0" style={{ borderWidth: 0 }}>
             {sidebar}
           </SheetContent>
         </Sheet>
