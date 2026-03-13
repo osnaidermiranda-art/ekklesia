@@ -419,6 +419,147 @@ function EventCard({ event, onDragStart, onClick }: EventCardProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Mobile: day strip + event list
+// ---------------------------------------------------------------------------
+
+interface MobileDayStripProps {
+  weekDays: Date[]
+  selectedYmd: string
+  today: Date
+  onSelect: (ymd: string) => void
+}
+
+function MobileDayStrip({ weekDays, selectedYmd, today, onSelect }: MobileDayStripProps) {
+  return (
+    <div className="flex gap-1 overflow-x-auto pb-1">
+      {weekDays.map((day) => {
+        const ymd = toYMD(day)
+        const isToday = isSameDay(day, today)
+        const isSelected = ymd === selectedYmd
+        return (
+          <button
+            key={ymd}
+            type="button"
+            onClick={() => onSelect(ymd)}
+            className={cn(
+              'flex min-w-[48px] flex-1 flex-col items-center rounded-2xl py-2 transition-colors',
+              isSelected
+                ? 'bg-[#3D8A5A] text-white'
+                : isToday
+                  ? 'bg-[#C8F0D8] text-[#3D8A5A]'
+                  : 'bg-white text-[#1A1918] hover:bg-[#F5F4F1]',
+            )}
+          >
+            <span
+              className={cn(
+                'text-[10px] font-semibold uppercase tracking-[0.4px]',
+                isSelected ? 'text-white/70' : 'text-[#9C9B99]',
+              )}
+            >
+              {DAY_NAMES[day.getDay()]}
+            </span>
+            <span className="text-[16px] font-bold leading-tight">{day.getDate()}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+interface MobileEventListProps {
+  events: CalendarEvent[]
+  selectedYmd: string
+  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+  onAddEvent: (ymd: string) => void
+}
+
+function MobileEventList({ events, selectedYmd, onEventClick, onAddEvent }: MobileEventListProps) {
+  const dayEvents = events.filter((e) => e.date === selectedYmd)
+
+  if (dayEvents.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl bg-white py-12 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+        <p className="text-[13px] text-[#9C9B99]">Sin eventos este dia</p>
+        <button
+          type="button"
+          onClick={() => onAddEvent(selectedYmd)}
+          className="flex h-9 items-center gap-2 rounded-xl bg-[#3D8A5A] px-4 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          <Plus className="size-4" />
+          Agregar evento
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {dayEvents.map((event) => {
+        const config = TYPE_CONFIG[event.type]
+        return (
+          <MobileEventCard
+            key={event.id}
+            event={event}
+            config={config}
+            onEventClick={onEventClick}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+interface MobileEventCardProps {
+  event: CalendarEvent
+  config: (typeof TYPE_CONFIG)[EventType]
+  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+}
+
+function MobileEventCard({ event, config, onEventClick }: MobileEventCardProps) {
+  const ref = useRef<HTMLDivElement>(null)
+  return (
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={0}
+      onClick={() => {
+        if (ref.current) onEventClick(event, ref.current.getBoundingClientRect())
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && ref.current)
+          onEventClick(event, ref.current.getBoundingClientRect())
+      }}
+      className="flex cursor-pointer items-center overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] transition-colors hover:bg-[#FAFAF9]"
+    >
+      <div className="w-1 self-stretch" style={{ backgroundColor: config.text }} />
+      <div className="flex flex-1 items-center gap-3 p-4">
+        <div className="flex flex-1 flex-col gap-1">
+          <p className="text-[14px] font-semibold text-[#1A1918]">{event.title}</p>
+          <div className="flex flex-wrap items-center gap-x-3">
+            <span className="flex items-center gap-1 text-[12px] text-[#9C9B99]">
+              <Clock className="size-3 shrink-0" />
+              {event.time}
+            </span>
+            {event.location && (
+              <span className="flex items-center gap-1 text-[12px] text-[#9C9B99]">
+                <MapPin className="size-3 shrink-0" />
+                {event.location}
+              </span>
+            )}
+          </div>
+        </div>
+        <span
+          className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+          style={{ backgroundColor: config.bg, color: config.text }}
+        >
+          {config.label}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Day column with drop zone
 // ---------------------------------------------------------------------------
 
@@ -518,6 +659,7 @@ export function CalendarPage() {
   const today = new Date()
   const [weekStart, setWeekStart] = useState(() => getWeekStart(today))
   const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_EVENTS)
+  const [selectedDay, setSelectedDay] = useState<string>(() => toYMD(today))
 
   // Drag & drop
   const [draggedId, setDraggedId] = useState<string | null>(null)
@@ -556,6 +698,28 @@ export function CalendarPage() {
     setDetailAnchor(rect)
   }
 
+  function handlePrevWeek() {
+    setWeekStart((w) => {
+      const next = addDays(w, -7)
+      // keep selectedDay in sync with the visible week
+      setSelectedDay(toYMD(addDays(next, today.getDay())))
+      return next
+    })
+  }
+
+  function handleNextWeek() {
+    setWeekStart((w) => {
+      const next = addDays(w, 7)
+      setSelectedDay(toYMD(addDays(next, today.getDay())))
+      return next
+    })
+  }
+
+  function handleToday() {
+    setWeekStart(getWeekStart(today))
+    setSelectedDay(toYMD(today))
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <PageHeader
@@ -565,34 +729,34 @@ export function CalendarPage() {
           label: 'Nuevo Evento',
           icon: Plus,
           variant: 'primary',
-          onClick: () => setCreateDate(toYMD(today)),
+          onClick: () => setCreateDate(selectedDay),
         }}
       />
 
-      <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
+      <div className="flex flex-1 flex-col gap-4 overflow-hidden px-4 py-4 lg:gap-6 lg:px-8 lg:py-8">
         {/* Toolbar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setWeekStart((w) => addDays(w, -7))}
+              onClick={handlePrevWeek}
               className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
             >
               <ChevronLeft className="size-4" />
             </button>
-            <span className="min-w-[160px] text-center text-[15px] font-semibold text-[#1A1918]">
+            <span className="min-w-[140px] text-center text-[14px] font-semibold text-[#1A1918] sm:min-w-[160px] sm:text-[15px]">
               {monthLabel}
             </span>
             <button
               type="button"
-              onClick={() => setWeekStart((w) => addDays(w, 7))}
+              onClick={handleNextWeek}
               className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
             >
               <ChevronRight className="size-4" />
             </button>
             <button
               type="button"
-              onClick={() => setWeekStart(getWeekStart(today))}
+              onClick={handleToday}
               className="ml-1 flex h-9 items-center rounded-xl border border-[#E5E4E1] bg-white px-4 text-[13px] font-medium text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
             >
               Hoy
@@ -611,8 +775,24 @@ export function CalendarPage() {
           </div>
         </div>
 
-        {/* Calendar grid */}
-        <div className="flex flex-1 overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+        {/* Mobile view: day strip + event list */}
+        <div className="flex flex-1 flex-col gap-3 overflow-y-auto md:hidden">
+          <MobileDayStrip
+            weekDays={weekDays}
+            selectedYmd={selectedDay}
+            today={today}
+            onSelect={setSelectedDay}
+          />
+          <MobileEventList
+            events={events}
+            selectedYmd={selectedDay}
+            onEventClick={handleEventClick}
+            onAddEvent={(ymd) => setCreateDate(ymd)}
+          />
+        </div>
+
+        {/* Desktop view: 7-column week grid */}
+        <div className="hidden flex-1 overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] md:flex">
           {weekDays.map((day) => {
             const ymd = toYMD(day)
             return (
