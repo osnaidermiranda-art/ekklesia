@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type EventType = 'worship' | 'church' | 'activity' | 'fellowship'
+type EventType = 'concilio' | 'iglesia' | 'sociedad' | 'conflicto'
 
 interface CalendarEvent {
   id: string
@@ -19,45 +19,53 @@ interface CalendarEvent {
   type: EventType
   date: string // YYYY-MM-DD
   location?: string
+  blocked?: boolean
 }
 
 // ---------------------------------------------------------------------------
-// Config — colors matched pixel-perfect to design
+// Config
 // ---------------------------------------------------------------------------
 
 const TYPE_CONFIG: Record<
   EventType,
-  { bg: string; border: string; text: string; textMuted: string; label: string }
+  { bg: string; border: string; text: string; label: string; dot: string }
 > = {
-  worship: {
+  concilio: {
     bg: '#C8F0D8',
     border: '#3D8A5A',
     text: '#3D8A5A',
-    textMuted: '#3D8A5A',
-    label: 'Culto',
+    label: 'Concilio',
+    dot: '#3D8A5A',
   },
-  church: {
+  iglesia: {
     bg: '#D6E8F5',
     border: '#5B8DB8',
     text: '#5B8DB8',
-    textMuted: '#5B8DB8',
     label: 'Iglesia',
+    dot: '#5B8DB8',
   },
-  activity: {
-    bg: '#F5EDD8',
-    border: '#C49A3C',
-    text: '#C49A3C',
-    textMuted: '#C49A3C',
-    label: 'Actividad',
-  },
-  fellowship: {
+  sociedad: {
     bg: '#FDE8D8',
     border: '#D08068',
-    text: '#D08068',
-    textMuted: '#D08068',
-    label: 'Confrat.',
+    text: '#C07050',
+    label: 'Sociedad',
+    dot: '#D08068',
+  },
+  conflicto: {
+    bg: '#FEF2F0',
+    border: '#E05C5C',
+    text: '#C04040',
+    label: 'Conflicto',
+    dot: '#E05C5C',
   },
 }
+
+const LEGEND: { type: EventType; label: string }[] = [
+  { type: 'concilio', label: 'Concilio' },
+  { type: 'iglesia', label: 'Iglesia' },
+  { type: 'sociedad', label: 'Sociedad' },
+  { type: 'conflicto', label: 'Conflicto' },
+]
 
 const DAY_NAMES = ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB']
 
@@ -76,96 +84,51 @@ const MONTH_NAMES = [
   'Diciembre',
 ]
 
-const EVENT_TYPE_OPTIONS: EventType[] = ['worship', 'church', 'activity', 'fellowship']
+const EVENT_TYPE_OPTIONS: EventType[] = ['concilio', 'iglesia', 'sociedad', 'conflicto']
+
+// ---------------------------------------------------------------------------
+// Mock data — week of Mar 2–8 2026
+// ---------------------------------------------------------------------------
 
 const INITIAL_EVENTS: CalendarEvent[] = [
   {
     id: '1',
     title: 'Santa Cena',
-    time: '9:00 AM',
-    type: 'worship',
-    date: '2026-03-08',
-    location: 'Iglesia Betania',
+    time: '10:00 AM',
+    type: 'concilio',
+    date: '2026-03-02',
+    location: 'Betania Central',
   },
+  { id: '2', title: 'Escuela Dominical', time: '9:00 AM', type: 'iglesia', date: '2026-03-04' },
+  { id: '3', title: 'Evangelismo', time: '6:00 PM', type: 'sociedad', date: '2026-03-04' },
+  { id: '4', title: 'Asamblea General', time: '7:00 PM', type: 'concilio', date: '2026-03-05' },
   {
-    id: '2',
-    title: 'Practica Especial',
-    time: '3:00 PM',
-    type: 'fellowship',
-    date: '2026-03-10',
-    location: 'Sala de reuniones',
-  },
-  {
-    id: '3',
-    title: 'Evangelismo Marina',
-    time: '6:00 PM',
-    type: 'church',
-    date: '2026-03-10',
-    location: 'Parque Central',
-  },
-  { id: '4', title: 'Reunion Jovenes', time: '10:00 AM', type: 'activity', date: '2026-03-11' },
-  { id: '5', title: 'Estudio Apologetica', time: '3:00 PM', type: 'church', date: '2026-03-11' },
-  {
-    id: '6',
-    title: 'Estudio Biblico',
+    id: '5',
+    title: 'Reunion Jovenes',
     time: '7:00 PM',
-    type: 'church',
-    date: '2026-03-11',
-    location: 'Iglesia Emanuel',
+    type: 'conflicto',
+    date: '2026-03-05',
+    blocked: true,
   },
-  {
-    id: '7',
-    title: 'Confraternidad',
-    time: '9:00 AM',
-    type: 'fellowship',
-    date: '2026-03-12',
-    location: 'Centro Comunitario',
-  },
-  { id: '8', title: 'Culto Thomas', time: '11:00 AM', type: 'worship', date: '2026-03-13' },
-  {
-    id: '9',
-    title: 'Rio Bartolome',
-    time: '8:00 AM',
-    type: 'worship',
-    date: '2026-03-14',
-    location: 'Iglesia Betania',
-  },
-  {
-    id: '10',
-    title: 'Culto Central',
-    time: '10:00 AM',
-    type: 'worship',
-    date: '2026-03-14',
-    location: 'Iglesia Canaan',
-  },
-  { id: '11', title: 'Reunion Jovenes', time: '3:00 PM', type: 'activity', date: '2026-03-14' },
-  { id: '12', title: 'Rio Diamante', time: '5:00 PM', type: 'worship', date: '2026-03-14' },
-  { id: '13', title: 'Reunion Liderazgo', time: '9:00 AM', type: 'church', date: '2026-03-16' },
-  {
-    id: '14',
-    title: 'Culto Domingo',
-    time: '10:00 AM',
-    type: 'worship',
-    date: '2026-03-15',
-    location: 'Iglesia Filadelfia',
-  },
-  {
-    id: '15',
-    title: 'Jovenes Unidos',
-    time: '6:00 PM',
-    type: 'activity',
-    date: '2026-03-15',
-    location: 'Salon Jovenes',
-  },
+  { id: '6', title: 'Culto Viernes', time: '7:30 PM', type: 'iglesia', date: '2026-03-06' },
+  { id: '7', title: 'Canasta Familiar', time: '9:00 AM', type: 'sociedad', date: '2026-03-07' },
+  { id: '8', title: 'Esc. Dominical', time: '9:00 AM', type: 'concilio', date: '2026-03-08' },
+  { id: '9', title: 'Culto Central', time: '10:30 AM', type: 'iglesia', date: '2026-03-08' },
+  { id: '10', title: 'Ensayo Alabanza', time: '5:00 PM', type: 'sociedad', date: '2026-03-08' },
+  { id: '11', title: 'Culto Dominical', time: '10:00 AM', type: 'concilio', date: '2026-03-15' },
+  { id: '12', title: 'Reunion Liderazgo', time: '9:00 AM', type: 'iglesia', date: '2026-03-16' },
 ]
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+// Week starts on Monday
 function getWeekStart(date: Date): Date {
   const d = new Date(date)
-  d.setDate(d.getDate() - d.getDay())
+  const day = d.getDay() // 0=Sun
+  const diff = day === 0 ? -6 : 1 - day
+  d.setDate(d.getDate() + diff)
   d.setHours(0, 0, 0, 0)
   return d
 }
@@ -214,7 +177,7 @@ function CreateEventModal({ initialDate, onClose, onSave }: CreateEventModalProp
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(initialDate)
   const [time, setTime] = useState('09:00')
-  const [type, setType] = useState<EventType>('worship')
+  const [type, setType] = useState<EventType>('concilio')
   const [location, setLocation] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
@@ -393,7 +356,7 @@ function EventDetail({ event, anchor, onClose, onDelete }: EventDetailProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Event card — left border + tinted bg (matches design)
+// Event card
 // ---------------------------------------------------------------------------
 
 interface EventCardProps {
@@ -405,6 +368,7 @@ interface EventCardProps {
 function EventCard({ event, onDragStart, onClick }: EventCardProps) {
   const config = TYPE_CONFIG[event.type]
   const ref = useRef<HTMLDivElement>(null)
+  const isConflict = event.type === 'conflicto'
 
   return (
     <div
@@ -418,23 +382,25 @@ function EventCard({ event, onDragStart, onClick }: EventCardProps) {
         e.stopPropagation()
         if (ref.current) onClick(event, ref.current.getBoundingClientRect())
       }}
-      className="mx-1.5 mb-1 flex cursor-pointer overflow-hidden rounded-[5px] transition-opacity active:opacity-40 hover:opacity-80"
-      style={{ backgroundColor: config.bg }}
+      className={cn(
+        'mx-2 mb-2 cursor-pointer rounded-xl px-3 py-2 transition-opacity hover:opacity-85 active:opacity-50',
+        isConflict && 'border border-dashed',
+      )}
+      style={{
+        backgroundColor: config.bg,
+        borderColor: isConflict ? config.border : undefined,
+      }}
     >
-      {/* Left accent border */}
-      <div className="w-[3px] shrink-0" style={{ backgroundColor: config.border }} />
-      {/* Content */}
-      <div className="min-w-0 flex-1 px-1.5 py-1">
-        <p
-          className="truncate text-[11px] font-semibold leading-tight"
-          style={{ color: config.text }}
-        >
-          {event.title}
-        </p>
-        <p className="text-[10px] leading-tight" style={{ color: config.textMuted }}>
-          {event.time}
-        </p>
-      </div>
+      <p className="truncate text-[12px] font-semibold leading-snug" style={{ color: config.text }}>
+        {event.title}
+      </p>
+      <p className="text-[11px] leading-snug" style={{ color: config.text }}>
+        {event.time}
+        {event.blocked ? ' - BLOQUEADO' : ''}
+      </p>
+      <p className="text-[11px] leading-snug opacity-70" style={{ color: config.text }}>
+        {isConflict ? 'Conflicto horario' : config.label}
+      </p>
     </div>
   )
 }
@@ -494,6 +460,45 @@ function MobileDayStrip({ weekDays, selectedYmd, today, onSelect }: MobileDayStr
   )
 }
 
+interface MobileEventCardProps {
+  event: CalendarEvent
+  config: (typeof TYPE_CONFIG)[EventType]
+  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+}
+
+function MobileEventCard({ event, config, onEventClick }: MobileEventCardProps) {
+  const ref = useRef<HTMLDivElement>(null)
+  return (
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={0}
+      onClick={() => {
+        if (ref.current) onEventClick(event, ref.current.getBoundingClientRect())
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && ref.current)
+          onEventClick(event, ref.current.getBoundingClientRect())
+      }}
+      className="flex cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-colors hover:bg-[#FAFAF8]"
+    >
+      <div className="w-[3px] shrink-0" style={{ backgroundColor: config.border }} />
+      <div className="flex flex-1 items-center gap-3 px-4 py-3.5">
+        <div className="flex flex-1 flex-col gap-0.5">
+          <p className="text-[13px] font-semibold text-[#1A1918]">{event.title}</p>
+          <span className="text-[12px] text-[#6D6C6A]">{event.time}</span>
+        </div>
+        <span
+          className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+          style={{ backgroundColor: config.bg, color: config.text }}
+        >
+          {config.label}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 interface MobileEventListProps {
   events: CalendarEvent[]
   selectedYmd: string
@@ -534,58 +539,8 @@ function MobileEventList({ events, selectedYmd, onEventClick, onAddEvent }: Mobi
   )
 }
 
-interface MobileEventCardProps {
-  event: CalendarEvent
-  config: (typeof TYPE_CONFIG)[EventType]
-  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
-}
-
-function MobileEventCard({ event, config, onEventClick }: MobileEventCardProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  return (
-    <div
-      ref={ref}
-      role="button"
-      tabIndex={0}
-      onClick={() => {
-        if (ref.current) onEventClick(event, ref.current.getBoundingClientRect())
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' && ref.current)
-          onEventClick(event, ref.current.getBoundingClientRect())
-      }}
-      className="flex cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-colors hover:bg-[#FAFAF8]"
-    >
-      <div className="w-[3px] shrink-0" style={{ backgroundColor: config.border }} />
-      <div className="flex flex-1 items-center gap-3 px-4 py-3.5">
-        <div className="flex flex-1 flex-col gap-0.5">
-          <p className="text-[13px] font-semibold text-[#1A1918]">{event.title}</p>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
-              <Clock className="size-3 shrink-0" />
-              {event.time}
-            </span>
-            {event.location && (
-              <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
-                <MapPin className="size-3 shrink-0" />
-                {event.location}
-              </span>
-            )}
-          </div>
-        </div>
-        <span
-          className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-          style={{ backgroundColor: config.bg, color: config.text }}
-        >
-          {config.label}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 // ---------------------------------------------------------------------------
-// Day column — drop zone
+// Day column
 // ---------------------------------------------------------------------------
 
 interface DayColumnProps {
@@ -601,8 +556,6 @@ interface DayColumnProps {
   onDayClick: (ymd: string) => void
 }
 
-const MAX_VISIBLE = 3
-
 function DayColumn({
   date,
   events,
@@ -615,8 +568,6 @@ function DayColumn({
   onEventClick,
   onDayClick,
 }: DayColumnProps) {
-  const visible = events.slice(0, MAX_VISIBLE)
-  const overflow = events.length - MAX_VISIBLE
   const ymd = toYMD(date)
 
   return (
@@ -635,23 +586,28 @@ function DayColumn({
       }}
       onDragLeave={onDragLeave}
     >
-      {/* Day header — 56px tall */}
+      {/* Day header */}
       <button
         type="button"
         title="Crear evento"
         onClick={() => onDayClick(ymd)}
         className={cn(
-          'flex h-14 w-full flex-col items-center justify-center gap-0.5 border-b border-[#E5E4E1] transition-colors',
-          isToday ? 'bg-[#F0FAF4]' : 'bg-white hover:bg-[#FAFAF8]',
+          'flex h-[60px] w-full flex-col items-center justify-center gap-[2px] border-b border-[#E5E4E1] transition-colors',
+          isToday ? 'bg-[#3D8A5A]' : 'bg-white hover:bg-[#FAFAF8]',
         )}
       >
-        <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+        <span
+          className={cn(
+            'text-[11px] font-semibold uppercase tracking-[0.5px]',
+            isToday ? 'text-white/80' : 'text-[#9C9B99]',
+          )}
+        >
           {DAY_NAMES[date.getDay()]}
         </span>
         <span
           className={cn(
-            'flex size-[26px] items-center justify-center rounded-full text-[15px] font-bold',
-            isToday ? 'bg-[#3D8A5A] text-white' : 'text-[#1A1918]',
+            'text-[22px] font-bold leading-none',
+            isToday ? 'text-white' : 'text-[#1A1918]',
           )}
         >
           {date.getDate()}
@@ -659,8 +615,8 @@ function DayColumn({
       </button>
 
       {/* Events */}
-      <div className="flex flex-1 flex-col pt-1.5">
-        {visible.map((event) => (
+      <div className="flex flex-1 flex-col pt-2">
+        {events.map((event) => (
           <EventCard
             key={event.id}
             event={event}
@@ -668,9 +624,6 @@ function DayColumn({
             onClick={onEventClick}
           />
         ))}
-        {overflow > 0 && (
-          <p className="px-2 text-[10px] font-medium text-[#9C9B99]">+{overflow} más</p>
-        )}
       </div>
     </div>
   )
@@ -693,6 +646,7 @@ export function CalendarPage() {
   const [detailEvent, setDetailEvent] = useState<CalendarEvent | null>(null)
   const [detailAnchor, setDetailAnchor] = useState<DOMRect | null>(null)
 
+  // Monday-start week: 7 days from weekStart
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
   const weekEnd = weekDays[6]
 
@@ -709,19 +663,11 @@ export function CalendarPage() {
   }
 
   function handlePrevWeek() {
-    setWeekStart((w) => {
-      const next = addDays(w, -7)
-      setSelectedDay(toYMD(addDays(next, today.getDay())))
-      return next
-    })
+    setWeekStart((w) => addDays(w, -7))
   }
 
   function handleNextWeek() {
-    setWeekStart((w) => {
-      const next = addDays(w, 7)
-      setSelectedDay(toYMD(addDays(next, today.getDay())))
-      return next
-    })
+    setWeekStart((w) => addDays(w, 7))
   }
 
   function handleToday() {
@@ -733,7 +679,7 @@ export function CalendarPage() {
     <div className="flex h-full flex-col overflow-hidden">
       <PageHeader
         title="Calendario"
-        subtitle="Planificacion de eventos y reuniones"
+        subtitle="Planificacion de eventos y servicios"
         action={{
           label: 'Nuevo Evento',
           icon: Plus,
@@ -745,43 +691,45 @@ export function CalendarPage() {
       <div className="flex flex-1 flex-col gap-4 overflow-hidden px-4 py-4 lg:gap-5 lg:px-8 lg:py-6">
         {/* Toolbar */}
         <div className="flex items-center justify-between">
+          {/* Navigation */}
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handlePrevWeek}
-              className="flex size-9 items-center justify-center rounded-lg border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#FAFAF8]"
+              className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#FAFAF8]"
             >
               <ChevronLeft className="size-4" />
             </button>
-            <span className="min-w-[140px] text-center text-[15px] font-semibold text-[#1A1918]">
+            <span className="min-w-[130px] text-center text-[16px] font-bold text-[#1A1918]">
               {monthLabel}
             </span>
             <button
               type="button"
               onClick={handleNextWeek}
-              className="flex size-9 items-center justify-center rounded-lg border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#FAFAF8]"
+              className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#FAFAF8]"
             >
               <ChevronRight className="size-4" />
             </button>
             <button
               type="button"
               onClick={handleToday}
-              className="flex h-9 items-center rounded-lg border border-[#E5E4E1] bg-white px-4 text-[13px] font-medium text-[#1A1918] transition-colors hover:bg-[#FAFAF8]"
+              className="flex h-9 items-center rounded-xl border border-[#E5E4E1] bg-white px-4 text-[13px] font-medium text-[#1A1918] transition-colors hover:bg-[#FAFAF8]"
             >
               Hoy
             </button>
           </div>
 
           {/* Legend */}
-          <div className="hidden items-center gap-5 sm:flex">
-            {(Object.entries(TYPE_CONFIG) as [EventType, (typeof TYPE_CONFIG)[EventType]][]).map(
-              ([key, cfg]) => (
-                <div key={key} className="flex items-center gap-1.5">
-                  <span className="size-2.5 rounded-full" style={{ backgroundColor: cfg.border }} />
-                  <span className="text-[12px] text-[#6D6C6A]">{cfg.label}</span>
-                </div>
-              ),
-            )}
+          <div className="hidden items-center gap-4 sm:flex">
+            {LEGEND.map(({ type, label }) => (
+              <div key={type} className="flex items-center gap-1.5">
+                <span
+                  className="size-[9px] rounded-full"
+                  style={{ backgroundColor: TYPE_CONFIG[type].dot }}
+                />
+                <span className="text-[12px] text-[#6D6C6A]">{label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
