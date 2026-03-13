@@ -30,31 +30,31 @@ const TYPE_CONFIG: Record<
   { bg: string; border: string; text: string; textMuted: string; label: string }
 > = {
   culto: {
-    bg: '#DCFCE7',
-    border: '#16A34A',
-    text: '#166534',
-    textMuted: '#22C55E',
+    bg: '#C8F0D8',
+    border: '#3D8A5A',
+    text: '#3D8A5A',
+    textMuted: '#3D8A5A',
     label: 'Culto',
   },
   iglesia: {
-    bg: '#DBEAFE',
-    border: '#2563EB',
-    text: '#1E40AF',
-    textMuted: '#60A5FA',
+    bg: '#D6E8F5',
+    border: '#5B8DB8',
+    text: '#5B8DB8',
+    textMuted: '#5B8DB8',
     label: 'Iglesia',
   },
   actividad: {
-    bg: '#FFEDD5',
-    border: '#F97316',
-    text: '#C2410C',
-    textMuted: '#FB923C',
+    bg: '#F5EDD8',
+    border: '#C49A3C',
+    text: '#C49A3C',
+    textMuted: '#C49A3C',
     label: 'Actividad',
   },
   contribe: {
-    bg: '#FEE2E2',
-    border: '#EF4444',
-    text: '#B91C1C',
-    textMuted: '#F87171',
+    bg: '#FDE8D8',
+    border: '#D08068',
+    text: '#D08068',
+    textMuted: '#D08068',
     label: 'Confrat.',
   },
 }
@@ -235,18 +235,18 @@ function CreateEventModal({ initialDate, onClose, onSave }: CreateEventModalProp
       <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" onClick={onClose} />
       <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-[#111827]">Nuevo Evento</h2>
+          <h2 className="text-[16px] font-semibold text-[#1A1918]">Nuevo Evento</h2>
           <button
             type="button"
             onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6]"
+            className="flex size-8 items-center justify-center rounded-lg text-[#6D6C6A] hover:bg-[#F5F4F1]"
           >
             <X className="size-4" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-semibold text-[#374151]">Titulo</label>
+            <label className="text-[12px] font-semibold text-[#1A1918]">Titulo</label>
             <input
               type="text"
               value={title}
@@ -254,11 +254,11 @@ function CreateEventModal({ initialDate, onClose, onSave }: CreateEventModalProp
               placeholder="Nombre del evento"
               required
               autoFocus
-              className="h-10 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF] focus:border-[#16A34A] focus:bg-white"
+              className="h-10 rounded-lg border border-[#E5E4E1] bg-[#FAFAF8] px-3 text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99] focus:border-[#3D8A5A] focus:bg-white"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-semibold text-[#374151]">Tipo</label>
+            <label className="text-[12px] font-semibold text-[#1A1918]">Tipo</label>
             <div className="flex gap-2">
               {EVENT_TYPE_OPTIONS.map((t) => {
                 const cfg = TYPE_CONFIG[t]
@@ -281,45 +281,45 @@ function CreateEventModal({ initialDate, onClose, onSave }: CreateEventModalProp
           </div>
           <div className="flex gap-3">
             <div className="flex flex-1 flex-col gap-1.5">
-              <label className="text-[12px] font-semibold text-[#374151]">Fecha</label>
+              <label className="text-[12px] font-semibold text-[#1A1918]">Fecha</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="h-10 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 text-[13px] text-[#111827] outline-none focus:border-[#16A34A] focus:bg-white"
+                className="h-10 rounded-lg border border-[#E5E4E1] bg-[#FAFAF8] px-3 text-[13px] text-[#1A1918] outline-none focus:border-[#3D8A5A] focus:bg-white"
               />
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
-              <label className="text-[12px] font-semibold text-[#374151]">Hora</label>
+              <label className="text-[12px] font-semibold text-[#1A1918]">Hora</label>
               <input
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="h-10 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 text-[13px] text-[#111827] outline-none focus:border-[#16A34A] focus:bg-white"
+                className="h-10 rounded-lg border border-[#E5E4E1] bg-[#FAFAF8] px-3 text-[13px] text-[#1A1918] outline-none focus:border-[#3D8A5A] focus:bg-white"
               />
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-semibold text-[#374151]">Lugar (opcional)</label>
+            <label className="text-[12px] font-semibold text-[#1A1918]">Lugar (opcional)</label>
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Iglesia, sala, etc."
-              className="h-10 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 text-[13px] text-[#111827] outline-none placeholder:text-[#9CA3AF] focus:border-[#16A34A] focus:bg-white"
+              className="h-10 rounded-lg border border-[#E5E4E1] bg-[#FAFAF8] px-3 text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99] focus:border-[#3D8A5A] focus:bg-white"
             />
           </div>
           <div className="mt-1 flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-[#E5E7EB] text-[13px] font-semibold text-[#374151] hover:bg-[#F3F4F6]"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-[#E5E4E1] text-[13px] font-semibold text-[#1A1918] hover:bg-[#F5F4F1]"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex h-10 flex-1 items-center justify-center rounded-lg bg-[#16A34A] text-[13px] font-semibold text-white hover:bg-[#15803D]"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg bg-[#3D8A5A] text-[13px] font-semibold text-white hover:bg-[#2E7A4F]"
             >
               Crear Evento
             </button>
@@ -368,20 +368,20 @@ function EventDetail({ event, anchor, onClose, onDelete }: EventDetailProps) {
                 onDelete(event.id)
                 onClose()
               }}
-              className="flex size-7 items-center justify-center rounded-lg text-[#9CA3AF] hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+              className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] hover:bg-[#FDE8D8] hover:text-[#D08068]"
             >
               <Trash2 className="size-3.5" />
             </button>
           </div>
-          <p className="mb-3 text-[14px] font-semibold text-[#111827]">{event.title}</p>
+          <p className="mb-3 text-[14px] font-semibold text-[#1A1918]">{event.title}</p>
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
-              <Clock className="size-3.5 shrink-0 text-[#9CA3AF]" />
+            <div className="flex items-center gap-2 text-[12px] text-[#6D6C6A]">
+              <Clock className="size-3.5 shrink-0 text-[#9C9B99]" />
               {formatDateLabel(event.date)} · {event.time}
             </div>
             {event.location && (
-              <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
-                <MapPin className="size-3.5 shrink-0 text-[#9CA3AF]" />
+              <div className="flex items-center gap-2 text-[12px] text-[#6D6C6A]">
+                <MapPin className="size-3.5 shrink-0 text-[#9C9B99]" />
                 {event.location}
               </div>
             )}
@@ -464,13 +464,13 @@ function MobileDayStrip({ weekDays, selectedYmd, today, onSelect }: MobileDayStr
             onClick={() => onSelect(ymd)}
             className={cn(
               'flex min-w-[44px] flex-1 flex-col items-center gap-0.5 rounded-xl py-2 transition-colors',
-              isSelected ? 'bg-[#16A34A]' : 'bg-white hover:bg-[#F9FAFB]',
+              isSelected ? 'bg-[#3D8A5A]' : 'bg-white hover:bg-[#FAFAF8]',
             )}
           >
             <span
               className={cn(
                 'text-[10px] font-semibold uppercase tracking-[0.5px]',
-                isSelected ? 'text-white/70' : 'text-[#9CA3AF]',
+                isSelected ? 'text-white/70' : 'text-[#9C9B99]',
               )}
             >
               {DAY_NAMES[day.getDay()]}
@@ -481,8 +481,8 @@ function MobileDayStrip({ weekDays, selectedYmd, today, onSelect }: MobileDayStr
                 isSelected
                   ? 'text-white'
                   : isToday
-                    ? 'bg-[#DCFCE7] text-[#16A34A]'
-                    : 'text-[#111827]',
+                    ? 'bg-[#C8F0D8] text-[#3D8A5A]'
+                    : 'text-[#1A1918]',
               )}
             >
               {day.getDate()}
@@ -507,11 +507,11 @@ function MobileEventList({ events, selectedYmd, onEventClick, onAddEvent }: Mobi
   if (dayEvents.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl bg-white py-12 shadow-sm">
-        <p className="text-[13px] text-[#9CA3AF]">Sin eventos este dia</p>
+        <p className="text-[13px] text-[#9C9B99]">Sin eventos este dia</p>
         <button
           type="button"
           onClick={() => onAddEvent(selectedYmd)}
-          className="flex h-9 items-center gap-2 rounded-lg bg-[#16A34A] px-4 text-[13px] font-semibold text-white hover:bg-[#15803D]"
+          className="flex h-9 items-center gap-2 rounded-lg bg-[#3D8A5A] px-4 text-[13px] font-semibold text-white hover:bg-[#2E7A4F]"
         >
           <Plus className="size-4" />
           Agregar evento
@@ -554,19 +554,19 @@ function MobileEventCard({ event, config, onEventClick }: MobileEventCardProps) 
         if (e.key === 'Enter' && ref.current)
           onEventClick(event, ref.current.getBoundingClientRect())
       }}
-      className="flex cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-colors hover:bg-[#F9FAFB]"
+      className="flex cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-colors hover:bg-[#FAFAF8]"
     >
       <div className="w-[3px] shrink-0" style={{ backgroundColor: config.border }} />
       <div className="flex flex-1 items-center gap-3 px-4 py-3.5">
         <div className="flex flex-1 flex-col gap-0.5">
-          <p className="text-[13px] font-semibold text-[#111827]">{event.title}</p>
+          <p className="text-[13px] font-semibold text-[#1A1918]">{event.title}</p>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-[12px] text-[#6B7280]">
+            <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
               <Clock className="size-3 shrink-0" />
               {event.time}
             </span>
             {event.location && (
-              <span className="flex items-center gap-1 text-[12px] text-[#6B7280]">
+              <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
                 <MapPin className="size-3 shrink-0" />
                 {event.location}
               </span>
@@ -622,8 +622,8 @@ function DayColumn({
   return (
     <div
       className={cn(
-        'flex min-w-0 flex-1 flex-col border-r border-[#E5E7EB] last:border-r-0 transition-colors',
-        isDragOver && 'bg-[#F0FDF4]',
+        'flex min-w-0 flex-1 flex-col border-r border-[#E5E4E1] last:border-r-0 transition-colors',
+        isDragOver && 'bg-[#F0FAF4]',
       )}
       onDragOver={(e) => {
         e.preventDefault()
@@ -641,17 +641,17 @@ function DayColumn({
         title="Crear evento"
         onClick={() => onDayClick(ymd)}
         className={cn(
-          'flex h-14 w-full flex-col items-center justify-center gap-0.5 border-b border-[#E5E7EB] transition-colors',
-          isToday ? 'bg-[#F0FDF4]' : 'bg-white hover:bg-[#F9FAFB]',
+          'flex h-14 w-full flex-col items-center justify-center gap-0.5 border-b border-[#E5E4E1] transition-colors',
+          isToday ? 'bg-[#F0FAF4]' : 'bg-white hover:bg-[#FAFAF8]',
         )}
       >
-        <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
           {DAY_NAMES[date.getDay()]}
         </span>
         <span
           className={cn(
             'flex size-[26px] items-center justify-center rounded-full text-[15px] font-bold',
-            isToday ? 'bg-[#16A34A] text-white' : 'text-[#374151]',
+            isToday ? 'bg-[#3D8A5A] text-white' : 'text-[#1A1918]',
           )}
         >
           {date.getDate()}
@@ -669,7 +669,7 @@ function DayColumn({
           />
         ))}
         {overflow > 0 && (
-          <p className="px-2 text-[10px] font-medium text-[#9CA3AF]">+{overflow} más</p>
+          <p className="px-2 text-[10px] font-medium text-[#9C9B99]">+{overflow} más</p>
         )}
       </div>
     </div>
@@ -749,24 +749,24 @@ export function CalendarPage() {
             <button
               type="button"
               onClick={handlePrevWeek}
-              className="flex size-9 items-center justify-center rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] transition-colors hover:bg-[#F9FAFB]"
+              className="flex size-9 items-center justify-center rounded-lg border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#FAFAF8]"
             >
               <ChevronLeft className="size-4" />
             </button>
-            <span className="min-w-[140px] text-center text-[15px] font-semibold text-[#111827]">
+            <span className="min-w-[140px] text-center text-[15px] font-semibold text-[#1A1918]">
               {monthLabel}
             </span>
             <button
               type="button"
               onClick={handleNextWeek}
-              className="flex size-9 items-center justify-center rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] transition-colors hover:bg-[#F9FAFB]"
+              className="flex size-9 items-center justify-center rounded-lg border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#FAFAF8]"
             >
               <ChevronRight className="size-4" />
             </button>
             <button
               type="button"
               onClick={handleToday}
-              className="flex h-9 items-center rounded-lg border border-[#E5E7EB] bg-white px-4 text-[13px] font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]"
+              className="flex h-9 items-center rounded-lg border border-[#E5E4E1] bg-white px-4 text-[13px] font-medium text-[#1A1918] transition-colors hover:bg-[#FAFAF8]"
             >
               Hoy
             </button>
@@ -778,7 +778,7 @@ export function CalendarPage() {
               ([key, cfg]) => (
                 <div key={key} className="flex items-center gap-1.5">
                   <span className="size-2.5 rounded-full" style={{ backgroundColor: cfg.border }} />
-                  <span className="text-[12px] text-[#6B7280]">{cfg.label}</span>
+                  <span className="text-[12px] text-[#6D6C6A]">{cfg.label}</span>
                 </div>
               ),
             )}
@@ -805,7 +805,7 @@ export function CalendarPage() {
         </div>
 
         {/* Desktop week grid */}
-        <div className="hidden flex-1 overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-sm md:flex">
+        <div className="hidden flex-1 overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white shadow-sm md:flex">
           {weekDays.map((day) => {
             const ymd = toYMD(day)
             return (

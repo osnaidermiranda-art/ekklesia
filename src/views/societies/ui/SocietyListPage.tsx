@@ -1,9 +1,8 @@
 'use client'
 
-import { LayoutGrid, List, Plus, Users } from 'lucide-react'
-import { useState } from 'react'
+import { Building, Calendar, LayoutGrid, List, Plus, UserCheck, Users } from 'lucide-react'
+import React, { useState } from 'react'
 
-import { Avatar } from '@/components/ui/avatar'
 import { PageHeader } from '@/components/ui/page-header'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { cn } from '@/lib/utils'
@@ -14,7 +13,6 @@ import { cn } from '@/lib/utils'
 
 type SocietyType = 'damas' | 'caballeros' | 'jovenes' | 'ninos'
 type FilterTab = 'all' | SocietyType
-type AvatarColor = 'green' | 'blue' | 'coral' | 'purple'
 type ViewMode = 'grid' | 'list'
 
 interface Society {
@@ -23,11 +21,11 @@ interface Society {
   type: SocietyType
   leaderName: string
   leaderInitials: string
-  leaderColor: AvatarColor
   leaderTitle: string
   totalMembers: number
   activeMembers: number
   activities: number
+  eventsPerMonth: number
   church: string
   status: 'active' | 'inactive'
 }
@@ -38,31 +36,35 @@ interface Society {
 
 const TYPE_CONFIG: Record<
   SocietyType,
-  {
-    accentBg: string
-    accentText: string
-    label: string
-    badgeVariant: 'active' | 'transferred' | 'pending' | 'inactive'
-  }
+  { topBar: string; badgeBg: string; badgeText: string; label: string; avatarBg: string }
 > = {
-  damas: { accentBg: '#FCE4EC', accentText: '#E91E63', label: 'Damas', badgeVariant: 'active' },
+  damas: {
+    topBar: '#D89575',
+    badgeBg: '#FDE8D8',
+    badgeText: '#D89575',
+    label: 'Damas',
+    avatarBg: '#D89575',
+  },
   caballeros: {
-    accentBg: '#E8E0F5',
-    accentText: '#8B7CB8',
+    topBar: '#5B8DB8',
+    badgeBg: '#D6E8F5',
+    badgeText: '#5B8DB8',
     label: 'Caballeros',
-    badgeVariant: 'transferred',
+    avatarBg: '#5B8DB8',
   },
   jovenes: {
-    accentBg: '#F5EDD8',
-    accentText: '#C49A3C',
+    topBar: '#8B7CB8',
+    badgeBg: '#E8E0F5',
+    badgeText: '#8B7CB8',
     label: 'Jovenes',
-    badgeVariant: 'pending',
+    avatarBg: '#8B7CB8',
   },
   ninos: {
-    accentBg: '#D6E8F5',
-    accentText: '#5B8DB8',
+    topBar: '#3D8A5A',
+    badgeBg: '#C8F0D8',
+    badgeText: '#3D8A5A',
     label: 'Ninos',
-    badgeVariant: 'transferred',
+    avatarBg: '#3D8A5A',
   },
 }
 
@@ -72,13 +74,6 @@ const TABS: { key: FilterTab; label: string; count: number }[] = [
   { key: 'caballeros', label: 'Caballeros', count: 1 },
   { key: 'jovenes', label: 'Jovenes', count: 1 },
   { key: 'ninos', label: 'Ninos', count: 1 },
-]
-
-const SUMMARY_STATS = [
-  { label: 'Total Sociedades', value: 12, icon: '🏛️' },
-  { label: 'Miembros Activos', value: 173, icon: '👥' },
-  { label: 'Con Actividades', value: 29, icon: '📅' },
-  { label: 'Iglesias con Sociedades', value: 4, icon: '⛪' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -92,11 +87,11 @@ const SOCIETIES: Society[] = [
     type: 'damas',
     leaderName: 'Maria Lopez',
     leaderInitials: 'ML',
-    leaderColor: 'coral',
-    leaderTitle: 'Directora',
+    leaderTitle: 'Presidenta',
     totalMembers: 45,
     activeMembers: 38,
     activities: 8,
+    eventsPerMonth: 3,
     church: 'Iglesia Betania',
     status: 'active',
   },
@@ -106,11 +101,11 @@ const SOCIETIES: Society[] = [
     type: 'caballeros',
     leaderName: 'Pedro Lopez',
     leaderInitials: 'PL',
-    leaderColor: 'purple',
-    leaderTitle: 'Director',
+    leaderTitle: 'Presidente',
     totalMembers: 38,
     activeMembers: 30,
     activities: 5,
+    eventsPerMonth: 2,
     church: 'Iglesia Emanuel',
     status: 'active',
   },
@@ -120,11 +115,11 @@ const SOCIETIES: Society[] = [
     type: 'jovenes',
     leaderName: 'Alex Medina',
     leaderInitials: 'AM',
-    leaderColor: 'green',
     leaderTitle: 'Lider',
     totalMembers: 62,
     activeMembers: 54,
     activities: 12,
+    eventsPerMonth: 4,
     church: 'Iglesia Canaan',
     status: 'active',
   },
@@ -134,11 +129,11 @@ const SOCIETIES: Society[] = [
     type: 'ninos',
     leaderName: 'Carmen Reyes',
     leaderInitials: 'CR',
-    leaderColor: 'blue',
     leaderTitle: 'Maestra',
     totalMembers: 28,
     activeMembers: 24,
     activities: 4,
+    eventsPerMonth: 1,
     church: 'Iglesia Filadelfia',
     status: 'active',
   },
@@ -185,65 +180,62 @@ interface SocietyCardProps {
 }
 
 function SocietyCard({ society }: SocietyCardProps) {
-  const typeConfig = TYPE_CONFIG[society.type]
+  const cfg = TYPE_CONFIG[society.type]
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white transition-shadow hover:shadow-[0_4px_16px_rgba(26,25,24,0.10)]">
-      {/* Top accent bar */}
-      <div className="h-1.5 w-full" style={{ backgroundColor: typeConfig.accentText }} />
+    <div className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.08)]">
+      {/* Colored top accent bar — 6px */}
+      <div className="h-1.5 w-full" style={{ backgroundColor: cfg.topBar }} />
 
-      <div className="flex flex-col gap-4 p-5">
-        {/* Header: name + badge */}
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <p className="text-[15px] font-semibold text-[#1A1918]">{society.name}</p>
-            <p className="text-[12px] text-[#9C9B99]">{society.church.replace('Iglesia ', '')}</p>
-          </div>
+      <div className="flex flex-col gap-[14px] p-5">
+        {/* Header: name + type badge */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[16px] font-semibold text-[#1A1918]">{society.name}</p>
           <span
             className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-            style={{ backgroundColor: typeConfig.accentBg, color: typeConfig.accentText }}
+            style={{ backgroundColor: cfg.badgeBg, color: cfg.badgeText }}
           >
-            {typeConfig.label}
+            {cfg.label}
           </span>
         </div>
 
-        {/* Leader */}
+        {/* Church row */}
+        <div className="flex items-center gap-2">
+          <Building className="size-3.5 shrink-0 text-[#9C9B99]" />
+          <span className="text-[12px] text-[#6D6C6A]">{society.church}</span>
+        </div>
+
+        {/* Leader row */}
         <div className="flex items-center gap-2.5">
-          <Avatar initials={society.leaderInitials} size="sm" color={society.leaderColor} />
-          <div className="flex flex-col gap-0">
-            <p className="text-[13px] font-semibold text-[#1A1918]">{society.leaderName}</p>
+          <div
+            className="flex size-[30px] shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+            style={{ backgroundColor: cfg.avatarBg }}
+          >
+            {society.leaderInitials}
+          </div>
+          <div className="flex flex-col gap-px">
+            <p className="text-[13px] font-medium text-[#1A1918]">{society.leaderName}</p>
             <p className="text-[11px] text-[#9C9B99]">{society.leaderTitle}</p>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-0 divide-x divide-[#E5E4E1] rounded-xl bg-[#F5F4F1]">
-          <div className="flex flex-1 flex-col items-center gap-0.5 py-3">
-            <p className="text-[18px] font-bold text-[#1A1918]">{society.totalMembers}</p>
-            <p className="text-[10px] font-medium text-[#9C9B99]">Total</p>
-          </div>
-          <div className="flex flex-1 flex-col items-center gap-0.5 py-3">
-            <p className="text-[18px] font-bold text-[#3D8A5A]">{society.activeMembers}</p>
-            <p className="text-[10px] font-medium text-[#9C9B99]">Activos</p>
-          </div>
-          <div className="flex flex-1 flex-col items-center gap-0.5 py-3">
-            <p className="text-[18px] font-bold text-[#1A1918]">{society.activities}</p>
-            <p className="text-[10px] font-medium text-[#9C9B99]">Actividades</p>
-          </div>
-        </div>
+        {/* Divider */}
+        <div className="h-px bg-[#E5E4E1]" />
 
-        {/* Footer */}
-        <div className="flex items-center justify-between">
-          <StatusBadge
-            variant={society.status === 'active' ? 'active' : 'inactive'}
-            label={society.status === 'active' ? 'Activa' : 'Inactiva'}
-          />
-          <button
-            type="button"
-            className="text-[12px] font-semibold text-[#3D8A5A] transition-opacity hover:opacity-70"
-          >
-            Ver detalles
-          </button>
+        {/* Stats row */}
+        <div className="flex justify-around">
+          <div className="flex flex-col items-center gap-0.5">
+            <p className="text-[20px] font-bold text-[#1A1918]">{society.totalMembers}</p>
+            <p className="text-[10px] text-[#9C9B99]">Miembros</p>
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <p className="text-[20px] font-bold text-[#1A1918]">{society.activities}</p>
+            <p className="text-[10px] text-[#9C9B99]">Actividades</p>
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <p className="text-[20px] font-bold text-[#1A1918]">{society.eventsPerMonth}</p>
+            <p className="text-[10px] text-[#9C9B99]">Eventos/mes</p>
+          </div>
         </div>
       </div>
     </div>
@@ -255,22 +247,27 @@ interface SocietyRowProps {
 }
 
 function SocietyRow({ society }: SocietyRowProps) {
-  const typeConfig = TYPE_CONFIG[society.type]
+  const cfg = TYPE_CONFIG[society.type]
 
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-[#E5E4E1] bg-white px-5 py-4 transition-colors hover:bg-[#FAFAF9]">
       <div
         className="flex size-10 shrink-0 items-center justify-center rounded-xl"
-        style={{ backgroundColor: typeConfig.accentBg }}
+        style={{ backgroundColor: cfg.badgeBg }}
       >
-        <Users className="size-5" style={{ color: typeConfig.accentText }} />
+        <Users className="size-5" style={{ color: cfg.badgeText }} />
       </div>
       <div className="flex flex-1 flex-col gap-0.5">
         <p className="text-[14px] font-semibold text-[#1A1918]">{society.name}</p>
         <p className="text-[12px] text-[#9C9B99]">{society.church}</p>
       </div>
       <div className="hidden items-center gap-2.5 sm:flex">
-        <Avatar initials={society.leaderInitials} size="sm" color={society.leaderColor} />
+        <div
+          className="flex size-[30px] shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+          style={{ backgroundColor: cfg.avatarBg }}
+        >
+          {society.leaderInitials}
+        </div>
         <span className="text-[13px] text-[#6D6C6A]">{society.leaderName}</span>
       </div>
       <div className="hidden gap-6 lg:flex">
@@ -372,23 +369,57 @@ export function SocietyListPage() {
           </div>
 
           {/* Summary panel (desktop only) */}
-          <div className="hidden w-[240px] shrink-0 lg:block">
-            <div className="rounded-2xl border border-[#E5E4E1] bg-white p-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
-              <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-                Resumen General
-              </p>
+          <div className="hidden w-[300px] shrink-0 lg:block">
+            <div className="rounded-2xl bg-white p-6 shadow-[0_2px_12px_rgba(26,25,24,0.08)]">
+              <p className="text-[16px] font-semibold text-[#1A1918]">Resumen General</p>
+              <div className="my-4 h-px bg-[#E5E4E1]" />
               <div className="flex flex-col gap-4">
-                {SUMMARY_STATS.map((stat) => (
-                  <div key={stat.label} className="flex items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#F5F4F1] text-[18px]">
-                      {stat.icon}
+                {[
+                  {
+                    icon: Users,
+                    iconBg: '#C8F0D8',
+                    iconColor: '#3D8A5A',
+                    label: 'Total Sociedades',
+                    value: 12,
+                  },
+                  {
+                    icon: UserCheck,
+                    iconBg: '#D6E8F5',
+                    iconColor: '#5B8DB8',
+                    label: 'Miembros Activos',
+                    value: 173,
+                  },
+                  {
+                    icon: Calendar,
+                    iconBg: '#E8E0F5',
+                    iconColor: '#8B7CB8',
+                    label: 'Eventos este Mes',
+                    value: 29,
+                  },
+                  {
+                    icon: Building,
+                    iconBg: '#FDE8D8',
+                    iconColor: '#D89575',
+                    label: 'Iglesias con Sociedades',
+                    value: 4,
+                  },
+                ].map((row) => {
+                  const Icon = row.icon
+                  return (
+                    <div key={row.label} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className="flex size-9 shrink-0 items-center justify-center rounded-xl"
+                          style={{ backgroundColor: row.iconBg }}
+                        >
+                          <Icon className="size-[18px]" style={{ color: row.iconColor }} />
+                        </div>
+                        <span className="text-[13px] text-[#6D6C6A]">{row.label}</span>
+                      </div>
+                      <span className="text-[18px] font-bold text-[#1A1918]">{row.value}</span>
                     </div>
-                    <div className="flex flex-col gap-0">
-                      <p className="text-[18px] font-bold text-[#1A1918]">{stat.value}</p>
-                      <p className="text-[11px] text-[#9C9B99]">{stat.label}</p>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>

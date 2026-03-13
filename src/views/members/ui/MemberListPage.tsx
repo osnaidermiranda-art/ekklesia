@@ -201,29 +201,19 @@ function TableHeader() {
   return (
     <div className="flex h-11 items-center rounded-t-2xl border-b border-[#E5E4E1] bg-[#F5F4F1] px-5">
       <div className="flex-1 min-w-0 pr-4">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-          Nombre
-        </span>
+        <span className="text-[11px] font-semibold text-[#9C9B99]">Nombre</span>
       </div>
       <div className="hidden w-36 shrink-0 md:block">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-          Iglesia
-        </span>
+        <span className="text-[11px] font-semibold text-[#9C9B99]">Iglesia</span>
       </div>
       <div className="hidden w-36 shrink-0 lg:block">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-          Rol
-        </span>
+        <span className="text-[11px] font-semibold text-[#9C9B99]">Rol</span>
       </div>
       <div className="hidden w-28 shrink-0 lg:block">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-          Ingresó
-        </span>
+        <span className="text-[11px] font-semibold text-[#9C9B99]">Ingresó</span>
       </div>
       <div className="w-24 shrink-0">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-          Estado
-        </span>
+        <span className="text-[11px] font-semibold text-[#9C9B99]">Estado</span>
       </div>
       <div className="w-10 shrink-0" />
     </div>

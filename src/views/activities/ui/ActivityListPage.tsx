@@ -320,26 +320,26 @@ export function ActivityListPage() {
         <div className="flex-1 overflow-auto rounded-2xl border border-[#E5E4E1] bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E4E1] bg-[#F5F4F1]">
-                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+              <tr className="border-b border-[#E5E4E1] bg-[#FAFAF8]">
+                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold text-[#9C9B99]">
                   Actividad
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99]">
                   Categoria
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] md:table-cell">
+                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] md:table-cell">
                   Iglesia
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] lg:table-cell">
+                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] lg:table-cell">
                   Recurrencia
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] xl:table-cell">
+                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] xl:table-cell">
                   Visibilidad
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] lg:table-cell">
+                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] lg:table-cell">
                   Proxima
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99]">
                   Estado
                 </th>
                 <th className="py-3 pr-4" />

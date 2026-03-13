@@ -1,10 +1,21 @@
 'use client'
 
 import { Clock, MapPin, Plus, Search, Users } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
+
+// Leaflet requires browser APIs — load with no SSR
+const EvangelismMap = dynamic(() => import('./EvangelismMap').then((m) => m.EvangelismMap), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#F5F4F1]">
+      <span className="text-[13px] text-[#9C9B99]">Cargando mapa...</span>
+    </div>
+  ),
+})
 
 // ---------------------------------------------------------------------------
 // Types
@@ -21,9 +32,8 @@ interface PreachingPoint {
   conversions: number
   frequency: string
   zone: string
-  // Map position (percentages within the map area)
-  mapX: number
-  mapY: number
+  lat: number
+  lng: number
 }
 
 // ---------------------------------------------------------------------------
@@ -38,18 +48,8 @@ const STATUS_CONFIG: Record<PointStatus, { bg: string; text: string; dot: string
     closed: { bg: '#F5DDD8', text: '#D08068', dot: '#D08068', label: 'Cerrado' },
   }
 
-// Mock zones for the stylized map
-const MAP_ZONES = [
-  { id: 'z1', label: 'Joya Verde', x: 8, y: 10, w: 38, h: 30, fill: '#E8F5EC' },
-  { id: 'z2', label: 'Santa Emilia', x: 50, y: 8, w: 42, h: 28, fill: '#EAF2F8' },
-  { id: 'z3', label: 'Barrio Ita', x: 12, y: 48, w: 30, h: 34, fill: '#F0EBF8' },
-  { id: 'z4', label: 'Centro Hist.', x: 46, y: 44, w: 46, h: 38, fill: '#FDF3DC' },
-  { id: 'z5', label: 'Col. El Bosco', x: 18, y: 84, w: 26, h: 12, fill: '#E8F5EC' },
-  { id: 'z6', label: 'Mercado', x: 60, y: 84, w: 32, h: 12, fill: '#EAF2F8' },
-]
-
 // ---------------------------------------------------------------------------
-// Mock data
+// Mock data — Tegucigalpa, Honduras
 // ---------------------------------------------------------------------------
 
 const POINTS: PreachingPoint[] = [
@@ -61,9 +61,9 @@ const POINTS: PreachingPoint[] = [
     workers: 2,
     conversions: 2,
     frequency: 'Semanal',
-    zone: 'Centro Hist.',
-    mapX: 60,
-    mapY: 52,
+    zone: 'Centro Historico',
+    lat: 14.1003,
+    lng: -87.2063,
   },
   {
     id: '2',
@@ -74,8 +74,8 @@ const POINTS: PreachingPoint[] = [
     conversions: 3,
     frequency: 'Semanal',
     zone: 'Mercado',
-    mapX: 72,
-    mapY: 88,
+    lat: 14.0978,
+    lng: -87.2081,
   },
   {
     id: '3',
@@ -86,20 +86,20 @@ const POINTS: PreachingPoint[] = [
     conversions: 2,
     frequency: 'Quincenal',
     zone: 'Santa Emilia',
-    mapX: 68,
-    mapY: 18,
+    lat: 14.0891,
+    lng: -87.1996,
   },
   {
     id: '4',
-    name: 'Colonia el Bosco',
+    name: 'Colonia El Bosco',
     address: 'Col. El Bosco, Sector 3',
     status: 'inactive',
     workers: 2,
     conversions: 0,
     frequency: 'Mensual',
     zone: 'Col. El Bosco',
-    mapX: 28,
-    mapY: 89,
+    lat: 14.0812,
+    lng: -87.2134,
   },
   {
     id: '5',
@@ -110,8 +110,8 @@ const POINTS: PreachingPoint[] = [
     conversions: 5,
     frequency: 'Semanal',
     zone: 'Joya Verde',
-    mapX: 22,
-    mapY: 22,
+    lat: 14.1045,
+    lng: -87.215,
   },
   {
     id: '6',
@@ -122,100 +122,10 @@ const POINTS: PreachingPoint[] = [
     conversions: 1,
     frequency: 'Suspendido',
     zone: 'Barrio Ita',
-    mapX: 24,
-    mapY: 60,
+    lat: 14.1125,
+    lng: -87.202,
   },
 ]
-
-// ---------------------------------------------------------------------------
-// Map component
-// ---------------------------------------------------------------------------
-
-interface EvangelismMapProps {
-  points: PreachingPoint[]
-  selectedId: string | null
-  onSelectPoint: (id: string) => void
-}
-
-function EvangelismMap({ points, selectedId, onSelectPoint }: EvangelismMapProps) {
-  return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-[#E5E4E1] bg-[#F0F4F8]">
-      {/* Legend */}
-      <div className="absolute right-4 top-4 z-10 flex flex-col gap-1.5 rounded-xl bg-white/90 p-3 shadow-sm backdrop-blur-sm">
-        {(
-          Object.entries(STATUS_CONFIG) as [PointStatus, (typeof STATUS_CONFIG)[PointStatus]][]
-        ).map(([key, cfg]) => (
-          <div key={key} className="flex items-center gap-2">
-            <span className="size-2 rounded-full" style={{ backgroundColor: cfg.dot }} />
-            <span className="text-[11px] font-medium text-[#6D6C6A]">{cfg.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* SVG map */}
-      <svg viewBox="0 0 100 100" className="h-full w-full" preserveAspectRatio="xMidYMid slice">
-        {/* Background grid lines */}
-        {[20, 40, 60, 80].map((v) => (
-          <g key={v}>
-            <line x1={v} y1={0} x2={v} y2={100} stroke="#D8E4EC" strokeWidth="0.3" />
-            <line x1={0} y1={v} x2={100} y2={v} stroke="#D8E4EC" strokeWidth="0.3" />
-          </g>
-        ))}
-
-        {/* Zone blocks */}
-        {MAP_ZONES.map((zone) => (
-          <g key={zone.id}>
-            <rect
-              x={zone.x}
-              y={zone.y}
-              width={zone.w}
-              height={zone.h}
-              fill={zone.fill}
-              rx={2}
-              stroke="#D0DDE8"
-              strokeWidth="0.4"
-            />
-            <text
-              x={zone.x + zone.w / 2}
-              y={zone.y + zone.h / 2}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="3"
-              fill="#9C9B99"
-              fontWeight="600"
-            >
-              {zone.label}
-            </text>
-          </g>
-        ))}
-
-        {/* Point markers */}
-        {points.map((point) => {
-          const cfg = STATUS_CONFIG[point.status]
-          const isSelected = point.id === selectedId
-          return (
-            <g
-              key={point.id}
-              transform={`translate(${point.mapX}, ${point.mapY})`}
-              style={{ cursor: 'pointer' }}
-              onClick={() => onSelectPoint(point.id)}
-            >
-              {/* Selection ring */}
-              {isSelected && (
-                <circle r={5} fill="none" stroke={cfg.dot} strokeWidth="0.8" opacity={0.4} />
-              )}
-              {/* Pin drop shadow */}
-              <circle cx={0} cy={0.5} r={3} fill="rgba(0,0,0,0.12)" />
-              {/* Pin body */}
-              <circle r={3} fill={cfg.dot} />
-              <circle r={1.2} fill="white" />
-            </g>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Point card
@@ -225,18 +135,22 @@ interface PointCardProps {
   point: PreachingPoint
   selected: boolean
   onClick: () => void
+  onMouseEnter: () => void
+  onMouseLeave: () => void
 }
 
-function PointCard({ point, selected, onClick }: PointCardProps) {
+function PointCard({ point, selected, onClick, onMouseEnter, onMouseLeave }: PointCardProps) {
   const cfg = STATUS_CONFIG[point.status]
 
   return (
     <button
       type="button"
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className={cn(
         'flex w-full flex-col gap-3 rounded-2xl border p-4 text-left transition-colors',
-        selected ? 'border-[#3D8A5A] bg-[#F0FAF4]' : 'border-[#E5E4E1] bg-white hover:bg-[#FAFAF9]',
+        selected ? 'border-[#3D8A5A] bg-[#F0FAF4]' : 'border-[#E5E4E1] bg-white hover:bg-[#FAFAF8]',
       )}
     >
       {/* Header */}
@@ -254,22 +168,24 @@ function PointCard({ point, selected, onClick }: PointCardProps) {
       </div>
 
       {/* Stats row */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        <span className="flex items-center gap-1.5 text-[12px] text-[#6D6C6A]">
           <Users className="size-3.5 shrink-0 text-[#9C9B99]" />
           {point.workers} obreros
         </span>
-        <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
-          <MapPin className="size-3.5 shrink-0 text-[#9C9B99]" />
-          {point.address}
-        </span>
-        <span className="flex items-center gap-1 text-[12px] text-[#6D6C6A]">
+        <span className="flex items-center gap-1.5 text-[12px] text-[#6D6C6A]">
           <Clock className="size-3.5 shrink-0 text-[#9C9B99]" />
           {point.frequency}
         </span>
       </div>
 
-      {/* Conversion stat */}
+      {/* Address */}
+      <span className="flex items-center gap-1.5 text-[12px] text-[#9C9B99]">
+        <MapPin className="size-3.5 shrink-0" />
+        {point.address}
+      </span>
+
+      {/* Conversions */}
       {point.conversions > 0 && (
         <div className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-[#3D8A5A]" />
@@ -288,6 +204,7 @@ function PointCard({ point, selected, onClick }: PointCardProps) {
 
 export function EvangelismPage() {
   const [selectedId, setSelectedId] = useState<string | null>(POINTS[0].id)
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<PointStatus | 'all'>('all')
 
@@ -307,25 +224,47 @@ export function EvangelismPage() {
         action={{ label: 'Nuevo Punto', icon: Plus, variant: 'primary' }}
       />
 
-      <div className="flex flex-1 gap-5 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
-        {/* Left — map */}
-        <div className="hidden flex-1 flex-col gap-4 md:flex">
-          <p className="text-[13px] font-semibold text-[#6D6C6A]">Mapa de Puntos de Evangelismo</p>
-          <div className="flex-1">
-            <EvangelismMap points={POINTS} selectedId={selectedId} onSelectPoint={setSelectedId} />
+      <div className="flex flex-1 gap-5 overflow-hidden px-4 py-4 lg:px-8 lg:py-6">
+        {/* Left — map panel */}
+        <div className="hidden flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] md:flex">
+          <div className="flex items-center justify-between border-b border-[#E5E4E1] px-5 py-4">
+            <p className="text-[14px] font-semibold text-[#1A1918]">
+              Mapa de Puntos de Evangelismo
+            </p>
+            <div className="flex items-center gap-3">
+              {(
+                Object.entries(STATUS_CONFIG) as [
+                  PointStatus,
+                  (typeof STATUS_CONFIG)[PointStatus],
+                ][]
+              ).map(([key, cfg]) => (
+                <div key={key} className="flex items-center gap-1.5">
+                  <span className="size-2 rounded-full" style={{ backgroundColor: cfg.dot }} />
+                  <span className="text-[11px] text-[#6D6C6A]">{cfg.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden p-3">
+            <EvangelismMap
+              points={POINTS}
+              selectedId={selectedId}
+              hoveredId={hoveredId}
+              onSelectPoint={setSelectedId}
+            />
           </div>
         </div>
 
-        {/* Right — points list */}
-        <div className="flex w-full flex-col gap-4 overflow-hidden md:w-[340px] md:shrink-0">
-          <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-[#6D6C6A]">Puntos de Predicacion</p>
+        {/* Right — points list panel */}
+        <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] md:w-[340px] md:shrink-0">
+          <div className="flex items-center justify-between border-b border-[#E5E4E1] px-5 py-4">
+            <p className="text-[14px] font-semibold text-[#1A1918]">Puntos de Predicacion</p>
             <span className="text-[12px] text-[#9C9B99]">{filtered.length} puntos</span>
           </div>
 
           {/* Search + filter */}
-          <div className="flex flex-col gap-2">
-            <div className="flex h-9 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-3">
+          <div className="flex flex-col gap-3 border-b border-[#E5E4E1] px-4 py-3">
+            <div className="flex h-9 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3">
               <Search className="size-4 shrink-0 text-[#9C9B99]" />
               <input
                 type="text"
@@ -336,7 +275,6 @@ export function EvangelismPage() {
               />
             </div>
 
-            {/* Status filter pills */}
             <div className="flex gap-1.5 overflow-x-auto pb-0.5">
               {(['all', 'active', 'pending', 'inactive', 'closed'] as const).map((s) => {
                 const isActive = statusFilter === s
@@ -367,9 +305,9 @@ export function EvangelismPage() {
           </div>
 
           {/* Cards */}
-          <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
+          <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
             {filtered.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center rounded-2xl bg-white py-12">
+              <div className="flex flex-1 items-center justify-center py-12">
                 <p className="text-[13px] text-[#9C9B99]">Sin resultados</p>
               </div>
             ) : (
@@ -379,6 +317,8 @@ export function EvangelismPage() {
                   point={point}
                   selected={point.id === selectedId}
                   onClick={() => setSelectedId(point.id)}
+                  onMouseEnter={() => setHoveredId(point.id)}
+                  onMouseLeave={() => setHoveredId(null)}
                 />
               ))
             )}

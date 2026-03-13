@@ -35,7 +35,8 @@ interface Service {
   location: string
   attendees: number
   status: ServiceStatus
-  dateColor: string
+  dateBg: string
+  dateAccent: string
   roles: AssignedRole[]
 }
 
@@ -74,7 +75,8 @@ const SERVICES: Service[] = [
     location: 'Iglesia Betania',
     attendees: 12,
     status: 'complete',
-    dateColor: '#3D8A5A',
+    dateBg: '#C8F0D8',
+    dateAccent: '#3D8A5A',
     roles: [
       {
         id: 'r1',
@@ -112,7 +114,8 @@ const SERVICES: Service[] = [
     location: 'Iglesia Emanuel',
     attendees: 8,
     status: 'pending',
-    dateColor: '#5B8DB8',
+    dateBg: '#D6E8F5',
+    dateAccent: '#5B8DB8',
     roles: [
       {
         id: 'r4',
@@ -142,7 +145,8 @@ const SERVICES: Service[] = [
     location: 'Iglesia Canaan',
     attendees: 5,
     status: 'incomplete',
-    dateColor: '#D08068',
+    dateBg: '#FDE8D8',
+    dateAccent: '#D89575',
     roles: [
       {
         id: 'r6',
@@ -172,7 +176,8 @@ const SERVICES: Service[] = [
     location: 'Iglesia Betania',
     attendees: 14,
     status: 'complete',
-    dateColor: '#3D8A5A',
+    dateBg: '#C8F0D8',
+    dateAccent: '#3D8A5A',
     roles: [
       {
         id: 'r8',
@@ -229,7 +234,7 @@ function Tab({ active, label, count, onClick }: TabProps) {
       {count !== undefined && (
         <span
           className={cn(
-            'flex size-5 items-center justify-center rounded-full text-[10px] font-bold',
+            'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold',
             active ? 'bg-white/25 text-white' : 'bg-[#EDECEA] text-[#6D6C6A]',
           )}
         >
@@ -254,24 +259,24 @@ function ServiceRow({ service, selected, onClick }: ServiceRowProps) {
       onClick={onClick}
       className={cn(
         'flex w-full items-center rounded-2xl border text-left transition-colors',
-        selected ? 'border-[#3D8A5A] bg-[#F0FAF4]' : 'border-[#E5E4E1] bg-white hover:bg-[#FAFAF9]',
+        selected ? 'border-[#3D8A5A] bg-[#EBF5F0]' : 'border-[#E5E4E1] bg-white hover:bg-[#FAFAF8]',
       )}
     >
       {/* Date badge */}
       <div
         className="mx-4 flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl"
-        style={{ backgroundColor: service.dateColor + '22' }}
+        style={{ backgroundColor: service.dateBg }}
       >
-        <span className="text-[16px] font-bold leading-none" style={{ color: service.dateColor }}>
+        <span className="text-[16px] font-bold leading-none" style={{ color: service.dateAccent }}>
           {service.day}
         </span>
-        <span className="text-[9px] font-semibold uppercase" style={{ color: service.dateColor }}>
+        <span className="text-[9px] font-semibold uppercase" style={{ color: service.dateAccent }}>
           {service.month}
         </span>
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col gap-0.5 py-5 pr-4">
+      <div className="flex flex-1 flex-col gap-0.5 py-4 pr-4">
         <p className="text-[14px] font-semibold text-[#1A1918]">{service.title}</p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
           <span className="flex items-center gap-1 text-[12px] text-[#9C9B99]">
@@ -328,12 +333,12 @@ function DetailPanel({ service }: DetailPanelProps) {
   return (
     <div className="flex h-full flex-col rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
       {/* Header */}
-      <div className="flex flex-col gap-2 border-b border-[#E5E4E1] p-6">
+      <div className="flex flex-col gap-3 border-b border-[#E5E4E1] p-6">
         <div className="flex items-start justify-between gap-3">
           <p className="text-[16px] font-semibold text-[#1A1918]">{service.title}</p>
           <StatusBadge variant={statusConfig.variant} label={statusConfig.label} />
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <span className="flex items-center gap-1.5 text-[12px] text-[#6D6C6A]">
             <Clock className="size-3.5 shrink-0 text-[#9C9B99]" />
             {service.dateLabel}
@@ -351,9 +356,7 @@ function DetailPanel({ service }: DetailPanelProps) {
 
       {/* Roles */}
       <div className="flex flex-col p-6">
-        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.6px] text-[#9C9B99]">
-          Roles Asignados
-        </p>
+        <p className="mb-3 text-[11px] font-semibold text-[#9C9B99]">Roles asignados</p>
         <div>
           {service.roles.map((role, i) => (
             <RoleRow key={role.id} role={role} isLast={i === service.roles.length - 1} />
@@ -384,7 +387,7 @@ export function ServiceListPage() {
 
       <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
         {/* Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
           {TABS.map((tab) => (
             <Tab
               key={tab.key}
@@ -400,7 +403,7 @@ export function ServiceListPage() {
         <div className="flex flex-1 gap-5 overflow-hidden">
           {/* Left — service list */}
           <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
-            <p className="text-[13px] font-semibold text-[#6D6C6A]">Proximos Servicios</p>
+            <p className="text-[13px] font-semibold text-[#6D6C6A]">Proximos servicios</p>
             {SERVICES.map((service) => (
               <ServiceRow
                 key={service.id}

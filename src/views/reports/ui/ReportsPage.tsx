@@ -1,15 +1,6 @@
 'use client'
 
-import {
-  BarChart2,
-  Calendar,
-  Download,
-  FileSpreadsheet,
-  FileText,
-  Info,
-  Plus,
-  Users,
-} from 'lucide-react'
+import { CalendarCheck, Download, DollarSign, Info, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
@@ -42,30 +33,53 @@ interface RecentReport {
 // Config
 // ---------------------------------------------------------------------------
 
-const TYPE_CONFIG: Record<ReportType, { bg: string; text: string; label: string; iconBg: string }> =
-  {
-    financial: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Financiero', iconBg: '#F0FAF4' },
-    membership: { bg: '#E8E0F5', text: '#8B7CB8', label: 'Membresia', iconBg: '#F3F0FA' },
-    attendance: { bg: '#D6E8F5', text: '#5B8DB8', label: 'Asistencia', iconBg: '#EEF5FB' },
-  }
+const TYPE_CONFIG: Record<
+  ReportType,
+  { badgeBg: string; badgeText: string; label: string; iconBg: string; iconColor: string }
+> = {
+  financial: {
+    badgeBg: '#C8F0D8',
+    badgeText: '#3D8A5A',
+    label: 'Financiero',
+    iconBg: '#C8F0D8',
+    iconColor: '#3D8A5A',
+  },
+  membership: {
+    badgeBg: '#D6E8F5',
+    badgeText: '#5B8DB8',
+    label: 'Membresia',
+    iconBg: '#D6E8F5',
+    iconColor: '#5B8DB8',
+  },
+  attendance: {
+    badgeBg: '#E8E0F5',
+    badgeText: '#8B7CB8',
+    label: 'Asistencia',
+    iconBg: '#E8E0F5',
+    iconColor: '#8B7CB8',
+  },
+}
 
 const REPORT_TEMPLATES: ReportTemplate[] = [
   {
     type: 'financial',
     title: 'Reporte Financiero',
-    description: 'Resumen de ingresos, egresos, ofrendas y diezmos del periodo seleccionado.',
+    description:
+      'Ingresos, egresos, diezmos y ofrendas por periodo e iglesia. Incluye graficas comparativas.',
     formats: ['pdf', 'excel'],
   },
   {
     type: 'membership',
     title: 'Reporte de Membresia',
-    description: 'Listado de miembros activos, inactivos y sus roles asignados en el concilio.',
+    description:
+      'Listado de miembros por iglesia, rol y estado. Incluye altas, bajas y transferencias.',
     formats: ['pdf', 'excel'],
   },
   {
     type: 'attendance',
     title: 'Reporte de Asistencia',
-    description: 'Registro de asistencia en servicios y actividades con tendencias por periodo.',
+    description:
+      'Control de asistencia a servicios y eventos. Tendencias semanales y comparativas por iglesia.',
     formats: ['pdf'],
   },
 ]
@@ -73,7 +87,7 @@ const REPORT_TEMPLATES: ReportTemplate[] = [
 const RECENT_REPORTS: RecentReport[] = [
   {
     id: '1',
-    name: 'Tesoro Mensual - Marzo 2026',
+    name: 'Finanzas Mensual - Marzo 2025',
     type: 'financial',
     generatedBy: 'Juan Perez',
     date: '7 Mar',
@@ -81,34 +95,26 @@ const RECENT_REPORTS: RecentReport[] = [
   },
   {
     id: '2',
-    name: 'Membresia Q1 2026',
+    name: 'Membresia Q1 2025 - Concilio',
     type: 'membership',
-    generatedBy: 'Jose Martinez',
+    generatedBy: 'Ana Martinez',
     date: '5 Mar',
     format: 'excel',
   },
   {
     id: '3',
-    name: 'Asistencia Febrero - Detalle',
+    name: 'Asistencia Febrero - Betania',
     type: 'attendance',
     generatedBy: 'Carlos Gomez',
     date: '1 Mar',
     format: 'pdf',
   },
-  {
-    id: '4',
-    name: 'Finanzas Enero - Enero 2026',
-    type: 'financial',
-    generatedBy: 'Juan Perez',
-    date: '28 Feb',
-    format: 'excel',
-  },
 ]
 
 const REPORT_TYPE_ICONS: Record<ReportType, React.ComponentType<{ className?: string }>> = {
-  financial: BarChart2,
+  financial: DollarSign,
   membership: Users,
-  attendance: Calendar,
+  attendance: CalendarCheck,
 }
 
 // ---------------------------------------------------------------------------
@@ -125,52 +131,39 @@ function ReportTemplateCard({ template, onGenerate }: ReportTemplateCardProps) {
   const Icon = REPORT_TYPE_ICONS[template.type]
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-[#E5E4E1] bg-white p-6 shadow-[0_2px_8px_rgba(26,25,24,0.04)] transition-shadow hover:shadow-[0_4px_16px_rgba(26,25,24,0.08)]">
+    <div className="flex flex-col gap-4 rounded-2xl border border-[#E5E4E1] bg-white p-6 shadow-[0_2px_12px_rgba(26,25,24,0.06)] transition-shadow hover:shadow-[0_4px_16px_rgba(26,25,24,0.10)]">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div
           className="flex size-11 shrink-0 items-center justify-center rounded-xl"
           style={{ backgroundColor: cfg.iconBg }}
         >
-          <Icon
-            className={cn(
-              'size-5',
-              template.type === 'financial' && 'text-[#3D8A5A]',
-              template.type === 'membership' && 'text-[#8B7CB8]',
-              template.type === 'attendance' && 'text-[#5B8DB8]',
-            )}
-          />
+          <Icon className="size-[22px]" style={{ color: cfg.iconColor }} />
         </div>
-        <Download className="size-4 text-[#9C9B99]" />
+        <button
+          type="button"
+          onClick={() => onGenerate(template.type, template.formats[0])}
+          className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] text-[#6D6C6A] transition-colors hover:bg-[#EDECEA]"
+        >
+          <Download className="size-4" />
+        </button>
       </div>
 
       {/* Content */}
       <div className="flex flex-col gap-1.5">
-        <p className="text-[15px] font-semibold text-[#1A1918]">{template.title}</p>
-        <p className="text-[12px] leading-relaxed text-[#9C9B99]">{template.description}</p>
+        <p className="text-[16px] font-semibold text-[#1A1918]">{template.title}</p>
+        <p className="text-[12px] leading-[1.5] text-[#6D6C6A]">{template.description}</p>
       </div>
 
-      {/* Format buttons */}
+      {/* Format tags */}
       <div className="flex items-center gap-2">
         {template.formats.map((format) => (
-          <button
+          <span
             key={format}
-            type="button"
-            onClick={() => onGenerate(template.type, format)}
-            className={cn(
-              'flex h-8 items-center gap-1.5 rounded-lg px-3 text-[12px] font-semibold transition-colors',
-              format === 'pdf'
-                ? 'bg-[#F5DDD8] text-[#D08068] hover:bg-[#F0D0C8]'
-                : 'bg-[#C8F0D8] text-[#3D8A5A] hover:bg-[#B8E8C8]',
-            )}
+            className="inline-flex h-6 items-center rounded-full bg-[#F5F4F1] px-2.5 text-[11px] font-medium text-[#6D6C6A]"
           >
-            {format === 'pdf' ? (
-              <FileText className="size-3.5" />
-            ) : (
-              <FileSpreadsheet className="size-3.5" />
-            )}
-            {format.toUpperCase()}
-          </button>
+            {format === 'pdf' ? 'PDF' : 'Excel'}
+          </span>
         ))}
       </div>
     </div>
@@ -185,46 +178,46 @@ function RecentReportRow({ report }: RecentReportRowProps) {
   const cfg = TYPE_CONFIG[report.type]
 
   return (
-    <tr className="group border-b border-[#E5E4E1] transition-colors last:border-b-0 hover:bg-[#FAFAF9]">
-      <td className="py-3.5 pl-6 pr-4">
-        <p className="text-[13px] font-semibold text-[#1A1918]">{report.name}</p>
+    <tr className="group border-b border-[#E5E4E1] transition-colors last:border-b-0 hover:bg-[#FAFAF8]">
+      <td className="py-3.5 pl-4 pr-4">
+        <p className="text-[13px] text-[#1A1918]">{report.name}</p>
       </td>
-      <td className="px-4 py-3.5">
+      <td className="px-4 py-3.5" style={{ width: 140 }}>
         <span
-          className="inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-semibold"
-          style={{ backgroundColor: cfg.bg, color: cfg.text }}
+          className="inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-medium"
+          style={{ backgroundColor: cfg.badgeBg, color: cfg.badgeText }}
         >
           {cfg.label}
         </span>
       </td>
-      <td className="hidden px-4 py-3.5 text-[13px] text-[#6D6C6A] sm:table-cell">
+      <td
+        className="hidden px-4 py-3.5 text-[13px] text-[#6D6C6A] sm:table-cell"
+        style={{ width: 140 }}
+      >
         {report.generatedBy}
       </td>
-      <td className="hidden px-4 py-3.5 text-[13px] text-[#6D6C6A] md:table-cell">{report.date}</td>
-      <td className="px-4 py-3.5">
-        <button
-          type="button"
-          className={cn(
-            'flex h-6 items-center gap-1 rounded-lg px-2 text-[11px] font-semibold transition-colors',
-            report.format === 'pdf'
-              ? 'bg-[#F5DDD8] text-[#D08068] hover:bg-[#F0D0C8]'
-              : 'bg-[#C8F0D8] text-[#3D8A5A] hover:bg-[#B8E8C8]',
-          )}
-        >
-          {report.format === 'pdf' ? (
-            <FileText className="size-3" />
-          ) : (
-            <FileSpreadsheet className="size-3" />
-          )}
-          {report.format.toUpperCase()}
-        </button>
+      <td
+        className="hidden px-4 py-3.5 text-[13px] text-[#6D6C6A] md:table-cell"
+        style={{ width: 100 }}
+      >
+        {report.date}
       </td>
-      <td className="py-3.5 pr-4">
+      <td className="px-4 py-3.5" style={{ width: 80 }}>
+        <span
+          className={cn(
+            'inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-medium',
+            report.format === 'pdf' ? 'bg-[#FDEDEE] text-[#D08068]' : 'bg-[#E8F5E9] text-[#3D8A5A]',
+          )}
+        >
+          {report.format === 'pdf' ? 'PDF' : 'Excel'}
+        </span>
+      </td>
+      <td className="py-3.5 pr-4" style={{ width: 40 }}>
         <button
           type="button"
-          className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F5F4F1]"
+          className="flex size-7 items-center justify-center rounded-lg text-[#6D6C6A] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F5F4F1]"
         >
-          <Download className="size-3.5" />
+          <Download className="size-4" />
         </button>
       </td>
     </tr>
@@ -255,11 +248,11 @@ export function ReportsPage() {
 
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4 lg:px-8 lg:py-8">
         {/* Info banner */}
-        <div className="flex items-start gap-3 rounded-2xl border border-[#D6E8F5] bg-[#EEF5FB] px-5 py-4">
-          <Info className="mt-0.5 size-4 shrink-0 text-[#5B8DB8]" />
-          <p className="text-[13px] text-[#5B8DB8]">
-            Genera reportes por tipo, fecha y periodo. Los reportes pueden enviarse por correo
-            electronico directamente a los tesoreros y administradores del concilio.
+        <div className="flex items-center gap-4">
+          <Info className="size-[18px] shrink-0 text-[#5B8DB8]" />
+          <p className="text-[13px] text-[#6D6C6A]">
+            Genera reportes personalizados en PDF o Excel con el branding de tu concilio. Filtra por
+            iglesia, periodo y tipo.
           </p>
         </div>
 
@@ -294,23 +287,35 @@ export function ReportsPage() {
 
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E4E1] bg-[#F5F4F1]">
-                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+              <tr className="border-b border-[#E5E4E1] bg-[#FAFAF8]">
+                <th className="py-3 pl-4 pr-4 text-left text-[11px] font-semibold tracking-[0.5px] text-[#9C9B99]">
                   Nombre
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+                <th
+                  className="px-4 py-3 text-left text-[11px] font-semibold tracking-[0.5px] text-[#9C9B99]"
+                  style={{ width: 140 }}
+                >
                   Tipo
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] sm:table-cell">
+                <th
+                  className="hidden px-4 py-3 text-left text-[11px] font-semibold tracking-[0.5px] text-[#9C9B99] sm:table-cell"
+                  style={{ width: 140 }}
+                >
                   Generado por
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99] md:table-cell">
+                <th
+                  className="hidden px-4 py-3 text-left text-[11px] font-semibold tracking-[0.5px] text-[#9C9B99] md:table-cell"
+                  style={{ width: 100 }}
+                >
                   Fecha
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
+                <th
+                  className="px-4 py-3 text-left text-[11px] font-semibold tracking-[0.5px] text-[#9C9B99]"
+                  style={{ width: 80 }}
+                >
                   Formato
                 </th>
-                <th className="py-3 pr-4" />
+                <th className="py-3 pr-4" style={{ width: 40 }} />
               </tr>
             </thead>
             <tbody>

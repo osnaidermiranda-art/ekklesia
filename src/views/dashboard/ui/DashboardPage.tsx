@@ -196,21 +196,21 @@ const RECENT_ACTIVITY: ActivityRow[] = [
 
 const UPCOMING_EVENTS: UpcomingEvent[] = [
   {
-    day: '28',
-    month: 'FEB',
+    day: '15',
+    month: 'MAR',
     color: '#3D8A5A',
     title: 'Santa Cena - Concilio',
     detail: 'Dom 10:00 AM · Todas las iglesias',
   },
   {
-    day: '02',
+    day: '17',
     month: 'MAR',
     color: '#D89575',
     title: 'Escuela Dominical',
     detail: 'Dom 9:00 AM · Iglesia Betania',
   },
   {
-    day: '05',
+    day: '22',
     month: 'MAR',
     color: '#5B8DB8',
     title: 'Evangelismo Zona Norte',
@@ -432,7 +432,7 @@ function RecentActivity() {
 
       {/* Desktop table */}
       <div className="hidden md:block">
-        <div className="flex h-9 items-center rounded-lg bg-[#F5F4F1] px-3">
+        <div className="flex h-9 items-center rounded-lg bg-[#FAFAF8] px-3">
           <span className="flex-1 text-xs font-semibold text-[#9C9B99]">Miembro</span>
           <span className="flex-1 text-xs font-semibold text-[#9C9B99]">Accion</span>
           <span className="w-[120px] text-xs font-semibold text-[#9C9B99]">Iglesia</span>
@@ -551,7 +551,7 @@ function MonthSummary() {
     <DashboardCard className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="text-base font-semibold text-[#1A1918]">Resumen del Mes</p>
-        <span className="text-xs text-[#9C9B99]">Marzo 2025</span>
+        <span className="text-xs text-[#9C9B99]">Marzo 2026</span>
       </div>
 
       <div className="flex flex-col gap-3">

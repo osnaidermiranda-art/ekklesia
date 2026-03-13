@@ -3,12 +3,27 @@
 import {
   ArrowDownRight,
   ArrowUpRight,
+  BookOpen,
   CalendarDays,
   Download,
+  Heart,
   MoreVertical,
+  TrendingDown,
   TrendingUp,
 } from 'lucide-react'
 import { useState } from 'react'
+import {
+  Bar,
+  BarChart as RechartsBarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
@@ -37,7 +52,8 @@ interface StatCard {
   delta: string
   positive: boolean
   iconBg: string
-  icon: string
+  iconColor: string
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>
 }
 
 // ---------------------------------------------------------------------------
@@ -52,12 +68,12 @@ const PERIOD_TABS: { key: PeriodTab; label: string }[] = [
 ]
 
 const STATUS_CONFIG: Record<TransactionStatus, { bg: string; text: string; label: string }> = {
-  entrada: { bg: '#DCFCE7', text: '#166534', label: 'Entrada' },
+  entrada: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Entrada' },
   salida: { bg: '#FEE2E2', text: '#B91C1C', label: 'Salida' },
 }
 
 const CATEGORY_CONFIG: Record<TransactionCategory, { bg: string; text: string; label: string }> = {
-  diezmo: { bg: '#DCFCE7', text: '#166534', label: 'Diezmo' },
+  diezmo: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Diezmo' },
   ofrenda: { bg: '#F3E8FF', text: '#7C3AED', label: 'Ofrenda' },
   egreso: { bg: '#FEE2E2', text: '#B91C1C', label: 'Egreso' },
   donacion: { bg: '#DBEAFE', text: '#1D4ED8', label: 'Donacion' },
@@ -69,32 +85,36 @@ const STAT_CARDS: StatCard[] = [
     value: '$45,280',
     delta: '+6.2%',
     positive: true,
-    iconBg: '#DCFCE7',
-    icon: '💰',
+    iconBg: '#C8F0D8',
+    iconColor: '#3D8A5A',
+    icon: TrendingUp,
   },
   {
     label: 'Diezmos',
     value: '$28,450',
     delta: '+42.3%',
     positive: true,
-    iconBg: '#DBEAFE',
-    icon: '📋',
+    iconBg: '#D6E8F5',
+    iconColor: '#5B8DB8',
+    icon: BookOpen,
   },
   {
     label: 'Ofrendas',
     value: '$12,830',
     delta: '+0.8%',
     positive: true,
-    iconBg: '#F3E8FF',
-    icon: '🙏',
+    iconBg: '#E8E0F5',
+    iconColor: '#8B7CB8',
+    icon: Heart,
   },
   {
     label: 'Egresos',
     value: '$8,960',
     delta: '-2.6%',
     positive: false,
-    iconBg: '#FEE2E2',
-    icon: '📤',
+    iconBg: '#FDE8D8',
+    iconColor: '#D08068',
+    icon: TrendingDown,
   },
 ]
 
@@ -107,9 +127,9 @@ const BAR_DATA = [
 ]
 
 const DONUT_SEGMENTS = [
-  { label: 'Diezmos', value: 48097, pct: 64.9, color: '#16A34A' },
-  { label: 'Ofrendas', value: 13889, pct: 28.4, color: '#2563EB' },
-  { label: 'Egresos', value: 4444, pct: 6.1, color: '#F97316' },
+  { label: 'Diezmos', value: 48097, pct: 64.9, color: '#3D8A5A' },
+  { label: 'Ofrendas', value: 13889, pct: 28.4, color: '#5B8DB8' },
+  { label: 'Egresos', value: 4444, pct: 6.1, color: '#D89575' },
 ]
 
 const TRANSACTIONS: Transaction[] = [
@@ -174,23 +194,25 @@ const TRANSACTIONS: Transaction[] = [
 // ---------------------------------------------------------------------------
 
 function StatCardItem({ card }: { card: StatCard }) {
+  const Icon = card.icon
+
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-5">
+    <div className="flex flex-col gap-4 rounded-2xl border border-[#E5E4E1] bg-white p-5">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[12px] font-medium text-[#6B7280]">{card.label}</p>
+        <p className="text-[12px] font-medium text-[#6D6C6A]">{card.label}</p>
         <div
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg text-lg"
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg"
           style={{ backgroundColor: card.iconBg }}
         >
-          {card.icon}
+          <Icon className="size-4" style={{ color: card.iconColor }} />
         </div>
       </div>
-      <p className="text-[26px] font-bold tracking-tight text-[#111827]">{card.value}</p>
+      <p className="text-[26px] font-bold tracking-tight text-[#1A1918]">{card.value}</p>
       <div className="flex items-center gap-2">
         <span
           className={cn(
             'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold',
-            card.positive ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEE2E2] text-[#B91C1C]',
+            card.positive ? 'bg-[#C8F0D8] text-[#3D8A5A]' : 'bg-[#FEE2E2] text-[#B91C1C]',
           )}
         >
           {card.positive ? (
@@ -200,170 +222,120 @@ function StatCardItem({ card }: { card: StatCard }) {
           )}
           {card.delta}
         </span>
-        <span className="text-[11px] text-[#9CA3AF]">vs periodo anterior</span>
+        <span className="text-[11px] text-[#9C9B99]">vs periodo anterior</span>
       </div>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Bar chart (SVG)
+// Bar chart (Recharts)
 // ---------------------------------------------------------------------------
 
-function BarChart() {
-  const maxVal = Math.max(...BAR_DATA.flatMap((d) => [d.diezmos, d.ofrendas, d.egresos]))
-  const chartH = 120
-  const barW = 10
-  const barGap = 3
-  const groupW = barW * 3 + barGap * 2
-  const groupGap = 18
-  const totalW = BAR_DATA.length * (groupW + groupGap) - groupGap
+const BAR_SERIES = [
+  { key: 'diezmos', color: '#3D8A5A', label: 'Diezmos' },
+  { key: 'ofrendas', color: '#5B8DB8', label: 'Ofrendas' },
+  { key: 'egresos', color: '#D89575', label: 'Egresos' },
+] as const
 
-  const BARS: { key: 'diezmos' | 'ofrendas' | 'egresos'; color: string; label: string }[] = [
-    { key: 'diezmos', color: '#16A34A', label: 'Diezmos' },
-    { key: 'ofrendas', color: '#2563EB', label: 'Ofrendas' },
-    { key: 'egresos', color: '#F97316', label: 'Egresos' },
-  ]
-
+function IncomeBarChart() {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6">
+    <div className="flex flex-col gap-4 rounded-2xl border border-[#E5E4E1] bg-white p-6">
       <div className="flex items-center justify-between">
-        <p className="text-[14px] font-semibold text-[#111827]">Ingresos por Semana</p>
+        <p className="text-[14px] font-semibold text-[#1A1918]">Ingresos por Semana</p>
         <div className="flex items-center gap-4">
-          {BARS.map((b) => (
+          {BAR_SERIES.map((b) => (
             <div key={b.key} className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full" style={{ backgroundColor: b.color }} />
-              <span className="text-[11px] text-[#6B7280]">{b.label}</span>
+              <span className="size-2 rounded-full" style={{ backgroundColor: b.color }} />
+              <span className="text-[11px] text-[#6D6C6A]">{b.label}</span>
             </div>
           ))}
         </div>
       </div>
-      <svg viewBox={`0 0 ${totalW} ${chartH + 20}`} className="w-full">
-        {[0.25, 0.5, 0.75, 1].map((t) => (
-          <line
-            key={t}
-            x1={0}
-            y1={chartH - chartH * t}
-            x2={totalW}
-            y2={chartH - chartH * t}
-            stroke="#F3F4F6"
-            strokeWidth="1"
+      <ResponsiveContainer width="100%" height={280}>
+        <RechartsBarChart data={BAR_DATA} barGap={4} barCategoryGap="30%">
+          <CartesianGrid vertical={false} stroke="#E5E4E1" strokeDasharray="0" />
+          <XAxis
+            dataKey="week"
+            tick={{ fontSize: 10, fill: '#9C9B99' }}
+            axisLine={false}
+            tickLine={false}
           />
-        ))}
-        {BAR_DATA.map((d, i) => {
-          const gx = i * (groupW + groupGap)
-          return (
-            <g key={d.week}>
-              {BARS.map((bar, j) => {
-                const h = Math.max(2, (d[bar.key] / maxVal) * chartH)
-                return (
-                  <rect
-                    key={bar.key}
-                    x={gx + j * (barW + barGap)}
-                    y={chartH - h}
-                    width={barW}
-                    height={h}
-                    fill={bar.color}
-                    rx={2}
-                  />
-                )
-              })}
-              <text
-                x={gx + groupW / 2}
-                y={chartH + 13}
-                textAnchor="middle"
-                fontSize="8"
-                fill="#9CA3AF"
-                fontWeight="600"
-              >
-                {d.week}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
+          <YAxis
+            tick={{ fontSize: 10, fill: '#9C9B99' }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+            width={36}
+          />
+          <Tooltip
+            contentStyle={{ borderRadius: '8px', border: '1px solid #E5E4E1', fontSize: 12 }}
+          />
+          {BAR_SERIES.map((b) => (
+            <Bar key={b.key} dataKey={b.key} fill={b.color} radius={[4, 4, 0, 0]} />
+          ))}
+        </RechartsBarChart>
+      </ResponsiveContainer>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Donut chart (SVG)
+// Donut chart (Recharts)
 // ---------------------------------------------------------------------------
 
-function DonutChart() {
-  const total = DONUT_SEGMENTS.reduce((s, d) => s + d.value, 0)
-  const r = 52
-  const cx = 70
-  const cy = 70
-  const c = 2 * Math.PI * r
-
-  const segments = DONUT_SEGMENTS.reduce<
-    { label: string; value: number; pct: number; color: string; dash: number; offset: number }[]
-  >((acc, seg) => {
-    const pct = seg.value / total
-    const prevPct = acc.reduce((s, x) => s + x.value / total, 0)
-    acc.push({ ...seg, dash: c * pct, offset: c * (1 - prevPct) })
-    return acc
-  }, [])
-
+function DistributionDonutChart() {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6">
+    <div className="flex flex-col gap-4 rounded-2xl border border-[#E5E4E1] bg-white p-6">
       <div className="flex items-center justify-between">
-        <p className="text-[14px] font-semibold text-[#111827]">Distribucion por Categoria</p>
-        <TrendingUp className="size-4 text-[#9CA3AF]" />
+        <p className="text-[14px] font-semibold text-[#1A1918]">Distribucion por Categoria</p>
+        <TrendingUp className="size-4 text-[#9C9B99]" />
       </div>
-      <div className="flex items-center gap-6">
-        <div className="shrink-0">
-          <svg viewBox="0 0 140 140" className="w-[120px]">
-            {segments.map((seg) => (
-              <circle
-                key={seg.label}
-                cx={cx}
-                cy={cy}
-                r={r}
-                fill="none"
-                stroke={seg.color}
-                strokeWidth={18}
-                strokeDasharray={`${seg.dash} ${c - seg.dash}`}
-                strokeDashoffset={seg.offset}
-                transform={`rotate(-90 ${cx} ${cy})`}
-              />
-            ))}
-            <circle cx={cx} cy={cy} r={r - 16} fill="white" />
-            <text
-              x={cx}
-              y={cy - 4}
-              textAnchor="middle"
-              fontSize="12"
-              fontWeight="700"
-              fill="#111827"
+      <div className="relative">
+        <ResponsiveContainer width="100%" height={180}>
+          <PieChart>
+            <Pie
+              data={DONUT_SEGMENTS}
+              cx="50%"
+              cy="50%"
+              innerRadius={55}
+              outerRadius={80}
+              dataKey="value"
+              startAngle={90}
+              endAngle={-270}
             >
-              $45.3k
-            </text>
-            <text x={cx} y={cy + 11} textAnchor="middle" fontSize="9" fill="#9CA3AF">
-              total
-            </text>
-          </svg>
+              {DONUT_SEGMENTS.map((seg) => (
+                <Cell key={seg.label} fill={seg.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              contentStyle={{ borderRadius: '8px', border: '1px solid #E5E4E1', fontSize: 12 }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-lg font-bold text-[#1A1918]">$45.3k</span>
+          <span className="text-xs text-[#9C9B99]">total</span>
         </div>
-        <div className="flex flex-1 flex-col gap-3">
-          {DONUT_SEGMENTS.map((seg) => (
-            <div key={seg.label} className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span
-                  className="size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: seg.color }}
-                />
-                <span className="text-[12px] font-medium text-[#374151]">{seg.label}</span>
-              </div>
-              <div className="text-right">
-                <span className="text-[12px] font-semibold text-[#111827]">
-                  ${seg.value.toLocaleString()}
-                </span>
-                <span className="ml-1 text-[11px] text-[#9CA3AF]">({seg.pct}%)</span>
-              </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        {DONUT_SEGMENTS.map((seg) => (
+          <div key={seg.label} className="flex items-center justify-between">
+            <span className="flex items-center gap-2 text-[12px] text-[#6D6C6A]">
+              <span
+                className="inline-block size-2 shrink-0 rounded-full"
+                style={{ backgroundColor: seg.color }}
+              />
+              {seg.label}
+            </span>
+            <div className="text-right">
+              <span className="text-[12px] font-semibold text-[#1A1918]">
+                ${seg.value.toLocaleString()}
+              </span>
+              <span className="ml-1 text-[11px] text-[#9C9B99]">({seg.pct}%)</span>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -379,11 +351,11 @@ function TransactionRow({ tx }: { tx: Transaction }) {
   const isNegative = tx.amount < 0
 
   return (
-    <tr className="group border-b border-[#F3F4F6] transition-colors last:border-b-0 hover:bg-[#F9FAFB]">
+    <tr className="group border-b border-[#F5F4F1] transition-colors last:border-b-0 hover:bg-[#FAFAF8]">
       <td className="py-3.5 pl-6 pr-4">
         <div className="flex flex-col gap-0.5">
-          <p className="text-[13px] font-semibold text-[#111827]">{tx.concept}</p>
-          <p className="text-[11px] text-[#9CA3AF]">{tx.person}</p>
+          <p className="text-[13px] font-semibold text-[#1A1918]">{tx.concept}</p>
+          <p className="text-[11px] text-[#9C9B99]">{tx.person}</p>
         </div>
       </td>
       <td className="px-4 py-3.5">
@@ -402,12 +374,12 @@ function TransactionRow({ tx }: { tx: Transaction }) {
           {catCfg.label}
         </span>
       </td>
-      <td className="hidden px-4 py-3.5 text-[13px] text-[#6B7280] sm:table-cell">{tx.date}</td>
+      <td className="hidden px-4 py-3.5 text-[13px] text-[#6D6C6A] sm:table-cell">{tx.date}</td>
       <td className="px-4 py-3.5 text-right">
         <span
           className={cn(
             'text-[13px] font-semibold',
-            isNegative ? 'text-[#DC2626]' : 'text-[#16A34A]',
+            isNegative ? 'text-[#DC2626]' : 'text-[#3D8A5A]',
           )}
         >
           {isNegative ? '-' : '+'}${Math.abs(tx.amount).toLocaleString()}
@@ -416,7 +388,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
       <td className="py-3.5 pr-4">
         <button
           type="button"
-          className="flex size-7 items-center justify-center rounded-lg text-[#9CA3AF] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F3F4F6]"
+          className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F5F4F1]"
         >
           <MoreVertical className="size-3.5" />
         </button>
@@ -443,7 +415,7 @@ export function FinancesPage() {
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
         {/* Period segment control + date range */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-0.5 rounded-lg bg-[#F3F4F6] p-1">
+          <div className="inline-flex items-center gap-0.5 rounded-lg bg-[#F5F4F1] p-1">
             {PERIOD_TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -452,8 +424,8 @@ export function FinancesPage() {
                 className={cn(
                   'flex h-8 items-center rounded-md px-4 text-[13px] font-medium transition-all',
                   activeTab === tab.key
-                    ? 'bg-white font-semibold text-[#111827] shadow-sm'
-                    : 'text-[#6B7280] hover:text-[#374151]',
+                    ? 'bg-white font-semibold text-[#1A1918] shadow-sm'
+                    : 'text-[#6D6C6A] hover:text-[#1A1918]',
                 )}
               >
                 {tab.label}
@@ -461,9 +433,9 @@ export function FinancesPage() {
             ))}
           </div>
 
-          <div className="flex h-9 items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-3">
-            <CalendarDays className="size-4 text-[#6B7280]" />
-            <span className="text-[13px] font-medium text-[#374151]">1 Mar – 7 Mar 2026</span>
+          <div className="flex h-9 items-center gap-2 rounded-lg border border-[#E5E4E1] bg-white px-3">
+            <CalendarDays className="size-4 text-[#6D6C6A]" />
+            <span className="text-[13px] font-medium text-[#1A1918]">1 Mar – 7 Mar 2026</span>
           </div>
         </div>
 
@@ -475,38 +447,38 @@ export function FinancesPage() {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <BarChart />
-          <DonutChart />
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_380px]">
+          <IncomeBarChart />
+          <DistributionDonutChart />
         </div>
 
         {/* Transactions */}
-        <div className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
-          <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
-            <p className="text-[14px] font-semibold text-[#111827]">Ultimas Transacciones</p>
+        <div className="overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white">
+          <div className="flex items-center justify-between border-b border-[#E5E4E1] px-6 py-4">
+            <p className="text-[14px] font-semibold text-[#1A1918]">Ultimas Transacciones</p>
             <button
               type="button"
-              className="text-[13px] font-semibold text-[#16A34A] hover:opacity-70"
+              className="text-[13px] font-semibold text-[#3D8A5A] hover:opacity-70"
             >
               Ver todo
             </button>
           </div>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
+              <tr className="border-b border-[#E5E4E1] bg-[#FAFAF8]">
+                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold text-[#9C9B99]">
                   Concepto
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99]">
                   Estado
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99]">
                   Categoria
                 </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF] sm:table-cell">
+                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] sm:table-cell">
                   Fecha
                 </th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.5px] text-[#9CA3AF]">
+                <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#9C9B99]">
                   Monto
                 </th>
                 <th className="py-3 pr-4" />

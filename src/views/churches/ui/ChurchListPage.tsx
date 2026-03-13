@@ -496,7 +496,7 @@ export function ChurchListPage() {
         <div
           className={cn(
             viewMode === 'grid'
-              ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3'
+              ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4'
               : 'flex flex-col gap-4',
           )}
         >
