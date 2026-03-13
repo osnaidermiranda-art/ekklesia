@@ -2,6 +2,7 @@
 
 import { Building2, Calendar, MoreVertical, Plus, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { StatusBadge } from '@/components/ui/status-badge'
@@ -178,14 +179,18 @@ function Tab({ active, label, count, onClick }: TabProps) {
 
 interface ActivityRowProps {
   activity: Activity
+  onClick: () => void
 }
 
-function ActivityRow({ activity }: ActivityRowProps) {
+function ActivityRow({ activity, onClick }: ActivityRowProps) {
   const cat = CATEGORY_CONFIG[activity.category]
   const status = STATUS_CONFIG[activity.status]
 
   return (
-    <tr className="group border-b border-[#E5E4E1] transition-colors last:border-b-0 hover:bg-[#FAFAF9]">
+    <tr
+      onClick={onClick}
+      className="group cursor-pointer border-b border-[#E5E4E1] transition-colors last:border-b-0 hover:bg-[#FAFAF9]"
+    >
       {/* Activity name + description */}
       <td className="py-4 pl-6 pr-4">
         <div className="flex items-center gap-3">
@@ -261,6 +266,7 @@ function ActivityRow({ activity }: ActivityRowProps) {
 // ---------------------------------------------------------------------------
 
 export function ActivityListPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [churchFilter, setChurchFilter] = useState('all')
 
@@ -353,7 +359,11 @@ export function ActivityListPage() {
                 </tr>
               ) : (
                 filteredActivities.map((activity) => (
-                  <ActivityRow key={activity.id} activity={activity} />
+                  <ActivityRow
+                    key={activity.id}
+                    activity={activity}
+                    onClick={() => router.push(`/activities/${activity.id}`)}
+                  />
                 ))
               )}
             </tbody>
