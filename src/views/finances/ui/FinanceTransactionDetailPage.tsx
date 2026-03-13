@@ -1,23 +1,11 @@
 'use client'
 
-import {
-  AlignLeft,
-  ArrowDownRight,
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  Bell,
-  Building2,
-  Calendar,
-  FileText,
-  Pencil,
-  Tag,
-  User,
-} from 'lucide-react'
+import { ArrowLeft, Bell, CheckCircle2, Home, Printer } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 
 import { SearchInput } from '@/components/ui/search-input'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +13,11 @@ import { cn } from '@/lib/utils'
 
 type TransactionStatus = 'income' | 'expense'
 type TransactionCategory = 'tithe' | 'offering' | 'expenditure' | 'donation'
+
+interface MemberHistory {
+  period: string
+  amount: number
+}
 
 interface Transaction {
   id: string
@@ -35,18 +28,21 @@ interface Transaction {
   date: string
   amount: number
   church: string
+  churchAddress: string
   reference: string
+  receiptNumber: string
+  period: string
+  paymentMethod: string
+  registeredAt: string
+  registeredBy: string
   notes: string
+  notesAuthor: string
+  memberHistory: MemberHistory[]
 }
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
-
-const STATUS_CONFIG: Record<TransactionStatus, { bg: string; text: string; label: string }> = {
-  income: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Entrada' },
-  expense: { bg: '#FEE2E2', text: '#B91C1C', label: 'Salida' },
-}
 
 const CATEGORY_CONFIG: Record<TransactionCategory, { bg: string; text: string; label: string }> = {
   tithe: { bg: '#C8F0D8', text: '#3D8A5A', label: 'Diezmo' },
@@ -56,7 +52,7 @@ const CATEGORY_CONFIG: Record<TransactionCategory, { bg: string; text: string; l
 }
 
 // ---------------------------------------------------------------------------
-// Mock data (10 records)
+// Mock data
 // ---------------------------------------------------------------------------
 
 const TRANSACTIONS: Transaction[] = [
@@ -68,9 +64,22 @@ const TRANSACTIONS: Transaction[] = [
     category: 'tithe',
     date: '7 Mar 2026',
     amount: 380,
-    church: 'Betania Central',
+    church: 'Iglesia Betania Central',
+    churchAddress: 'Av. Principal #123, Zona Centro',
     reference: 'TXN-2026-001',
-    notes: 'Diezmo correspondiente al mes de marzo. Pagado en efectivo.',
+    receiptNumber: '#2847',
+    period: 'Marzo 2026',
+    paymentMethod: 'Efectivo',
+    registeredAt: '7 de marzo, 2026 a las 10:30 AM',
+    registeredBy: 'Juan Perez',
+    notes:
+      'Diezmo correspondiente al mes de marzo. Miembro fiel con 3 anos de contribucion continua.',
+    notesAuthor: 'Juan Perez, Tesorero',
+    memberHistory: [
+      { period: 'Febrero 2026', amount: 380 },
+      { period: 'Enero 2026', amount: 380 },
+      { period: 'Diciembre 2025', amount: 350 },
+    ],
   },
   {
     id: '2',
@@ -81,8 +90,20 @@ const TRANSACTIONS: Transaction[] = [
     date: '4 Mar 2026',
     amount: 6000,
     church: 'Iglesia Emanuel',
+    churchAddress: 'Calle 5 #45, Colonia Norte',
     reference: 'TXN-2026-002',
+    receiptNumber: '#2848',
+    period: 'Marzo 2026',
+    paymentMethod: 'Transferencia',
+    registeredAt: '4 de marzo, 2026 a las 11:15 AM',
+    registeredBy: 'Ana Lopez',
     notes: 'Ofrenda especial para el fondo de construccion del nuevo salon.',
+    notesAuthor: 'Ana Lopez, Tesorera',
+    memberHistory: [
+      { period: 'Enero 2026', amount: 500 },
+      { period: 'Noviembre 2025', amount: 1200 },
+      { period: 'Octubre 2025', amount: 300 },
+    ],
   },
   {
     id: '3',
@@ -93,8 +114,16 @@ const TRANSACTIONS: Transaction[] = [
     date: '6 Mar 2026',
     amount: -70,
     church: 'Betania Central',
+    churchAddress: 'Av. Principal #123, Zona Centro',
     reference: 'TXN-2026-003',
+    receiptNumber: '#2849',
+    period: 'Marzo 2026',
+    paymentMethod: 'Transferencia',
+    registeredAt: '6 de marzo, 2026 a las 9:00 AM',
+    registeredBy: 'Carlos Ramirez',
     notes: 'Renta mensual de la sala de proyeccion para servicios dominicales.',
+    notesAuthor: 'Carlos Ramirez, Admin',
+    memberHistory: [],
   },
   {
     id: '4',
@@ -105,8 +134,20 @@ const TRANSACTIONS: Transaction[] = [
     date: '4 Mar 2026',
     amount: 250,
     church: 'Iglesia Canaan',
+    churchAddress: 'Blvd. Central #88, Zona Sur',
     reference: 'TXN-2026-004',
-    notes: 'Diezmo del mes de marzo.',
+    receiptNumber: '#2850',
+    period: 'Marzo 2026',
+    paymentMethod: 'Efectivo',
+    registeredAt: '4 de marzo, 2026 a las 2:00 PM',
+    registeredBy: 'Juan Perez',
+    notes: 'Diezmo del mes de marzo. Pagado puntualmente.',
+    notesAuthor: 'Juan Perez, Tesorero',
+    memberHistory: [
+      { period: 'Febrero 2026', amount: 250 },
+      { period: 'Enero 2026', amount: 250 },
+      { period: 'Diciembre 2025', amount: 200 },
+    ],
   },
   {
     id: '5',
@@ -117,8 +158,19 @@ const TRANSACTIONS: Transaction[] = [
     date: '3 Mar 2026',
     amount: 1200,
     church: 'Iglesia Filadelfia',
+    churchAddress: 'Calle Reforma #12, Centro',
     reference: 'TXN-2026-005',
+    receiptNumber: '#2851',
+    period: 'Marzo 2026',
+    paymentMethod: 'Cheque',
+    registeredAt: '3 de marzo, 2026 a las 4:30 PM',
+    registeredBy: 'Roberto Silva',
     notes: 'Donacion voluntaria para el proyecto de ampliacion del templo.',
+    notesAuthor: 'Roberto Silva, Tesorero',
+    memberHistory: [
+      { period: 'Enero 2026', amount: 500 },
+      { period: 'Agosto 2025', amount: 800 },
+    ],
   },
   {
     id: '6',
@@ -129,114 +181,29 @@ const TRANSACTIONS: Transaction[] = [
     date: '2 Mar 2026',
     amount: -340,
     church: 'Betania Central',
+    churchAddress: 'Av. Principal #123, Zona Centro',
     reference: 'TXN-2026-006',
+    receiptNumber: '#2852',
+    period: 'Marzo 2026',
+    paymentMethod: 'Efectivo',
+    registeredAt: '2 de marzo, 2026 a las 3:00 PM',
+    registeredBy: 'Carlos Ramirez',
     notes: 'Materiales de limpieza y mantenimiento para las instalaciones.',
-  },
-  {
-    id: '7',
-    concept: 'Diezmo mensual',
-    person: 'Sofia Torres',
-    status: 'income',
-    category: 'tithe',
-    date: '1 Mar 2026',
-    amount: 420,
-    church: 'Iglesia Betania',
-    reference: 'TXN-2026-007',
-    notes: 'Diezmo mensual de marzo.',
-  },
-  {
-    id: '8',
-    concept: 'Ofrenda misionera',
-    person: 'Luis Ramirez',
-    status: 'income',
-    category: 'offering',
-    date: '28 Feb 2026',
-    amount: 850,
-    church: 'Iglesia Emanuel',
-    reference: 'TXN-2026-008',
-    notes: 'Ofrenda destinada al fondo misionero nacional.',
-  },
-  {
-    id: '9',
-    concept: 'Servicio de electricidad',
-    person: 'Admin Concilio',
-    status: 'expense',
-    category: 'expenditure',
-    date: '26 Feb 2026',
-    amount: -195,
-    church: 'Betania Central',
-    reference: 'TXN-2026-009',
-    notes: 'Factura de electricidad correspondiente al mes de febrero.',
-  },
-  {
-    id: '10',
-    concept: 'Diezmo mensual',
-    person: 'Carmen Reyes',
-    status: 'income',
-    category: 'tithe',
-    date: '25 Feb 2026',
-    amount: 310,
-    church: 'Iglesia Sion',
-    reference: 'TXN-2026-010',
-    notes: 'Diezmo correspondiente al mes de febrero.',
+    notesAuthor: 'Carlos Ramirez, Admin',
+    memberHistory: [],
   },
 ]
 
 // ---------------------------------------------------------------------------
-// Detail row component
+// Info row — label left, value right (no icons)
 // ---------------------------------------------------------------------------
 
-interface DetailRowProps {
-  icon: React.ComponentType<{ className?: string; size?: number }>
-  label: string
-  children: React.ReactNode
-}
-
-function DetailRow({ icon: Icon, label, children }: DetailRowProps) {
+function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-3 py-3.5">
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#F5F4F1]">
-        <Icon className="size-[15px] text-[#6D6C6A]" />
-      </div>
-      <div className="flex flex-1 flex-col gap-0.5">
-        <p className="text-[11px] font-medium text-[#9C9B99]">{label}</p>
-        <div className="text-[13px] font-medium text-[#1A1918]">{children}</div>
-      </div>
+    <div className="flex items-center justify-between gap-4 border-b border-[#F0EFED] py-3.5 last:border-b-0">
+      <span className="text-[13px] text-[#9C9B99]">{label}</span>
+      <div className="text-right text-[13px] font-semibold text-[#1A1918]">{children}</div>
     </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Related transaction row
-// ---------------------------------------------------------------------------
-
-interface RelatedTxRowProps {
-  tx: Transaction
-  onClick: () => void
-}
-
-function RelatedTxRow({ tx, onClick }: RelatedTxRowProps) {
-  const isExpense = tx.status === 'expense'
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[#F5F4F1]"
-    >
-      <div className="flex min-w-0 flex-col gap-0.5 text-left">
-        <p className="truncate text-[13px] font-medium text-[#1A1918]">{tx.concept}</p>
-        <p className="text-[11px] text-[#9C9B99]">{tx.date}</p>
-      </div>
-      <span
-        className={cn(
-          'shrink-0 text-[13px] font-semibold',
-          isExpense ? 'text-[#DC2626]' : 'text-[#3D8A5A]',
-        )}
-      >
-        {isExpense ? '-' : '+'}${Math.abs(tx.amount).toLocaleString()}
-      </span>
-      <ArrowRight className="size-3.5 shrink-0 text-[#9C9B99]" />
-    </button>
   )
 }
 
@@ -247,23 +214,21 @@ function RelatedTxRow({ tx, onClick }: RelatedTxRowProps) {
 export function FinanceTransactionDetailPage() {
   const params = useParams<{ id: string }>()
   const router = useRouter()
+  const [search, setSearch] = useState('')
 
   const tx = TRANSACTIONS.find((t) => t.id === params?.id) ?? TRANSACTIONS[0]
-  const statusCfg = STATUS_CONFIG[tx.status]
   const catCfg = CATEGORY_CONFIG[tx.category]
   const isExpense = tx.status === 'expense'
-
-  // Related: other transactions from same person or same category (exclude self), max 3
-  const related = TRANSACTIONS.filter(
-    (t) => t.id !== tx.id && (t.person === tx.person || t.category === tx.category),
-  ).slice(0, 3)
+  const amountFormatted = `$${Math.abs(tx.amount).toLocaleString()}.00`
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex shrink-0 items-center justify-between bg-white px-4 py-[14px] shadow-[0_1px_8px_rgba(26,25,24,0.04)] md:px-8">
-        <div className="flex flex-col gap-[3px]">
-          <h1 className="text-[22px] font-bold tracking-[-0.3px] text-[#1A1918]">{tx.concept}</h1>
+      <header className="flex shrink-0 items-center justify-between gap-3 bg-white px-4 py-[14px] shadow-[0_1px_8px_rgba(26,25,24,0.04)] md:px-8">
+        <div className="flex min-w-0 flex-col gap-[3px]">
+          <h1 className="truncate text-[20px] font-bold tracking-[-0.3px] text-[#1A1918] sm:text-[22px]">
+            {tx.concept}
+          </h1>
           <button
             type="button"
             onClick={() => router.back()}
@@ -272,7 +237,7 @@ export function FinanceTransactionDetailPage() {
             <ArrowLeft size={13} strokeWidth={2.5} />
             Volver a Transacciones
           </button>
-          <p className="text-[12px] text-[#9C9B99]">
+          <p className="truncate text-[12px] text-[#9C9B99]">
             {tx.person} · {tx.date}
           </p>
         </div>
@@ -281,8 +246,8 @@ export function FinanceTransactionDetailPage() {
           <SearchInput
             variant="muted"
             placeholder="Buscar..."
-            value=""
-            onChange={() => undefined}
+            value={search}
+            onChange={setSearch}
             className="hidden w-[220px] md:flex"
           />
           <button
@@ -294,167 +259,146 @@ export function FinanceTransactionDetailPage() {
           </button>
           <button
             type="button"
-            className="flex h-[38px] items-center gap-2 rounded-xl bg-[#3D8A5A] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#2d6b44]"
+            className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#EDECEA] sm:px-4"
           >
-            <Pencil size={14} />
-            Editar
+            <Printer size={15} className="text-[#6D6C6A]" />
+            <span className="hidden sm:inline">Imprimir Recibo</span>
           </button>
         </div>
       </header>
 
-      {/* Scrollable body */}
+      {/* Body */}
       <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4 lg:gap-6 lg:p-8">
-        {/* Info banner card */}
-        <div className="flex flex-wrap items-center gap-5 rounded-2xl bg-white px-6 py-5 shadow-sm">
-          {/* Icon box */}
-          <div
-            className="flex size-[52px] shrink-0 items-center justify-center rounded-xl"
-            style={{ backgroundColor: isExpense ? '#FEE2E2' : '#C8F0D8' }}
-          >
-            {isExpense ? (
-              <ArrowDownRight size={26} strokeWidth={1.75} className="text-[#DC2626]" />
-            ) : (
-              <ArrowUpRight size={26} strokeWidth={1.75} className="text-[#3D8A5A]" />
-            )}
-          </div>
-
-          {/* Concept + badges */}
-          <div className="flex flex-1 flex-col gap-[6px]">
-            <h2 className="text-[20px] font-bold tracking-[-0.3px] text-[#1A1918]">{tx.concept}</h2>
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
-                style={{ backgroundColor: statusCfg.bg, color: statusCfg.text }}
+        {/* Status banner */}
+        <div
+          className={cn(
+            'flex flex-col gap-3 rounded-2xl px-5 py-4 sm:flex-row sm:items-center sm:justify-between',
+            isExpense ? 'bg-[#FEE2E2]/60' : 'bg-[#C8F0D8]/50',
+          )}
+        >
+          <div className="flex items-start gap-3 sm:items-center">
+            <CheckCircle2
+              size={22}
+              className={cn(
+                'mt-0.5 shrink-0 sm:mt-0',
+                isExpense ? 'text-[#DC2626]' : 'text-[#3D8A5A]',
+              )}
+            />
+            <div className="flex flex-col gap-[2px]">
+              <p
+                className={cn(
+                  'text-[14px] font-bold',
+                  isExpense ? 'text-[#DC2626]' : 'text-[#3D8A5A]',
+                )}
               >
-                {statusCfg.label}
-              </span>
-              <span
-                className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
-                style={{ backgroundColor: catCfg.bg, color: catCfg.text }}
-              >
-                {catCfg.label}
-              </span>
+                {isExpense ? 'Egreso Registrado' : 'Transaccion Completada'}
+              </p>
+              <p className="text-[12px] text-[#6D6C6A]">
+                Registrado el {tx.registeredAt} por {tx.registeredBy}
+              </p>
             </div>
           </div>
-
-          {/* Amount */}
           <p
             className={cn(
-              'shrink-0 text-[32px] font-bold tracking-tight',
+              'text-[22px] font-bold tracking-tight sm:text-[26px]',
               isExpense ? 'text-[#DC2626]' : 'text-[#3D8A5A]',
             )}
           >
-            {isExpense ? '-' : '+'}${Math.abs(tx.amount).toLocaleString()}
+            {isExpense ? '-' : ''}
+            {amountFormatted}
           </p>
         </div>
 
         {/* Two-column layout */}
         <div className="flex flex-col gap-5 lg:flex-row lg:gap-6">
-          {/* LEFT — Details card */}
-          <div className="flex flex-1 flex-col rounded-2xl bg-white shadow-sm">
-            <div className="border-b border-[#F5F4F1] px-6 py-5">
-              <h3 className="text-[15px] font-bold text-[#1A1918]">Detalles de la Transaccion</h3>
-            </div>
-            <div className="flex flex-col divide-y divide-[#F5F4F1] px-6">
-              <DetailRow icon={User} label="Persona">
-                {tx.person}
-              </DetailRow>
-              <DetailRow icon={Tag} label="Categoria">
+          {/* LEFT — transaction info table */}
+          <div className="flex flex-1 flex-col rounded-2xl bg-white px-6 py-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+            <h3 className="mb-4 text-[15px] font-bold text-[#1A1918]">
+              Informacion de la Transaccion
+            </h3>
+            <div>
+              <InfoRow label="Tipo">
                 <span
-                  className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
+                  className="inline-flex h-6 items-center rounded-full px-3 text-[11px] font-semibold"
                   style={{ backgroundColor: catCfg.bg, color: catCfg.text }}
                 >
                   {catCfg.label}
                 </span>
-              </DetailRow>
-              <DetailRow icon={Calendar} label="Fecha">
-                {tx.date}
-              </DetailRow>
-              <DetailRow icon={Building2} label="Iglesia">
-                {tx.church}
-              </DetailRow>
-              <DetailRow icon={FileText} label="Referencia">
-                <span className="font-mono text-[12px]">{tx.reference}</span>
-              </DetailRow>
-              <DetailRow icon={AlignLeft} label="Notas">
-                <span className="text-[13px] leading-relaxed text-[#6D6C6A]">{tx.notes}</span>
-              </DetailRow>
-            </div>
-
-            {/* Comprobante section */}
-            <div className="px-6 pb-6 pt-4">
-              <p className="mb-3 text-[13px] font-semibold text-[#1A1918]">Comprobante</p>
-              <div className="flex h-[120px] flex-col items-center justify-center gap-2 rounded-xl bg-[#F5F4F1]">
-                <FileText className="size-7 text-[#C5C4C1]" />
-                <p className="text-[12px] text-[#9C9B99]">Sin comprobante adjunto</p>
-              </div>
+              </InfoRow>
+              <InfoRow label="Miembro">{tx.person}</InfoRow>
+              <InfoRow label="Iglesia">{tx.church}</InfoRow>
+              <InfoRow label="Monto">{amountFormatted}</InfoRow>
+              <InfoRow label="Metodo de pago">{tx.paymentMethod}</InfoRow>
+              <InfoRow label="Numero de recibo">
+                <span className="text-[#3D8A5A]">{tx.receiptNumber}</span>
+              </InfoRow>
+              <InfoRow label="Periodo">{tx.period}</InfoRow>
             </div>
           </div>
 
-          {/* RIGHT — Summary + Related stacked */}
-          <div className="flex w-full shrink-0 flex-col gap-5 lg:w-[320px]">
-            {/* Resumen card */}
-            <div className="rounded-2xl bg-white shadow-sm">
-              <div className="border-b border-[#F5F4F1] px-6 py-5">
-                <h3 className="text-[15px] font-bold text-[#1A1918]">Resumen</h3>
+          {/* RIGHT — receipt + notes + history */}
+          <div className="flex w-full shrink-0 flex-col gap-5 lg:w-[340px]">
+            {/* Digital receipt card */}
+            <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-6 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+              <p className="mb-4 text-[15px] font-bold text-[#1A1918]">Recibo Digital</p>
+              <div className="h-px w-full bg-[#F0EFED]" />
+
+              {/* Church icon */}
+              <div className="my-5 flex size-14 items-center justify-center rounded-2xl bg-[#3D8A5A]">
+                <Home size={26} className="text-white" strokeWidth={1.75} />
               </div>
-              <div className="flex flex-col divide-y divide-[#F5F4F1] px-6 py-2">
-                {/* Monto */}
-                <div className="flex items-center justify-between py-3.5">
-                  <span className="text-[13px] text-[#6D6C6A]">Monto</span>
-                  <span
-                    className={cn(
-                      'text-[15px] font-bold',
-                      isExpense ? 'text-[#DC2626]' : 'text-[#3D8A5A]',
-                    )}
-                  >
-                    {isExpense ? '-' : '+'}${Math.abs(tx.amount).toLocaleString()}
-                  </span>
-                </div>
-                {/* Categoria */}
-                <div className="flex items-center justify-between py-3.5">
-                  <span className="text-[13px] text-[#6D6C6A]">Categoria</span>
-                  <span
-                    className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
-                    style={{ backgroundColor: catCfg.bg, color: catCfg.text }}
-                  >
-                    {catCfg.label}
-                  </span>
-                </div>
-                {/* Estado */}
-                <div className="flex items-center justify-between py-3.5">
-                  <span className="text-[13px] text-[#6D6C6A]">Estado</span>
-                  <span
-                    className="inline-flex h-6 items-center rounded-md px-2.5 text-[11px] font-semibold"
-                    style={{ backgroundColor: statusCfg.bg, color: statusCfg.text }}
-                  >
-                    {statusCfg.label}
-                  </span>
-                </div>
+
+              <p className="text-[16px] font-bold text-[#1A1918]">{tx.church}</p>
+              <p className="mt-1 text-[12px] text-[#9C9B99]">{tx.churchAddress}</p>
+
+              <div className="my-5 h-px w-full bg-[#F0EFED]" />
+
+              <p
+                className={cn(
+                  'text-[40px] font-bold tracking-tight',
+                  isExpense ? 'text-[#DC2626]' : 'text-[#1A1918]',
+                )}
+              >
+                {amountFormatted}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-[2px] text-[#9C9B99]">
+                {catCfg.label}
+              </p>
+
+              <div className="my-5 h-px w-full bg-[#F0EFED]" />
+
+              <p className="text-[13px] font-semibold text-[#1A1918]">Recibo {tx.receiptNumber}</p>
+              <p className="mt-1 text-[12px] text-[#9C9B99]">{tx.date}</p>
+            </div>
+
+            {/* Notes card */}
+            <div className="rounded-2xl bg-white px-5 py-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+              <h3 className="mb-3 text-[15px] font-bold text-[#1A1918]">Notas</h3>
+              <div className="rounded-xl bg-[#F5F4F1] px-4 py-3">
+                <p className="text-[13px] leading-relaxed text-[#6D6C6A]">{tx.notes}</p>
+                <p className="mt-2 text-[12px] text-[#9C9B99]">- {tx.notesAuthor}</p>
               </div>
             </div>
 
-            {/* Transacciones relacionadas card */}
-            <div className="rounded-2xl bg-white shadow-sm">
-              <div className="border-b border-[#F5F4F1] px-6 py-5">
-                <h3 className="text-[15px] font-bold text-[#1A1918]">Transacciones Relacionadas</h3>
+            {/* Member history card */}
+            {tx.memberHistory.length > 0 && (
+              <div className="rounded-2xl bg-white px-5 py-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+                <h3 className="mb-3 text-[15px] font-bold text-[#1A1918]">Historial del Miembro</h3>
+                <div className="flex flex-col">
+                  {tx.memberHistory.map((h) => (
+                    <div
+                      key={h.period}
+                      className="flex items-center justify-between border-b border-[#F0EFED] py-3 last:border-b-0"
+                    >
+                      <span className="text-[13px] text-[#6D6C6A]">{h.period}</span>
+                      <span className="text-[13px] font-semibold text-[#1A1918]">
+                        ${h.amount.toLocaleString()}.00
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-col gap-1 px-3 py-3">
-                {related.length === 0 ? (
-                  <p className="py-4 text-center text-[12px] text-[#9C9B99]">
-                    No hay transacciones relacionadas
-                  </p>
-                ) : (
-                  related.map((relTx) => (
-                    <RelatedTxRow
-                      key={relTx.id}
-                      tx={relTx}
-                      onClick={() => router.push(`/finances/transactions/${relTx.id}`)}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
