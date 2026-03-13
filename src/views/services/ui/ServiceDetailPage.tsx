@@ -222,70 +222,147 @@ function RoleRow({ assignment }: { assignment: RoleAssignment }) {
   const isReplacement = assignment.status === 'replacement'
 
   return (
-    <div
-      className={cn(
-        'grid items-center gap-4 px-5 py-4',
-        'grid-cols-[180px_1fr_130px_80px]',
-        isReplacement ? 'bg-[#FFFBF0]' : 'bg-white',
-      )}
-      style={{ borderBottom: '1px solid #F0EFED' }}
-    >
-      {/* Role */}
-      <div className="flex items-center gap-2.5">
-        <Icon size={15} style={{ color: assignment.iconColor }} className="shrink-0" />
-        <span className="text-[13px] font-medium text-[#1A1918]">{assignment.role}</span>
-      </div>
-
-      {/* Assignee */}
-      <div className="flex items-center gap-2.5">
-        {isReplacement ? (
-          <>
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#FDF3DC]">
-              <RefreshCw size={14} className="text-[#D4A64A]" />
-            </div>
-            <div className="flex flex-col gap-0">
-              <span className="text-[13px] font-semibold text-[#D4A64A]">Reemplazo solicitado</span>
-              {assignment.replacementNote && (
-                <span className="text-[11px] text-[#9C9B99]">{assignment.replacementNote}</span>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar
-              initials={assignment.assigneeInitials ?? ''}
-              size="sm"
-              color={assignment.assigneeColor ?? 'green'}
-            />
-            <span className="text-[13px] text-[#1A1918]">{assignment.assigneeName}</span>
-          </>
+    <>
+      {/*
+       * MOBILE card layout (< lg)
+       * Three rows stacked inside a full-width card:
+       *   Row 1 — role icon + role name
+       *   Row 2 — assignee avatar/icon + name/replacement text
+       *   Row 3 — status badge  |  action button (space-between)
+       */}
+      <div
+        className={cn(
+          'flex flex-col gap-2.5 border-b border-[#F0EFED] px-4 py-3.5 lg:hidden',
+          isReplacement ? 'bg-[#FFFBF0]' : 'bg-white',
         )}
+      >
+        {/* Row 1: role */}
+        <div className="flex items-center gap-2.5">
+          <Icon size={15} style={{ color: assignment.iconColor }} className="shrink-0" />
+          <span className="text-[13px] font-semibold text-[#1A1918]">{assignment.role}</span>
+        </div>
+
+        {/* Row 2: assignee */}
+        <div className="flex items-center gap-2.5">
+          {isReplacement ? (
+            <>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#FDF3DC]">
+                <RefreshCw size={14} className="text-[#D4A64A]" />
+              </div>
+              <div className="flex flex-col gap-0">
+                <span className="text-[13px] font-semibold text-[#D4A64A]">
+                  Reemplazo solicitado
+                </span>
+                {assignment.replacementNote && (
+                  <span className="text-[11px] text-[#9C9B99]">{assignment.replacementNote}</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <Avatar
+                initials={assignment.assigneeInitials ?? ''}
+                size="sm"
+                color={assignment.assigneeColor ?? 'green'}
+              />
+              <span className="text-[13px] text-[#1A1918]">{assignment.assigneeName}</span>
+            </>
+          )}
+        </div>
+
+        {/* Row 3: status + action */}
+        <div className="flex items-center justify-between">
+          <StatusBadge status={assignment.status} />
+          {isReplacement ? (
+            <button
+              type="button"
+              className="flex h-8 items-center rounded-xl bg-[#3D8A5A] px-3 text-[12px] font-semibold text-white transition-colors hover:bg-[#2d6b44]"
+            >
+              Asignar
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="flex size-8 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5F4F1] hover:text-[#6D6C6A]"
+              aria-label="Mas opciones"
+            >
+              <MoreVertical size={16} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Status */}
-      <div>
-        <StatusBadge status={assignment.status} />
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center justify-end gap-2">
-        {isReplacement ? (
-          <button
-            type="button"
-            className="flex h-8 items-center rounded-xl bg-[#3D8A5A] px-3 text-[12px] font-semibold text-white transition-colors hover:bg-[#2d6b44]"
-          >
-            Asignar
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="flex size-8 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5F4F1] hover:text-[#6D6C6A]"
-          >
-            <MoreVertical size={16} />
-          </button>
+      {/*
+       * DESKTOP table row layout (>= lg)
+       * Fixed four-column grid matching the table header.
+       */}
+      <div
+        className={cn(
+          'hidden items-center gap-4 border-b border-[#F0EFED] px-5 py-4 lg:grid',
+          'lg:grid-cols-[180px_1fr_130px_80px]',
+          isReplacement ? 'bg-[#FFFBF0]' : 'bg-white',
         )}
+      >
+        {/* Role */}
+        <div className="flex items-center gap-2.5">
+          <Icon size={15} style={{ color: assignment.iconColor }} className="shrink-0" />
+          <span className="text-[13px] font-medium text-[#1A1918]">{assignment.role}</span>
+        </div>
+
+        {/* Assignee */}
+        <div className="flex items-center gap-2.5">
+          {isReplacement ? (
+            <>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#FDF3DC]">
+                <RefreshCw size={14} className="text-[#D4A64A]" />
+              </div>
+              <div className="flex flex-col gap-0">
+                <span className="text-[13px] font-semibold text-[#D4A64A]">
+                  Reemplazo solicitado
+                </span>
+                {assignment.replacementNote && (
+                  <span className="text-[11px] text-[#9C9B99]">{assignment.replacementNote}</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <Avatar
+                initials={assignment.assigneeInitials ?? ''}
+                size="sm"
+                color={assignment.assigneeColor ?? 'green'}
+              />
+              <span className="text-[13px] text-[#1A1918]">{assignment.assigneeName}</span>
+            </>
+          )}
+        </div>
+
+        {/* Status */}
+        <div>
+          <StatusBadge status={assignment.status} />
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-2">
+          {isReplacement ? (
+            <button
+              type="button"
+              className="flex h-8 items-center rounded-xl bg-[#3D8A5A] px-3 text-[12px] font-semibold text-white transition-colors hover:bg-[#2d6b44]"
+            >
+              Asignar
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="flex size-8 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5F4F1] hover:text-[#6D6C6A]"
+              aria-label="Mas opciones"
+            >
+              <MoreVertical size={16} />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -336,9 +413,10 @@ export function ServiceDetailPage() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex shrink-0 items-center justify-between bg-white px-4 py-[14px] shadow-[0_1px_8px_rgba(26,25,24,0.04)] md:px-8">
-        <div className="flex flex-col gap-[3px]">
-          <h1 className="text-[22px] font-bold tracking-[-0.3px] text-[#1A1918]">
+      <header className="flex shrink-0 items-center justify-between gap-3 bg-white px-4 py-[14px] shadow-[0_1px_8px_rgba(26,25,24,0.04)] md:px-8">
+        {/* Title block — min-w-0 ensures it shrinks before pushing action buttons off-screen */}
+        <div className="flex min-w-0 flex-col gap-[3px]">
+          <h1 className="truncate text-[18px] font-bold tracking-[-0.3px] text-[#1A1918] sm:text-[22px]">
             {service.title}
           </h1>
           <button
@@ -349,7 +427,7 @@ export function ServiceDetailPage() {
             <ArrowLeft size={13} strokeWidth={2.5} />
             Volver a Servicios
           </button>
-          <p className="text-[12px] text-[#9C9B99]">{service.subtitle}</p>
+          <p className="truncate text-[12px] text-[#9C9B99]">{service.subtitle}</p>
         </div>
 
         <div className="flex shrink-0 items-center gap-2 md:gap-3">
@@ -369,20 +447,20 @@ export function ServiceDetailPage() {
           </button>
           <button
             type="button"
-            className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-4 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#EDECEA]"
+            className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#EDECEA] sm:px-4"
           >
             <Pencil size={14} className="text-[#6D6C6A]" />
-            Editar
+            <span className="hidden sm:inline">Editar</span>
           </button>
         </div>
       </header>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5 lg:gap-6 lg:p-8">
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 lg:gap-6 lg:p-8">
         {/* Status banner */}
-        <div className="flex flex-col gap-3 rounded-2xl bg-[#C8F0D8]/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 size={22} className="shrink-0 text-[#3D8A5A]" />
+        <div className="flex flex-col gap-3 rounded-2xl bg-[#C8F0D8]/50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex items-start gap-3 sm:items-center">
+            <CheckCircle2 size={22} className="mt-0.5 shrink-0 text-[#3D8A5A] sm:mt-0" />
             <div className="flex flex-col gap-[2px]">
               <p className="text-[14px] font-bold text-[#3D8A5A]">Servicio Confirmado</p>
               <p className="text-[12px] text-[#6D6C6A]">
@@ -397,11 +475,11 @@ export function ServiceDetailPage() {
         </div>
 
         {/* Two-column layout */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:gap-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
           {/* LEFT — Role assignments */}
           <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
             {/* Card header */}
-            <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center justify-between px-4 py-4 sm:px-5">
               <h3 className="text-[15px] font-bold text-[#1A1918]">Asignacion de Roles</h3>
               <span
                 className={cn(
@@ -413,19 +491,19 @@ export function ServiceDetailPage() {
               </span>
             </div>
 
-            {/* Table header */}
-            <div
-              className="grid items-center gap-4 px-5 py-2.5"
-              style={{
-                gridTemplateColumns: '180px 1fr 130px 80px',
-                borderTop: '1px solid #F0EFED',
-                borderBottom: '1px solid #F0EFED',
-              }}
-            >
+            {/* Table header — desktop only */}
+            <div className="hidden border-y border-[#F0EFED] px-5 py-2.5 lg:grid lg:grid-cols-[180px_1fr_130px_80px] lg:items-center lg:gap-4">
               <span className="text-[11px] font-semibold text-[#9C9B99]">Rol</span>
               <span className="text-[11px] font-semibold text-[#9C9B99]">Asignado</span>
               <span className="text-[11px] font-semibold text-[#9C9B99]">Estado</span>
               <span className="text-[11px] font-semibold text-[#9C9B99]">Acciones</span>
+            </div>
+
+            {/* Mobile section label — visible only below lg */}
+            <div className="border-t border-[#F0EFED] px-4 py-2 lg:hidden">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#9C9B99]">
+                Roles asignados
+              </span>
             </div>
 
             {/* Rows */}
@@ -437,9 +515,9 @@ export function ServiceDetailPage() {
           </div>
 
           {/* RIGHT — Details + Notes stacked */}
-          <div className="flex w-full shrink-0 flex-col gap-5 lg:w-[340px] lg:gap-6">
+          <div className="flex w-full shrink-0 flex-col gap-4 lg:w-[340px] lg:gap-6">
             {/* Service details card */}
-            <div className="rounded-2xl bg-white px-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+            <div className="rounded-2xl bg-white px-4 shadow-[0_2px_12px_rgba(26,25,24,0.06)] sm:px-5">
               <h3 className="py-4 text-[15px] font-bold text-[#1A1918]">Detalles del Servicio</h3>
               <div className="border-t border-[#F0EFED]">
                 <DetailRow icon={Calendar} label="Fecha" value={service.dateLabel} />
@@ -457,9 +535,9 @@ export function ServiceDetailPage() {
             </div>
 
             {/* Notes card */}
-            <div className="rounded-2xl bg-white px-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+            <div className="rounded-2xl bg-white px-4 shadow-[0_2px_12px_rgba(26,25,24,0.06)] sm:px-5">
               <h3 className="py-4 text-[15px] font-bold text-[#1A1918]">Notas del Servicio</h3>
-              <div className="flex flex-col gap-3 border-t border-[#F0EFED] pt-4 pb-5">
+              <div className="flex flex-col gap-3 border-t border-[#F0EFED] pb-5 pt-4">
                 {service.notes.map((note) => (
                   <NoteCard key={note.id} note={note} />
                 ))}

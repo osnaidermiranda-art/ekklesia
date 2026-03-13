@@ -1,15 +1,6 @@
 'use client'
 
-import {
-  ArrowRightLeft,
-  Check,
-  ChevronDown,
-  FileDown,
-  Filter,
-  MoreVertical,
-  Search,
-  X,
-} from 'lucide-react'
+import { ArrowRight, ArrowRightLeft, ArrowUpDown, Building2, CheckCircle, X } from 'lucide-react'
 import { useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
@@ -26,181 +17,93 @@ interface Transfer {
   id: string
   memberName: string
   memberRole: string
-  originChurch: string
-  destinationChurch: string
-  requestDate: string
+  memberSince: string
+  origin: string
+  destination: string
+  dateLabel: string
   status: TransferStatus
-  reason: string
-  avatarInitials: string
-  avatarColor: string
+  initials: string
+  avatarBg: string
+  rejectionReason?: string
 }
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-const FILTER_TABS: { key: FilterTab; label: string }[] = [
-  { key: 'all', label: 'Todos' },
-  { key: 'pending', label: 'Pendientes' },
-  { key: 'approved', label: 'Aprobados' },
-  { key: 'rejected', label: 'Rechazados' },
+interface FilterTabConfig {
+  key: FilterTab
+  label: string
+}
+
+const FILTER_TABS: FilterTabConfig[] = [
+  { key: 'all', label: 'Todas (12)' },
+  { key: 'pending', label: 'Pendientes (4)' },
+  { key: 'approved', label: 'Aprobadas (6)' },
+  { key: 'rejected', label: 'Rechazadas (2)' },
 ]
 
 const STATUS_CONFIG: Record<
   TransferStatus,
-  { bg: string; text: string; label: string; dot: string }
+  { badgeBg: string; badgeText: string; label: string; borderColor: string }
 > = {
   pending: {
-    bg: '#FEF3C7',
-    text: '#92400E',
-    label: 'Pendiente',
-    dot: '#F59E0B',
+    badgeBg: '#FDF3DC',
+    badgeText: '#D4A64A',
+    label: 'Pendiente aprobacion',
+    borderColor: '#D4A64A',
   },
   approved: {
-    bg: '#C8F0D8',
-    text: '#3D8A5A',
-    label: 'Aprobado',
-    dot: '#3D8A5A',
+    badgeBg: '#C8F0D8',
+    badgeText: '#3D8A5A',
+    label: 'Transferencia completada',
+    borderColor: '#3D8A5A',
   },
   rejected: {
-    bg: '#FEE2E2',
-    text: '#B91C1C',
-    label: 'Rechazado',
-    dot: '#EF4444',
+    badgeBg: '#FDE8D8',
+    badgeText: '#D08068',
+    label: 'Rechazada por pastor destino',
+    borderColor: '#D08068',
   },
 }
-
-const STAT_CARDS = [
-  {
-    label: 'Total Solicitudes',
-    value: '24',
-    sub: 'Este mes',
-    iconBg: '#D6E8F5',
-    iconColor: '#5B8DB8',
-    icon: ArrowRightLeft,
-  },
-  {
-    label: 'Pendientes',
-    value: '8',
-    sub: 'Por resolver',
-    iconBg: '#FEF3C7',
-    iconColor: '#92400E',
-    icon: Filter,
-  },
-  {
-    label: 'Aprobadas',
-    value: '13',
-    sub: 'Este mes',
-    iconBg: '#C8F0D8',
-    iconColor: '#3D8A5A',
-    icon: Check,
-  },
-  {
-    label: 'Rechazadas',
-    value: '3',
-    sub: 'Este mes',
-    iconBg: '#FEE2E2',
-    iconColor: '#B91C1C',
-    icon: X,
-  },
-]
 
 const TRANSFERS: Transfer[] = [
   {
     id: '1',
-    memberName: 'Ana Martinez',
-    memberRole: 'Miembro activo',
-    originChurch: 'Iglesia Central',
-    destinationChurch: 'Iglesia Norte',
-    requestDate: '10 Mar 2026',
+    memberName: 'Juan Perez Rodriguez',
+    memberRole: 'Diacono',
+    memberSince: '2019',
+    origin: 'Monte Sinai',
+    destination: 'Betania Central',
+    dateLabel: 'Solicitado: 20 Ene 2025',
     status: 'pending',
-    reason: 'Cambio de domicilio',
-    avatarInitials: 'AM',
-    avatarColor: '#5B8DB8',
+    initials: 'JP',
+    avatarBg: '#5B8DB8',
   },
   {
     id: '2',
-    memberName: 'Roberto Silva',
-    memberRole: 'Diacono',
-    originChurch: 'Iglesia Sur',
-    destinationChurch: 'Iglesia Central',
-    requestDate: '8 Mar 2026',
+    memberName: 'Maria Lopez Hernandez',
+    memberRole: 'Lider de Jovenes',
+    memberSince: '2021',
+    origin: 'Betania Central',
+    destination: 'El Redentor',
+    dateLabel: 'Aprobado: 15 Ene 2025',
     status: 'approved',
-    reason: 'Ministerio asignado',
-    avatarInitials: 'RS',
-    avatarColor: '#3D8A5A',
+    initials: 'ML',
+    avatarBg: '#3D8A5A',
   },
   {
     id: '3',
-    memberName: 'Carmen Lopez',
-    memberRole: 'Miembro activo',
-    originChurch: 'Iglesia Este',
-    destinationChurch: 'Iglesia Oeste',
-    requestDate: '7 Mar 2026',
+    memberName: 'Pedro Flores Medina',
+    memberRole: 'Miembro',
+    memberSince: '2022',
+    origin: 'Getsemani',
+    destination: 'Monte Sinai',
+    dateLabel: 'Rechazado: 10 Ene 2025',
     status: 'rejected',
-    reason: 'Solicitud incompleta',
-    avatarInitials: 'CL',
-    avatarColor: '#D89575',
-  },
-  {
-    id: '4',
-    memberName: 'Miguel Torres',
-    memberRole: 'Lider de celula',
-    originChurch: 'Iglesia Norte',
-    destinationChurch: 'Iglesia Sur',
-    requestDate: '5 Mar 2026',
-    status: 'pending',
-    reason: 'Reunificacion familiar',
-    avatarInitials: 'MT',
-    avatarColor: '#8B7CB8',
-  },
-  {
-    id: '5',
-    memberName: 'Sofia Herrera',
-    memberRole: 'Miembro activo',
-    originChurch: 'Iglesia Central',
-    destinationChurch: 'Iglesia Este',
-    requestDate: '3 Mar 2026',
-    status: 'approved',
-    reason: 'Proximidad geografica',
-    avatarInitials: 'SH',
-    avatarColor: '#5B8DB8',
-  },
-  {
-    id: '6',
-    memberName: 'Diego Ramirez',
-    memberRole: 'Miembro activo',
-    originChurch: 'Iglesia Oeste',
-    destinationChurch: 'Iglesia Central',
-    requestDate: '1 Mar 2026',
-    status: 'pending',
-    reason: 'Trabajo en zona central',
-    avatarInitials: 'DR',
-    avatarColor: '#3D8A5A',
-  },
-  {
-    id: '7',
-    memberName: 'Laura Mendoza',
-    memberRole: 'Miembro activo',
-    originChurch: 'Iglesia Sur',
-    destinationChurch: 'Iglesia Norte',
-    requestDate: '28 Feb 2026',
-    status: 'approved',
-    reason: 'Cambio de domicilio',
-    avatarInitials: 'LM',
-    avatarColor: '#D89575',
-  },
-  {
-    id: '8',
-    memberName: 'Carlos Vega',
-    memberRole: 'Evangelista',
-    originChurch: 'Iglesia Norte',
-    destinationChurch: 'Iglesia Este',
-    requestDate: '25 Feb 2026',
-    status: 'rejected',
-    reason: 'Falta documentacion',
-    avatarInitials: 'CV',
-    avatarColor: '#8B7CB8',
+    initials: 'PF',
+    avatarBg: '#D08068',
+    rejectionReason: 'No hay registro de membresia vigente en iglesia origen.',
   },
 ]
 
@@ -208,132 +111,100 @@ const TRANSFERS: Transfer[] = [
 // Sub-components
 // ---------------------------------------------------------------------------
 
-interface StatCardItemProps {
-  label: string
-  value: string
-  sub: string
-  iconBg: string
-  iconColor: string
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>
-}
-
-function StatCardItem({ label, value, sub, iconBg, iconColor, icon: Icon }: StatCardItemProps) {
-  return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-[#E5E4E1] bg-white p-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
-      <div className="flex items-center justify-between">
-        <p className="text-[12px] font-medium text-[#6D6C6A]">{label}</p>
-        <div
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg"
-          style={{ backgroundColor: iconBg }}
-        >
-          <Icon className="size-4" style={{ color: iconColor }} />
-        </div>
-      </div>
-      <p className="text-[28px] font-bold tracking-tight text-[#1A1918]">{value}</p>
-      <p className="text-[11px] text-[#9C9B99]">{sub}</p>
-    </div>
-  )
-}
-
 function StatusBadge({ status }: { status: TransferStatus }) {
   const cfg = STATUS_CONFIG[status]
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
-      style={{ backgroundColor: cfg.bg, color: cfg.text }}
+      className="inline-flex items-center rounded-full px-3 py-0.5 text-[11px] font-semibold"
+      style={{ backgroundColor: cfg.badgeBg, color: cfg.badgeText }}
     >
-      <span className="size-1.5 rounded-full" style={{ backgroundColor: cfg.dot }} />
       {cfg.label}
     </span>
   )
 }
 
-interface TransferRowProps {
+interface TransferCardProps {
   transfer: Transfer
   onApprove: (id: string) => void
   onReject: (id: string) => void
 }
 
-function TransferRow({ transfer, onApprove, onReject }: TransferRowProps) {
+function TransferCard({ transfer, onApprove, onReject }: TransferCardProps) {
+  const cfg = STATUS_CONFIG[transfer.status]
+
   return (
-    <tr className="group border-b border-[#F5F4F1] transition-colors last:border-b-0 hover:bg-[#FAFAF8]">
-      {/* Member */}
-      <td className="py-3.5 pl-6 pr-4">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex size-9 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-            style={{ backgroundColor: transfer.avatarColor }}
-          >
-            {transfer.avatarInitials}
+    <div
+      className="flex rounded-2xl border border-[#E5E4E1] bg-white border-l-4"
+      style={{ borderLeftColor: cfg.borderColor }}
+    >
+      <div className="flex flex-1 items-start gap-4 px-5 py-4">
+        {/* Left content */}
+        <div className="flex flex-1 flex-col gap-2">
+          {/* Row 1: Avatar + Name + Role */}
+          <div className="flex items-center gap-3">
+            <div
+              className="flex size-11 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white"
+              style={{ backgroundColor: transfer.avatarBg }}
+            >
+              {transfer.initials}
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <p className="text-[16px] font-bold text-[#1A1918]">{transfer.memberName}</p>
+              <p className="text-[12px] text-[#6D6C6A]">
+                {transfer.memberRole} &middot; Miembro desde {transfer.memberSince}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-[13px] font-semibold text-[#1A1918]">{transfer.memberName}</p>
-            <p className="text-[11px] text-[#9C9B99]">{transfer.memberRole}</p>
+
+          {/* Row 2: Churches */}
+          <div className="flex items-center gap-1.5 text-[13px] text-[#1A1918]">
+            <Building2 className="size-3.5 shrink-0 text-[#9C9B99]" />
+            <span>{transfer.origin}</span>
+            <ArrowRight className="size-3.5 shrink-0 text-[#9C9B99]" />
+            <Building2 className="size-3.5 shrink-0 text-[#9C9B99]" />
+            <span>{transfer.destination}</span>
+          </div>
+
+          {/* Row 3: Date + Status badge */}
+          <div className="flex items-center gap-3">
+            <p className="text-[12px] text-[#6D6C6A]">{transfer.dateLabel}</p>
+            <StatusBadge status={transfer.status} />
           </div>
         </div>
-      </td>
 
-      {/* Origin */}
-      <td className="hidden px-4 py-3.5 lg:table-cell">
-        <p className="text-[13px] text-[#1A1918]">{transfer.originChurch}</p>
-      </td>
-
-      {/* Arrow + Destination */}
-      <td className="px-4 py-3.5">
-        <div className="flex items-center gap-2">
-          <ArrowRightLeft className="size-3.5 shrink-0 text-[#9C9B99]" />
-          <p className="text-[13px] text-[#1A1918]">{transfer.destinationChurch}</p>
-        </div>
-      </td>
-
-      {/* Reason */}
-      <td className="hidden px-4 py-3.5 xl:table-cell">
-        <p className="text-[12px] text-[#6D6C6A]">{transfer.reason}</p>
-      </td>
-
-      {/* Date */}
-      <td className="hidden px-4 py-3.5 sm:table-cell">
-        <p className="text-[12px] text-[#6D6C6A]">{transfer.requestDate}</p>
-      </td>
-
-      {/* Status */}
-      <td className="px-4 py-3.5">
-        <StatusBadge status={transfer.status} />
-      </td>
-
-      {/* Actions */}
-      <td className="py-3.5 pr-4">
-        <div className="flex items-center justify-end gap-1">
-          {transfer.status === 'pending' && (
-            <>
-              <button
-                type="button"
-                onClick={() => onApprove(transfer.id)}
-                className="flex size-7 items-center justify-center rounded-lg bg-[#C8F0D8] text-[#3D8A5A] transition-colors hover:bg-[#3D8A5A] hover:text-white"
-                aria-label="Aprobar transferencia"
-              >
-                <Check className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onReject(transfer.id)}
-                className="flex size-7 items-center justify-center rounded-lg bg-[#FEE2E2] text-[#B91C1C] transition-colors hover:bg-[#B91C1C] hover:text-white"
-                aria-label="Rechazar transferencia"
-              >
-                <X className="size-3.5" />
-              </button>
-            </>
-          )}
-          <button
-            type="button"
-            className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#F5F4F1]"
-            aria-label="Mas opciones"
-          >
-            <MoreVertical className="size-3.5" />
-          </button>
-        </div>
-      </td>
-    </tr>
+        {/* Right actions */}
+        {transfer.status !== 'approved' && (
+          <div className="flex shrink-0 flex-col items-end gap-2">
+            {transfer.status === 'pending' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onApprove(transfer.id)}
+                  className="flex h-9 items-center gap-2 rounded-xl bg-[#3D8A5A] px-4 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+                >
+                  <CheckCircle className="size-4" />
+                  Aprobar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onReject(transfer.id)}
+                  className="flex h-9 items-center gap-2 rounded-xl border border-[#E5E4E1] px-4 text-[13px] font-medium text-[#D08068] transition-colors hover:bg-[#FDE8D8]"
+                >
+                  <X className="size-4" />
+                  Rechazar
+                </button>
+              </>
+            )}
+            {transfer.status === 'rejected' && transfer.rejectionReason && (
+              <div className="max-w-[180px] rounded-xl bg-[#F5F4F1] p-3 text-[12px] text-[#6D6C6A]">
+                <span className="font-semibold text-[#1A1918]">Motivo: </span>
+                {transfer.rejectionReason}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -343,17 +214,10 @@ function TransferRow({ transfer, onApprove, onReject }: TransferRowProps) {
 
 export function TransfersPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
-  const [searchValue, setSearchValue] = useState('')
   const [transfers, setTransfers] = useState<Transfer[]>(TRANSFERS)
 
   const filteredTransfers = transfers.filter((t) => {
-    const matchesFilter = activeFilter === 'all' || t.status === activeFilter
-    const matchesSearch =
-      searchValue === '' ||
-      t.memberName.toLowerCase().includes(searchValue.toLowerCase()) ||
-      t.originChurch.toLowerCase().includes(searchValue.toLowerCase()) ||
-      t.destinationChurch.toLowerCase().includes(searchValue.toLowerCase())
-    return matchesFilter && matchesSearch
+    return activeFilter === 'all' || t.status === activeFilter
   })
 
   function handleApprove(id: string) {
@@ -368,147 +232,62 @@ export function TransfersPage() {
     )
   }
 
-  const counts = {
-    all: transfers.length,
-    pending: transfers.filter((t) => t.status === 'pending').length,
-    approved: transfers.filter((t) => t.status === 'approved').length,
-    rejected: transfers.filter((t) => t.status === 'rejected').length,
-  }
-
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <PageHeader
         title="Transferencias"
-        subtitle="Gestionar solicitudes de traslado entre iglesias"
-        action={{ label: 'Exportar', icon: FileDown, variant: 'primary' }}
+        subtitle="Solicitudes de transferencia entre iglesias"
+        action={{ label: 'Nueva Solicitud', icon: ArrowRightLeft, variant: 'primary' }}
       />
 
-      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          {STAT_CARDS.map((card) => (
-            <StatCardItem key={card.label} {...card} />
-          ))}
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
+        {/* Filter bar */}
+        <div className="flex items-center justify-between gap-3">
+          {/* Pill tabs */}
+          <div className="flex items-center gap-2">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveFilter(tab.key)}
+                className={cn(
+                  'flex h-9 items-center rounded-full px-4 text-[13px] font-medium transition-colors',
+                  activeFilter === tab.key
+                    ? 'bg-[#3D8A5A] text-white'
+                    : 'border border-[#E5E4E1] bg-white text-[#6D6C6A] hover:text-[#1A1918]',
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort button */}
+          <button
+            type="button"
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-[#E5E4E1] bg-white px-3 text-[13px] text-[#6D6C6A] transition-colors hover:text-[#1A1918]"
+          >
+            <ArrowUpDown className="size-3.5" />
+            Mas recientes
+          </button>
         </div>
 
-        {/* Table card */}
-        <div className="overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
-          {/* Table toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E4E1] px-6 py-4">
-            <div className="inline-flex items-center gap-0.5 rounded-lg bg-[#F5F4F1] p-1">
-              {FILTER_TABS.map((tab) => {
-                const count = tab.key === 'all' ? counts.all : counts[tab.key]
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setActiveFilter(tab.key)}
-                    className={cn(
-                      'flex h-8 items-center gap-1.5 rounded-md px-3 text-[13px] font-medium transition-all',
-                      activeFilter === tab.key
-                        ? 'bg-white font-semibold text-[#1A1918] shadow-sm'
-                        : 'text-[#6D6C6A] hover:text-[#1A1918]',
-                    )}
-                  >
-                    {tab.label}
-                    {tab.key === 'pending' && count > 0 && (
-                      <span
-                        className={cn(
-                          'inline-flex size-4 items-center justify-center rounded-full text-[10px] font-bold',
-                          activeFilter === tab.key
-                            ? 'bg-[#FEF3C7] text-[#92400E]'
-                            : 'bg-[#E5E4E1] text-[#6D6C6A]',
-                        )}
-                      >
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Search */}
-              <div className="flex h-9 items-center gap-2 rounded-lg border border-[#E5E4E1] bg-[#FAFAF8] px-3">
-                <Search className="size-3.5 shrink-0 text-[#9C9B99]" />
-                <input
-                  type="text"
-                  placeholder="Buscar miembro o iglesia..."
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  className="w-48 bg-transparent text-[13px] text-[#1A1918] placeholder:text-[#9C9B99] focus:outline-none"
-                />
-              </div>
-
-              {/* Sort */}
-              <button
-                type="button"
-                className="flex h-9 items-center gap-1.5 rounded-lg border border-[#E5E4E1] bg-white px-3 text-[13px] font-medium text-[#6D6C6A] hover:text-[#1A1918]"
-              >
-                Fecha
-                <ChevronDown className="size-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Table */}
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-[#E5E4E1] bg-[#FAFAF8]">
-                <th className="py-3 pl-6 pr-4 text-left text-[11px] font-semibold text-[#9C9B99]">
-                  Miembro
-                </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] lg:table-cell">
-                  Origen
-                </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99]">
-                  Destino
-                </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] xl:table-cell">
-                  Motivo
-                </th>
-                <th className="hidden px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99] sm:table-cell">
-                  Fecha solicitud
-                </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#9C9B99]">
-                  Estado
-                </th>
-                <th className="py-3 pr-4" />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransfers.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-16 text-center text-[13px] text-[#9C9B99]">
-                    No se encontraron transferencias
-                  </td>
-                </tr>
-              ) : (
-                filteredTransfers.map((transfer) => (
-                  <TransferRow
-                    key={transfer.id}
-                    transfer={transfer}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-
-          {/* Table footer */}
-          <div className="flex items-center justify-between border-t border-[#E5E4E1] px-6 py-3">
-            <p className="text-[12px] text-[#9C9B99]">
-              {filteredTransfers.length} de {transfers.length} solicitudes
+        {/* Transfer cards */}
+        <div className="flex flex-col gap-3">
+          {filteredTransfers.length === 0 ? (
+            <p className="py-16 text-center text-[13px] text-[#9C9B99]">
+              No se encontraron transferencias
             </p>
-            <button
-              type="button"
-              className="text-[13px] font-semibold text-[#3D8A5A] hover:opacity-70"
-            >
-              Ver historial completo
-            </button>
-          </div>
+          ) : (
+            filteredTransfers.map((transfer) => (
+              <TransferCard
+                key={transfer.id}
+                transfer={transfer}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
