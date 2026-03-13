@@ -2,6 +2,7 @@
 
 import { GitBranch, LayoutGrid, List, MoreVertical, Plus } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { FilterPanel } from '@/components/ui/filter-panel'
 import { PageHeader } from '@/components/ui/page-header'
@@ -37,6 +38,7 @@ interface PillTabProps {
 interface ChurchCardProps {
   church: Church
   viewMode: ViewMode
+  onNavigate: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -259,12 +261,15 @@ function PillTab({ label, active, onClick }: PillTabProps) {
   )
 }
 
-function ChurchCard({ church, viewMode }: ChurchCardProps) {
+function ChurchCard({ church, viewMode, onNavigate }: ChurchCardProps) {
   const config = TYPE_CONFIG[church.type]
 
   if (viewMode === 'list') {
     return (
-      <div className="flex items-center gap-4 overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+      <div
+        onClick={onNavigate}
+        className="flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] transition-shadow hover:shadow-[0_4px_16px_rgba(26,25,24,0.10)]"
+      >
         <div
           className="h-full w-1.5 self-stretch"
           style={{ backgroundColor: config.topBarColor }}
@@ -314,7 +319,11 @@ function ChurchCard({ church, viewMode }: ChurchCardProps) {
               <span className="text-[11px] text-[#9C9B99]">Sociedades</span>
             </div>
           </div>
-          <button type="button" className="text-[#9C9B99] transition-colors hover:text-[#6D6C6A]">
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className="text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
+          >
             <MoreVertical className="size-[18px]" />
           </button>
         </div>
@@ -323,7 +332,10 @@ function ChurchCard({ church, viewMode }: ChurchCardProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+    <div
+      onClick={onNavigate}
+      className="cursor-pointer overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] transition-shadow hover:shadow-[0_4px_16px_rgba(26,25,24,0.10)]"
+    >
       {/* Colored top accent bar */}
       <div className="h-1.5 w-full" style={{ backgroundColor: config.topBarColor }} />
 
@@ -340,7 +352,11 @@ function ChurchCard({ church, viewMode }: ChurchCardProps) {
               {config.badgeLabel}
             </span>
           </div>
-          <button type="button" className="text-[#9C9B99] transition-colors hover:text-[#6D6C6A]">
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className="text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
+          >
             <MoreVertical className="size-[18px]" />
           </button>
         </div>
@@ -409,6 +425,7 @@ function ChurchCard({ church, viewMode }: ChurchCardProps) {
 // Before: IglesiasPage (src/views/iglesias/ui/IglesiasPage.tsx)
 // After:  ChurchListPage (src/views/churches/ui/ChurchListPage.tsx)
 export function ChurchListPage() {
+  const router = useRouter()
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
 
@@ -501,7 +518,12 @@ export function ChurchListPage() {
           )}
         >
           {filteredChurches.map((church) => (
-            <ChurchCard key={church.id} church={church} viewMode={viewMode} />
+            <ChurchCard
+              key={church.id}
+              church={church}
+              viewMode={viewMode}
+              onNavigate={() => router.push(`/churches/${church.id}`)}
+            />
           ))}
         </div>
       </div>
