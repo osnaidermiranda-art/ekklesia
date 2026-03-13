@@ -414,16 +414,30 @@ function RecentActivity() {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        {/* Table header */}
+      {/* Mobile list */}
+      <div className="flex flex-col divide-y divide-[#E5E4E1] md:hidden">
+        {RECENT_ACTIVITY.map((row) => (
+          <div key={row.name} className="flex items-center gap-3 py-3">
+            <Avatar initials={row.initials} size="md" color={row.color} />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-[#1A1918]">{row.name}</p>
+              <p className="text-xs text-[#9C9B99]">
+                {row.action} · {row.church}
+              </p>
+            </div>
+            <StatusBadge variant={row.status} label={row.statusLabel} />
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block">
         <div className="flex h-9 items-center rounded-lg bg-[#F5F4F1] px-3">
           <span className="flex-1 text-xs font-semibold text-[#9C9B99]">Miembro</span>
           <span className="flex-1 text-xs font-semibold text-[#9C9B99]">Accion</span>
           <span className="w-[120px] text-xs font-semibold text-[#9C9B99]">Iglesia</span>
           <span className="w-[80px] text-xs font-semibold text-[#9C9B99]">Estado</span>
         </div>
-
-        {/* Table rows */}
         {RECENT_ACTIVITY.map((row) => (
           <div
             key={row.name}
