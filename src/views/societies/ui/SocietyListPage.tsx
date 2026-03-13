@@ -2,6 +2,7 @@
 
 import { Building, Calendar, LayoutGrid, List, Plus, UserCheck, Users } from 'lucide-react'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { StatusBadge } from '@/components/ui/status-badge'
@@ -177,13 +178,20 @@ function Tab({ active, label, count, onClick }: TabProps) {
 
 interface SocietyCardProps {
   society: Society
+  onClick: () => void
 }
 
-function SocietyCard({ society }: SocietyCardProps) {
+function SocietyCard({ society, onClick }: SocietyCardProps) {
   const cfg = TYPE_CONFIG[society.type]
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.08)]">
+    <div
+      className="cursor-pointer overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.08)] transition-shadow hover:shadow-[0_4px_20px_rgba(26,25,24,0.14)]"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+    >
       {/* Colored top accent bar — 6px */}
       <div className="h-1.5 w-full" style={{ backgroundColor: cfg.topBar }} />
 
@@ -244,13 +252,20 @@ function SocietyCard({ society }: SocietyCardProps) {
 
 interface SocietyRowProps {
   society: Society
+  onClick: () => void
 }
 
-function SocietyRow({ society }: SocietyRowProps) {
+function SocietyRow({ society, onClick }: SocietyRowProps) {
   const cfg = TYPE_CONFIG[society.type]
 
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-[#E5E4E1] bg-white px-5 py-4 transition-colors hover:bg-[#FAFAF9]">
+    <div
+      className="flex cursor-pointer items-center gap-4 rounded-2xl border border-[#E5E4E1] bg-white px-5 py-4 transition-colors hover:bg-[#FAFAF9]"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+    >
       <div
         className="flex size-10 shrink-0 items-center justify-center rounded-xl"
         style={{ backgroundColor: cfg.badgeBg }}
@@ -293,6 +308,7 @@ function SocietyRow({ society }: SocietyRowProps) {
 // ---------------------------------------------------------------------------
 
 export function SocietyListPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
 
@@ -356,13 +372,21 @@ export function SocietyListPage() {
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {filtered.map((society) => (
-                  <SocietyCard key={society.id} society={society} />
+                  <SocietyCard
+                    key={society.id}
+                    society={society}
+                    onClick={() => router.push(`/societies/${society.id}`)}
+                  />
                 ))}
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {filtered.map((society) => (
-                  <SocietyRow key={society.id} society={society} />
+                  <SocietyRow
+                    key={society.id}
+                    society={society}
+                    onClick={() => router.push(`/societies/${society.id}`)}
+                  />
                 ))}
               </div>
             )}
