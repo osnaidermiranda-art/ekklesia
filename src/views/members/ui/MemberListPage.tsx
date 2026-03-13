@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, MoreVertical, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { Avatar } from '@/components/ui/avatar'
@@ -223,14 +224,16 @@ function TableHeader() {
 interface MemberRowProps {
   member: Member
   isLast: boolean
+  onNavigate: () => void
 }
 
-function MemberRow({ member, isLast }: MemberRowProps) {
+function MemberRow({ member, isLast, onNavigate }: MemberRowProps) {
   const statusConfig = STATUS_CONFIG[member.status]
   return (
     <div
+      onClick={onNavigate}
       className={cn(
-        'flex h-14 items-center bg-white px-5 transition-colors hover:bg-[#FAFAF9]',
+        'flex h-14 cursor-pointer items-center bg-white px-5 transition-colors hover:bg-[#FAFAF9]',
         !isLast && 'border-b border-[#E5E4E1]',
       )}
     >
@@ -269,6 +272,7 @@ function MemberRow({ member, isLast }: MemberRowProps) {
       <div className="w-10 shrink-0 flex justify-end">
         <button
           type="button"
+          onClick={(e) => e.stopPropagation()}
           className="flex size-8 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5F4F1] hover:text-[#6D6C6A]"
         >
           <MoreVertical className="size-4" />
@@ -340,6 +344,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
 // Before: MiembrosPage (src/views/miembros/ui/MiembrosPage.tsx)
 // After:  MemberListPage (src/views/members/ui/MemberListPage.tsx)
 export function MemberListPage() {
+  const router = useRouter()
   const [search, setSearch] = useState('')
   const [church, setChurch] = useState('Todas')
   const [role, setRole] = useState('Todos')
@@ -382,7 +387,7 @@ export function MemberListPage() {
             className="w-full sm:w-[280px]"
           />
 
-          <Select value={church} onValueChange={setChurch}>
+          <Select value={church} onValueChange={(v) => v !== null && setChurch(v)}>
             <SelectTrigger className="h-[38px] rounded-xl border-[#E5E4E1] bg-white text-[13px] text-[#1A1918]">
               <span className="shrink-0 font-medium text-[#9C9B99]">Iglesia:</span>
               <SelectValue className="font-semibold" />
@@ -396,7 +401,7 @@ export function MemberListPage() {
             </SelectContent>
           </Select>
 
-          <Select value={role} onValueChange={setRole}>
+          <Select value={role} onValueChange={(v) => v !== null && setRole(v)}>
             <SelectTrigger className="h-[38px] rounded-xl border-[#E5E4E1] bg-white text-[13px] text-[#1A1918]">
               <span className="shrink-0 font-medium text-[#9C9B99]">Rol:</span>
               <SelectValue className="font-semibold" />
@@ -410,7 +415,7 @@ export function MemberListPage() {
             </SelectContent>
           </Select>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(v) => v !== null && setStatusFilter(v)}>
             <SelectTrigger className="h-[38px] rounded-xl border-[#E5E4E1] bg-white text-[13px] text-[#1A1918]">
               <span className="shrink-0 font-medium text-[#9C9B99]">Estado:</span>
               <SelectValue className="font-semibold" />
@@ -438,6 +443,7 @@ export function MemberListPage() {
                 key={member.id}
                 member={member}
                 isLast={i === filteredMembers.length - 1}
+                onNavigate={() => router.push('/members/' + member.id)}
               />
             ))
           ) : (

@@ -111,7 +111,10 @@ const RECENT_REPORTS: RecentReport[] = [
   },
 ]
 
-const REPORT_TYPE_ICONS: Record<ReportType, React.ComponentType<{ className?: string }>> = {
+const REPORT_TYPE_ICONS: Record<
+  ReportType,
+  React.ComponentType<{ className?: string; style?: React.CSSProperties }>
+> = {
   financial: DollarSign,
   membership: Users,
   attendance: CalendarCheck,
