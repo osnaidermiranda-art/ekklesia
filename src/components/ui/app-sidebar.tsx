@@ -68,13 +68,13 @@ export function AppSidebar({ sections, activeHref, onNavigate, user, className }
   return (
     <aside
       className={cn(
-        'flex h-full w-[260px] shrink-0 flex-col bg-white p-6',
+        'flex h-full w-[260px] shrink-0 flex-col bg-white px-6 pb-6',
         'shadow-[2px_0_16px_rgba(26,25,24,0.03)]',
         className,
       )}
     >
-      {/* Logo area */}
-      <div className="flex items-center gap-3 border-b border-[#E5E4E1] pb-6">
+      {/* Logo area — height matches PageHeader (72px) */}
+      <div className="flex h-[72px] shrink-0 items-center gap-3 border-b border-[#E5E4E1]">
         <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#3D8A5A]">
           <span className="text-lg font-bold text-white">E</span>
         </span>

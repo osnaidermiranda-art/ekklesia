@@ -50,7 +50,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        'flex h-[72px] items-center justify-between bg-white px-8 shadow-[0_1px_8px_rgba(26,25,24,0.03)]',
+        'flex h-[72px] shrink-0 items-center justify-between bg-white px-8 shadow-[0_1px_8px_rgba(26,25,24,0.03)]',
         className,
       )}
     >
