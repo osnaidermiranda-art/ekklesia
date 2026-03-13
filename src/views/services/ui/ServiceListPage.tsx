@@ -2,6 +2,7 @@
 
 import { CheckCircle, Circle, Clock, MapPin, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Avatar } from '@/components/ui/avatar'
 import { PageHeader } from '@/components/ui/page-header'
@@ -372,6 +373,7 @@ function DetailPanel({ service }: DetailPanelProps) {
 // ---------------------------------------------------------------------------
 
 export function ServiceListPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [selectedId, setSelectedId] = useState<string>(SERVICES[0].id)
 
@@ -409,7 +411,7 @@ export function ServiceListPage() {
                 key={service.id}
                 service={service}
                 selected={service.id === selectedId}
-                onClick={() => setSelectedId(service.id)}
+                onClick={() => router.push(`/services/${service.id}`)}
               />
             ))}
           </div>
