@@ -307,7 +307,7 @@ function RoleRow({ role, isLast }: { role: AssignedRole; isLast: boolean }) {
   )
 }
 
-function DetailPanel({ service }: { service: Service }) {
+function DetailPanel({ service, onViewDetail }: { service: Service; onViewDetail: () => void }) {
   const badge = BADGE_STYLE[service.badge.variant]
 
   return (
@@ -337,6 +337,17 @@ function DetailPanel({ service }: { service: Service }) {
             <RoleRow key={role.id} role={role} isLast={i === service.roles.length - 1} />
           ))}
         </div>
+      </div>
+
+      {/* Footer — navigate to full detail */}
+      <div className="mt-auto border-t border-[#E5E4E1] px-6 py-4">
+        <button
+          type="button"
+          onClick={onViewDetail}
+          className="flex h-9 w-full items-center justify-center rounded-xl border border-[#E5E4E1] text-[13px] font-medium text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1] hover:text-[#1A1918]"
+        >
+          Ver detalle completo
+        </button>
       </div>
     </div>
   )
@@ -387,10 +398,7 @@ export function ServiceListPage() {
                   key={service.id}
                   service={service}
                   selected={service.id === selectedId}
-                  onClick={() => {
-                    setSelectedId(service.id)
-                    router.push(`/services/${service.id}`)
-                  }}
+                  onClick={() => setSelectedId(service.id)}
                 />
               ))}
             </div>
@@ -398,7 +406,10 @@ export function ServiceListPage() {
 
           {/* Right — detail panel */}
           <div className="hidden w-[380px] shrink-0 lg:block">
-            <DetailPanel service={selectedService} />
+            <DetailPanel
+              service={selectedService}
+              onViewDetail={() => router.push(`/services/${selectedService.id}`)}
+            />
           </div>
         </div>
       </div>
