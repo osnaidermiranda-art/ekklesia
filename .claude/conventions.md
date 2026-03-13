@@ -10,7 +10,7 @@
 
 ## React Components
 
-- Always use functional components with arrow function syntax
+- Always use functional components with named function syntax
 - Define `displayName` for components exported as default or wrapped in HOCs/memo/forwardRef
 - Type props with `interface` -- never inline prop types
 - Prefer named exports over default exports (except `page.tsx`/`layout.tsx`)
@@ -20,21 +20,21 @@
 
 ```tsx
 interface UserProfileProps {
-    userId: string
-    showAvatar?: boolean
+  userId: string
+  showAvatar?: boolean
 }
 
-export const UserProfile = ({ userId, showAvatar = true }: UserProfileProps) => {
-    const { data: user } = useUserQuery(userId)
+export function UserProfile({ userId, showAvatar = true }: UserProfileProps) {
+  const { data: user } = useUserQuery(userId)
 
-    if (!user) return <UserProfileSkeleton />
+  if (!user) return <UserProfileSkeleton />
 
-    return (
-        <section className="flex items-center gap-4">
-            {showAvatar && <UserAvatar src={user.avatar} />}
-            <h2 className="text-lg font-semibold">{user.name}</h2>
-        </section>
-    )
+  return (
+    <section className="flex items-center gap-4">
+      {showAvatar && <UserAvatar src={user.avatar} />}
+      <h2 className="text-lg font-semibold">{user.name}</h2>
+    </section>
+  )
 }
 ```
 
@@ -44,16 +44,16 @@ No semicolons, single quotes, 4-space indent, trailing commas (ES5), 100 char li
 
 ## Naming Conventions
 
-| Type                 | Convention                  | Example                                   |
-| -------------------- | --------------------------- | ----------------------------------------- |
-| **Components**       | PascalCase                  | `UserProfile.tsx`, `LoginForm.tsx`         |
-| **Hooks**            | camelCase with `use` prefix | `useDebounce.ts`, `useAuth.ts`            |
-| **Types/Interfaces** | PascalCase                  | `User`, `LoginPayload`                    |
-| **Constants**        | UPPER_SNAKE_CASE            | `API_TIMEOUT`, `MAX_RETRIES`              |
-| **Functions**        | camelCase                   | `fetchUser()`, `validateEmail()`          |
-| **Files**            | Match export name           | `userApi.ts`                              |
-| **Folders**          | kebab-case                  | `auth/`, `user-profile/`                  |
-| **Server Actions**   | camelCase with verb prefix  | `createCustomer()`, `updateBilling()`     |
+| Type                 | Convention                  | Example                               |
+| -------------------- | --------------------------- | ------------------------------------- |
+| **Components**       | PascalCase                  | `UserProfile.tsx`, `LoginForm.tsx`    |
+| **Hooks**            | camelCase with `use` prefix | `useDebounce.ts`, `useAuth.ts`        |
+| **Types/Interfaces** | PascalCase                  | `User`, `LoginPayload`                |
+| **Constants**        | UPPER_SNAKE_CASE            | `API_TIMEOUT`, `MAX_RETRIES`          |
+| **Functions**        | camelCase                   | `fetchUser()`, `validateEmail()`      |
+| **Files**            | Match export name           | `userApi.ts`                          |
+| **Folders**          | kebab-case                  | `auth/`, `user-profile/`              |
+| **Server Actions**   | camelCase with verb prefix  | `createCustomer()`, `updateBilling()` |
 
 ## Imports
 

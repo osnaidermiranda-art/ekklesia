@@ -18,6 +18,7 @@ Ekklesia is a multi-tenant web and mobile platform for managing church councils 
 - **ALWAYS use Tailwind CSS** -- prefer Tailwind classes instead of inline styles or CSS modules.
 - **ALWAYS write code in English** -- all code, comments, and variable names.
 - **ALWAYS use Server Components by default** -- only add `'use client'` when strictly necessary.
+- **ALWAYS use Axios for all HTTP requests** -- never use `fetch` directly in client-side code. Axios instances must be configured via `@/shared/api`. See `.claude/data-fetching.md`.
 - **EVERY test MUST validate business logic.** Tests that check CSS classes, DOM structure, snapshots, or implementation details are prohibited. See `.claude/testing.md`.
 - **The main agent NEVER implements code directly.** It orchestrates and delegates to specialized agents. See `.claude/agents.md`.
 
@@ -39,34 +40,34 @@ Ekklesia is a multi-tenant web and mobile platform for managing church councils 
 
 ## Quick Reference
 
-| Topic                      | File                      |
-| -------------------------- | ------------------------- |
-| FSD layers and structure   | `.claude/architecture.md` |
-| Naming, imports, style     | `.claude/conventions.md`  |
-| Testing rules              | `.claude/testing.md`      |
-| Branch and PR workflow     | `.claude/git-workflow.md` |
-| Data fetching, HTTP, proxy | `.claude/data-fetching.md`|
-| Agent orchestration        | `.claude/agents.md`       |
+| Topic                      | File                       |
+| -------------------------- | -------------------------- |
+| FSD layers and structure   | `.claude/architecture.md`  |
+| Naming, imports, style     | `.claude/conventions.md`   |
+| Testing rules              | `.claude/testing.md`       |
+| Branch and PR workflow     | `.claude/git-workflow.md`  |
+| Data fetching, HTTP, proxy | `.claude/data-fetching.md` |
+| Agent orchestration        | `.claude/agents.md`        |
 
 ---
 
 ## Development Commands
 
-| Command                 | Description                                |
-| ----------------------- | ------------------------------------------ |
-| `pnpm install`          | Install dependencies                       |
-| `pnpm run dev`          | Start dev server at `http://localhost:3000` |
-| `pnpm run build`        | Production build                           |
-| `pnpm run start`        | Start production server                    |
-| `pnpm run typecheck`    | TypeScript type checking                   |
-| `pnpm run test`         | Run unit tests (watch mode)                |
-| `pnpm run test:run`     | Run unit tests once                        |
-| `pnpm run test:e2e`     | Run E2E tests                              |
-| `pnpm run lint`         | Run ESLint                                 |
-| `pnpm run lint:fix`     | ESLint with auto-fix                       |
-| `pnpm run format`       | Format with Prettier                       |
-| `pnpm run storybook`    | Start Storybook                            |
-| `pnpm run release`      | Version bump + CHANGELOG                   |
+| Command              | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `pnpm install`       | Install dependencies                        |
+| `pnpm run dev`       | Start dev server at `http://localhost:3000` |
+| `pnpm run build`     | Production build                            |
+| `pnpm run start`     | Start production server                     |
+| `pnpm run typecheck` | TypeScript type checking                    |
+| `pnpm run test`      | Run unit tests (watch mode)                 |
+| `pnpm run test:run`  | Run unit tests once                         |
+| `pnpm run test:e2e`  | Run E2E tests                               |
+| `pnpm run lint`      | Run ESLint                                  |
+| `pnpm run lint:fix`  | ESLint with auto-fix                        |
+| `pnpm run format`    | Format with Prettier                        |
+| `pnpm run storybook` | Start Storybook                             |
+| `pnpm run release`   | Version bump + CHANGELOG                    |
 
 ---
 

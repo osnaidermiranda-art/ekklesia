@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,38 +48,51 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Ekklesia custom tokens */
+  --ek-green: #3d8a5a;
+  --ek-green-dark: #4d9b6a;
+  --ek-green-light: #c8f0d8;
+  --ek-blue: #5b8db8;
+  --ek-blue-light: #d6e8f5;
+  --ek-purple: #8b7cb8;
+  --ek-purple-light: #e8e0f5;
+  --ek-coral: #d89575;
+  --ek-red: #d08068;
+  --ek-warning: #d4a64a;
+
+  /* shadcn variables - mapped to Ekklesia */
+  --background: #f5f4f1;
+  --foreground: #1a1918;
+  --card: #ffffff;
+  --card-foreground: #1a1918;
+  --popover: #ffffff;
+  --popover-foreground: #1a1918;
+  --primary: #3d8a5a;
+  --primary-foreground: #ffffff;
+  --secondary: #edecea;
+  --secondary-foreground: #1a1918;
+  --muted: #f5f4f1;
+  --muted-foreground: #6d6c6a;
+  --accent: #c8f0d8;
+  --accent-foreground: #1a1918;
+  --destructive: #d08068;
+  --border: #e5e4e1;
+  --input: #e5e4e1;
+  --ring: #3d8a5a;
+  --chart-1: #3d8a5a;
+  --chart-2: #5b8db8;
+  --chart-3: #8b7cb8;
+  --chart-4: #d89575;
+  --chart-5: #d4a64a;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1918;
+  --sidebar-primary: #3d8a5a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #c8f0d8;
+  --sidebar-accent-foreground: #1a1918;
+  --sidebar-border: #e5e4e1;
+  --sidebar-ring: #3d8a5a;
 }
 
 .dark {
