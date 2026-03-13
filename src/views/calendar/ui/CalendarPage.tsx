@@ -1,7 +1,7 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Trash2, X } from 'lucide-react'
+import { useRef, useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,7 @@ interface CalendarEvent {
   time: string
   type: EventType
   date: string // YYYY-MM-DD
+  location?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -48,26 +49,87 @@ const MONTH_NAMES = [
   'Diciembre',
 ]
 
-// ---------------------------------------------------------------------------
-// Mock events
-// ---------------------------------------------------------------------------
+const EVENT_TYPE_OPTIONS: EventType[] = ['culto', 'iglesia', 'actividad', 'contribe']
 
-const EVENTS: CalendarEvent[] = [
-  { id: '1', title: 'Santa Cena', time: '9:00 AM', type: 'culto', date: '2026-03-08' },
-  { id: '2', title: 'Practica Especial', time: '3:00 PM', type: 'contribe', date: '2026-03-10' },
-  { id: '3', title: 'Evangelismo Marina', time: '6:00 PM', type: 'iglesia', date: '2026-03-10' },
+const INITIAL_EVENTS: CalendarEvent[] = [
+  {
+    id: '1',
+    title: 'Santa Cena',
+    time: '9:00 AM',
+    type: 'culto',
+    date: '2026-03-08',
+    location: 'Iglesia Betania',
+  },
+  {
+    id: '2',
+    title: 'Practica Especial',
+    time: '3:00 PM',
+    type: 'contribe',
+    date: '2026-03-10',
+    location: 'Sala de reuniones',
+  },
+  {
+    id: '3',
+    title: 'Evangelismo Marina',
+    time: '6:00 PM',
+    type: 'iglesia',
+    date: '2026-03-10',
+    location: 'Parque Central',
+  },
   { id: '4', title: 'Practica Borrador', time: '10:00 AM', type: 'actividad', date: '2026-03-11' },
   { id: '5', title: 'Reunion Borrador', time: '3:00 PM', type: 'iglesia', date: '2026-03-11' },
-  { id: '6', title: 'Estudio Biblico', time: '7:00 PM', type: 'iglesia', date: '2026-03-11' },
-  { id: '7', title: 'Feria Alemana', time: '9:00 AM', type: 'iglesia', date: '2026-03-12' },
+  {
+    id: '6',
+    title: 'Estudio Biblico',
+    time: '7:00 PM',
+    type: 'iglesia',
+    date: '2026-03-11',
+    location: 'Iglesia Emanuel',
+  },
+  {
+    id: '7',
+    title: 'Feria Alemana',
+    time: '9:00 AM',
+    type: 'iglesia',
+    date: '2026-03-12',
+    location: 'Centro Comunitario',
+  },
   { id: '8', title: 'Carmen Thomas', time: '11:00 AM', type: 'contribe', date: '2026-03-13' },
-  { id: '9', title: 'Rio Bartolome', time: '8:00 AM', type: 'culto', date: '2026-03-14' },
-  { id: '10', title: 'Culto Central', time: '10:00 AM', type: 'culto', date: '2026-03-14' },
+  {
+    id: '9',
+    title: 'Rio Bartolome',
+    time: '8:00 AM',
+    type: 'culto',
+    date: '2026-03-14',
+    location: 'Iglesia Betania',
+  },
+  {
+    id: '10',
+    title: 'Culto Central',
+    time: '10:00 AM',
+    type: 'culto',
+    date: '2026-03-14',
+    location: 'Iglesia Canaan',
+  },
   { id: '11', title: 'Practica Nucleo', time: '3:00 PM', type: 'actividad', date: '2026-03-14' },
   { id: '12', title: 'Practica Parece', time: '5:00 PM', type: 'actividad', date: '2026-03-14' },
   { id: '13', title: 'Reunion Liderazgo', time: '9:00 AM', type: 'iglesia', date: '2026-03-16' },
-  { id: '14', title: 'Culto Domingo', time: '10:00 AM', type: 'culto', date: '2026-03-15' },
-  { id: '15', title: 'Jovenes Unidos', time: '6:00 PM', type: 'actividad', date: '2026-03-15' },
+  {
+    id: '14',
+    title: 'Culto Domingo',
+    time: '10:00 AM',
+    type: 'culto',
+    date: '2026-03-15',
+    location: 'Iglesia Filadelfia',
+  },
+  {
+    id: '15',
+    title: 'Jovenes Unidos',
+    time: '6:00 PM',
+    type: 'actividad',
+    date: '2026-03-15',
+    location: 'Salon Jovenes',
+  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -76,8 +138,7 @@ const EVENTS: CalendarEvent[] = [
 
 function getWeekStart(date: Date): Date {
   const d = new Date(date)
-  const day = d.getDay() // 0=Sunday
-  d.setDate(d.getDate() - day)
+  d.setDate(d.getDate() - d.getDay())
   d.setHours(0, 0, 0, 0)
   return d
 }
@@ -96,19 +157,252 @@ function isSameDay(a: Date, b: Date): boolean {
   return toYMD(a) === toYMD(b)
 }
 
+function formatDateLabel(ymd: string): string {
+  const [, m, d] = ymd.split('-')
+  const monthIdx = parseInt(m, 10) - 1
+  return `${parseInt(d, 10)} ${MONTH_NAMES[monthIdx]}`
+}
+
+function generateId(): string {
+  return Math.random().toString(36).slice(2, 9)
+}
+
+function formatTime(value: string): string {
+  const [h, min] = value.split(':')
+  const hours = parseInt(h, 10)
+  const suffix = hours >= 12 ? 'PM' : 'AM'
+  const hours12 = hours % 12 || 12
+  return `${hours12}:${min} ${suffix}`
+}
+
 // ---------------------------------------------------------------------------
-// Sub-components
+// Create event modal
+// ---------------------------------------------------------------------------
+
+interface CreateEventModalProps {
+  initialDate: string
+  onClose: () => void
+  onSave: (event: Omit<CalendarEvent, 'id'>) => void
+}
+
+function CreateEventModal({ initialDate, onClose, onSave }: CreateEventModalProps) {
+  const [title, setTitle] = useState('')
+  const [date, setDate] = useState(initialDate)
+  const [time, setTime] = useState('09:00')
+  const [type, setType] = useState<EventType>('culto')
+  const [location, setLocation] = useState('')
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!title.trim()) return
+    onSave({
+      title: title.trim(),
+      date,
+      time: formatTime(time),
+      type,
+      location: location.trim() || undefined,
+    })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-[16px] font-semibold text-[#1A1918]">Nuevo Evento</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-8 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5F4F1]"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#6D6C6A]">Titulo</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Nombre del evento"
+              required
+              autoFocus
+              className="h-10 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99] focus:border-[#3D8A5A] focus:bg-white"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#6D6C6A]">Tipo</label>
+            <div className="flex gap-2">
+              {EVENT_TYPE_OPTIONS.map((t) => {
+                const cfg = TYPE_CONFIG[t]
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setType(t)}
+                    className={cn(
+                      'flex h-8 flex-1 items-center justify-center rounded-lg text-[12px] font-semibold transition-all',
+                      type === t ? 'outline outline-2 outline-offset-1' : 'opacity-50',
+                    )}
+                    style={{
+                      backgroundColor: cfg.bg,
+                      color: cfg.text,
+                      outlineColor: type === t ? cfg.text : undefined,
+                    }}
+                  >
+                    {cfg.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex flex-1 flex-col gap-1.5">
+              <label className="text-[12px] font-semibold text-[#6D6C6A]">Fecha</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="h-10 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] text-[#1A1918] outline-none focus:border-[#3D8A5A] focus:bg-white"
+              />
+            </div>
+            <div className="flex flex-1 flex-col gap-1.5">
+              <label className="text-[12px] font-semibold text-[#6D6C6A]">Hora</label>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="h-10 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] text-[#1A1918] outline-none focus:border-[#3D8A5A] focus:bg-white"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#6D6C6A]">Lugar (opcional)</label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Iglesia, sala, etc."
+              className="h-10 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99] focus:border-[#3D8A5A] focus:bg-white"
+            />
+          </div>
+
+          <div className="mt-1 flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-10 flex-1 items-center justify-center rounded-xl border border-[#E5E4E1] text-[13px] font-semibold text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="flex h-10 flex-1 items-center justify-center rounded-xl bg-[#3D8A5A] text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Crear Evento
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Event detail popover
+// ---------------------------------------------------------------------------
+
+interface EventDetailProps {
+  event: CalendarEvent
+  anchor: DOMRect
+  onClose: () => void
+  onDelete: (id: string) => void
+}
+
+function EventDetail({ event, anchor, onClose, onDelete }: EventDetailProps) {
+  const config = TYPE_CONFIG[event.type]
+  const top = anchor.bottom + 8
+  const left = Math.max(8, Math.min(anchor.left, window.innerWidth - 272))
+
+  return (
+    <div className="fixed inset-0 z-50" onClick={onClose}>
+      <div
+        className="absolute w-64 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/5"
+        style={{ top, left }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="h-1.5 w-full" style={{ backgroundColor: config.text }} />
+        <div className="p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+              style={{ backgroundColor: config.bg, color: config.text }}
+            >
+              {config.label}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                onDelete(event.id)
+                onClose()
+              }}
+              className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5DDD8] hover:text-[#D08068]"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          </div>
+          <p className="mb-3 text-[14px] font-semibold text-[#1A1918]">{event.title}</p>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-[12px] text-[#6D6C6A]">
+              <Clock className="size-3.5 shrink-0 text-[#9C9B99]" />
+              {formatDateLabel(event.date)} · {event.time}
+            </div>
+            {event.location && (
+              <div className="flex items-center gap-2 text-[12px] text-[#6D6C6A]">
+                <MapPin className="size-3.5 shrink-0 text-[#9C9B99]" />
+                {event.location}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Event card with drag support
 // ---------------------------------------------------------------------------
 
 interface EventCardProps {
   event: CalendarEvent
+  onDragStart: (id: string) => void
+  onClick: (event: CalendarEvent, rect: DOMRect) => void
 }
 
-function EventCard({ event }: EventCardProps) {
+function EventCard({ event, onDragStart, onClick }: EventCardProps) {
   const config = TYPE_CONFIG[event.type]
+  const ref = useRef<HTMLDivElement>(null)
+
   return (
     <div
-      className="mx-1.5 mb-1.5 cursor-pointer rounded-lg px-2 py-1.5 transition-opacity hover:opacity-80"
+      ref={ref}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move'
+        onDragStart(event.id)
+      }}
+      onClick={(e) => {
+        e.stopPropagation()
+        if (ref.current) onClick(event, ref.current.getBoundingClientRect())
+      }}
+      className="mx-1.5 mb-1.5 cursor-pointer rounded-lg px-2 py-1.5 transition-opacity active:opacity-40 hover:opacity-80"
       style={{ backgroundColor: config.bg }}
     >
       <p
@@ -124,25 +418,65 @@ function EventCard({ event }: EventCardProps) {
   )
 }
 
+// ---------------------------------------------------------------------------
+// Day column with drop zone
+// ---------------------------------------------------------------------------
+
 interface DayColumnProps {
   date: Date
   events: CalendarEvent[]
   isToday: boolean
+  isDragOver: boolean
+  onDragOver: (ymd: string) => void
+  onDrop: (ymd: string) => void
+  onDragLeave: () => void
+  onDragStart: (id: string) => void
+  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+  onDayClick: (ymd: string) => void
 }
 
 const MAX_VISIBLE = 3
 
-function DayColumn({ date, events, isToday }: DayColumnProps) {
+function DayColumn({
+  date,
+  events,
+  isToday,
+  isDragOver,
+  onDragOver,
+  onDrop,
+  onDragLeave,
+  onDragStart,
+  onEventClick,
+  onDayClick,
+}: DayColumnProps) {
   const visible = events.slice(0, MAX_VISIBLE)
   const overflow = events.length - MAX_VISIBLE
+  const ymd = toYMD(date)
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col border-r border-[#E5E4E1] last:border-r-0">
-      {/* Day header */}
-      <div
+    <div
+      className={cn(
+        'flex min-w-0 flex-1 flex-col border-r border-[#E5E4E1] last:border-r-0 transition-colors',
+        isDragOver && 'bg-[#F0FAF4]',
+      )}
+      onDragOver={(e) => {
+        e.preventDefault()
+        onDragOver(ymd)
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        onDrop(ymd)
+      }}
+      onDragLeave={onDragLeave}
+    >
+      {/* Day header — click to create event */}
+      <button
+        type="button"
+        title="Crear evento"
+        onClick={() => onDayClick(ymd)}
         className={cn(
-          'flex h-14 flex-col items-center justify-center border-b border-[#E5E4E1]',
-          isToday ? 'bg-[#F0FAF4]' : 'bg-white',
+          'flex h-14 w-full flex-col items-center justify-center border-b border-[#E5E4E1] transition-colors',
+          isToday ? 'bg-[#F0FAF4]' : 'bg-white hover:bg-[#F5F4F1]',
         )}
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#9C9B99]">
@@ -156,12 +490,17 @@ function DayColumn({ date, events, isToday }: DayColumnProps) {
         >
           {date.getDate()}
         </span>
-      </div>
+      </button>
 
       {/* Events */}
       <div className="flex flex-1 flex-col pt-1.5">
         {visible.map((event) => (
-          <EventCard key={event.id} event={event} />
+          <EventCard
+            key={event.id}
+            event={event}
+            onDragStart={onDragStart}
+            onClick={onEventClick}
+          />
         ))}
         {overflow > 0 && (
           <p className="px-3 text-[10px] font-medium text-[#9C9B99]">+{overflow} más</p>
@@ -175,11 +514,19 @@ function DayColumn({ date, events, isToday }: DayColumnProps) {
 // Main page component
 // ---------------------------------------------------------------------------
 
-// Before: CalendarioPage (src/views/calendario/ui/CalendarioPage.tsx)
-// After:  CalendarPage (src/views/calendar/ui/CalendarPage.tsx)
 export function CalendarPage() {
   const today = new Date()
   const [weekStart, setWeekStart] = useState(() => getWeekStart(today))
+  const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_EVENTS)
+
+  // Drag & drop
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [dragOverYmd, setDragOverYmd] = useState<string | null>(null)
+
+  // Modals
+  const [createDate, setCreateDate] = useState<string | null>(null)
+  const [detailEvent, setDetailEvent] = useState<CalendarEvent | null>(null)
+  const [detailAnchor, setDetailAnchor] = useState<DOMRect | null>(null)
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
   const weekEnd = weekDays[6]
@@ -189,21 +536,24 @@ export function CalendarPage() {
       ? `${MONTH_NAMES[weekStart.getMonth()]} ${weekStart.getFullYear()}`
       : `${MONTH_NAMES[weekStart.getMonth()]} – ${MONTH_NAMES[weekEnd.getMonth()]} ${weekEnd.getFullYear()}`
 
-  function goToPrev() {
-    setWeekStart((w) => addDays(w, -7))
+  function handleDrop(targetYmd: string) {
+    if (!draggedId) return
+    setEvents((prev) => prev.map((e) => (e.id === draggedId ? { ...e, date: targetYmd } : e)))
+    setDraggedId(null)
+    setDragOverYmd(null)
   }
 
-  function goToNext() {
-    setWeekStart((w) => addDays(w, 7))
+  function handleCreateEvent(data: Omit<CalendarEvent, 'id'>) {
+    setEvents((prev) => [...prev, { ...data, id: generateId() }])
   }
 
-  function goToToday() {
-    setWeekStart(getWeekStart(today))
+  function handleDeleteEvent(id: string) {
+    setEvents((prev) => prev.filter((e) => e.id !== id))
   }
 
-  function eventsForDay(date: Date): CalendarEvent[] {
-    const ymd = toYMD(date)
-    return EVENTS.filter((e) => e.date === ymd)
+  function handleEventClick(event: CalendarEvent, rect: DOMRect) {
+    setDetailEvent(event)
+    setDetailAnchor(rect)
   }
 
   return (
@@ -211,17 +561,21 @@ export function CalendarPage() {
       <PageHeader
         title="Calendario"
         subtitle="Planificacion de eventos y servicios"
-        action={{ label: 'Nuevo Evento', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nuevo Evento',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => setCreateDate(toYMD(today)),
+        }}
       />
 
       <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
         {/* Toolbar */}
         <div className="flex items-center justify-between">
-          {/* Left — navigation */}
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={goToPrev}
+              onClick={() => setWeekStart((w) => addDays(w, -7))}
               className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
             >
               <ChevronLeft className="size-4" />
@@ -231,30 +585,26 @@ export function CalendarPage() {
             </span>
             <button
               type="button"
-              onClick={goToNext}
+              onClick={() => setWeekStart((w) => addDays(w, 7))}
               className="flex size-9 items-center justify-center rounded-xl border border-[#E5E4E1] bg-white text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
             >
               <ChevronRight className="size-4" />
             </button>
             <button
               type="button"
-              onClick={goToToday}
+              onClick={() => setWeekStart(getWeekStart(today))}
               className="ml-1 flex h-9 items-center rounded-xl border border-[#E5E4E1] bg-white px-4 text-[13px] font-medium text-[#6D6C6A] transition-colors hover:bg-[#F5F4F1]"
             >
               Hoy
             </button>
           </div>
 
-          {/* Right — legend */}
           <div className="hidden items-center gap-4 sm:flex">
             {(Object.entries(TYPE_CONFIG) as [EventType, (typeof TYPE_CONFIG)[EventType]][]).map(
-              ([key, config]) => (
+              ([key, cfg]) => (
                 <div key={key} className="flex items-center gap-1.5">
-                  <span
-                    className="size-2.5 rounded-full"
-                    style={{ backgroundColor: config.text }}
-                  />
-                  <span className="text-[12px] text-[#6D6C6A]">{config.label}</span>
+                  <span className="size-2.5 rounded-full" style={{ backgroundColor: cfg.text }} />
+                  <span className="text-[12px] text-[#6D6C6A]">{cfg.label}</span>
                 </div>
               ),
             )}
@@ -263,16 +613,48 @@ export function CalendarPage() {
 
         {/* Calendar grid */}
         <div className="flex flex-1 overflow-hidden rounded-2xl border border-[#E5E4E1] bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
-          {weekDays.map((day) => (
-            <DayColumn
-              key={toYMD(day)}
-              date={day}
-              events={eventsForDay(day)}
-              isToday={isSameDay(day, today)}
-            />
-          ))}
+          {weekDays.map((day) => {
+            const ymd = toYMD(day)
+            return (
+              <DayColumn
+                key={ymd}
+                date={day}
+                events={events.filter((e) => e.date === ymd)}
+                isToday={isSameDay(day, today)}
+                isDragOver={dragOverYmd === ymd}
+                onDragStart={setDraggedId}
+                onDragOver={setDragOverYmd}
+                onDrop={handleDrop}
+                onDragLeave={() => setDragOverYmd(null)}
+                onEventClick={handleEventClick}
+                onDayClick={(d) => setCreateDate(d)}
+              />
+            )
+          })}
         </div>
       </div>
+
+      {/* Create event modal */}
+      {createDate !== null && (
+        <CreateEventModal
+          initialDate={createDate}
+          onClose={() => setCreateDate(null)}
+          onSave={handleCreateEvent}
+        />
+      )}
+
+      {/* Event detail popover */}
+      {detailEvent && detailAnchor && (
+        <EventDetail
+          event={detailEvent}
+          anchor={detailAnchor}
+          onClose={() => {
+            setDetailEvent(null)
+            setDetailAnchor(null)
+          }}
+          onDelete={handleDeleteEvent}
+        />
+      )}
     </div>
   )
 }
