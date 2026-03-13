@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, CheckCircle, Circle, Mic, Music, Plus, Volume2 } from 'lucide-react'
+import { ArrowRight, BookOpen, CheckCircle, Circle, Mic, Music, Plus, Volume2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -225,50 +225,70 @@ function ServiceRow({
   service,
   selected,
   onClick,
+  onNavigate,
 }: {
   service: Service
   selected: boolean
   onClick: () => void
+  onNavigate: () => void
 }) {
   const badge = BADGE_STYLE[service.badge.variant]
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <div
       className={cn(
-        'flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-colors',
+        'flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 transition-colors',
         selected ? 'border-[#3D8A5A] bg-white' : 'border-[#E5E4E1] bg-white hover:bg-[#FAFAF8]',
       )}
     >
-      {/* Date badge */}
-      <div
-        className="flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center rounded-xl"
-        style={{ backgroundColor: service.dateBg }}
+      {/* Clickable area — mobile: navigate, desktop: select for quick view */}
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex flex-1 items-center gap-4 text-left lg:pointer-events-auto"
       >
-        <span className="text-[18px] font-bold leading-none text-white">{service.day}</span>
-        <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-          {service.month}
+        {/* Date badge */}
+        <div
+          className="flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center rounded-xl"
+          style={{ backgroundColor: service.dateBg }}
+        >
+          <span className="text-[18px] font-bold leading-none text-white">{service.day}</span>
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
+            {service.month}
+          </span>
+        </div>
+
+        {/* Info */}
+        <div className="flex flex-1 flex-col gap-0.5">
+          <p className="text-[14px] font-semibold text-[#1A1918]">{service.title}</p>
+          <p className="text-[12px] text-[#9C9B99]">{service.meta}</p>
+        </div>
+
+        {/* Badge — hidden on mobile to leave room for nav icon */}
+        <span
+          className={cn(
+            'hidden sm:inline-flex h-[26px] shrink-0 items-center rounded-full px-3 text-[12px] font-semibold',
+            badge.bg,
+            badge.text,
+          )}
+        >
+          {service.badge.label}
         </span>
-      </div>
+      </button>
 
-      {/* Info */}
-      <div className="flex flex-1 flex-col gap-0.5">
-        <p className="text-[14px] font-semibold text-[#1A1918]">{service.title}</p>
-        <p className="text-[12px] text-[#9C9B99]">{service.meta}</p>
-      </div>
-
-      {/* Badge */}
-      <span
-        className={cn(
-          'inline-flex h-[26px] shrink-0 items-center rounded-full px-3 text-[12px] font-semibold',
-          badge.bg,
-          badge.text,
-        )}
+      {/* Quick-navigate icon — always visible */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onNavigate()
+        }}
+        title="Ver detalle"
+        className="flex size-8 shrink-0 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F0F0EE] hover:text-[#1A1918]"
       >
-        {service.badge.label}
-      </span>
-    </button>
+        <ArrowRight size={16} />
+      </button>
+    </div>
   )
 }
 
@@ -398,7 +418,15 @@ export function ServiceListPage() {
                   key={service.id}
                   service={service}
                   selected={service.id === selectedId}
-                  onClick={() => setSelectedId(service.id)}
+                  onClick={() => {
+                    // On mobile (lg panel hidden): navigate directly to detail
+                    if (window.innerWidth < 1024) {
+                      router.push(`/services/${service.id}`)
+                    } else {
+                      setSelectedId(service.id)
+                    }
+                  }}
+                  onNavigate={() => router.push(`/services/${service.id}`)}
                 />
               ))}
             </div>
