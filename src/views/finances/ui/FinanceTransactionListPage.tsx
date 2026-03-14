@@ -398,6 +398,7 @@ export function FinanceTransactionListPage() {
           </button>
           <button
             type="button"
+            onClick={() => router.push('/finances/transactions/create')}
             className="flex h-[38px] items-center gap-2 rounded-xl bg-[#3D8A5A] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#2d6b44]"
           >
             <Plus size={14} />
