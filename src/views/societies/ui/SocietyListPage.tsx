@@ -319,7 +319,12 @@ export function SocietyListPage() {
       <PageHeader
         title="Sociedades"
         subtitle="Administra las sociedades y grupos del concilio"
-        action={{ label: 'Nueva Sociedad', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nueva Sociedad',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => router.push('/societies/create'),
+        }}
       />
 
       <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
