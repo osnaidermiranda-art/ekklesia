@@ -437,7 +437,12 @@ export function ChurchListPage() {
       <PageHeader
         title="Iglesias"
         subtitle="Estructura jerarquica del concilio"
-        action={{ label: 'Nueva Iglesia', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nueva Iglesia',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => router.push('/churches/create'),
+        }}
       />
 
       <div className="flex flex-col gap-6 px-4 py-4 lg:px-8 lg:py-8">
