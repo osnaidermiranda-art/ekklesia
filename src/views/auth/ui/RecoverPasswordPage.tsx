@@ -7,9 +7,33 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, CheckCircle, Mail } from 'lucide-react'
+import { Calendar, ChartBar, CheckCircle, Lock, Users } from 'lucide-react'
 
 type RecoverStep = 'form' | 'sent'
+
+interface BrandFeature {
+  icon: React.ElementType
+  title: string
+  description: string
+}
+
+const BRAND_FEATURES: BrandFeature[] = [
+  {
+    icon: Users,
+    title: 'Gestion de Miembros',
+    description: 'Control completo de feligreses, transferencias y roles',
+  },
+  {
+    icon: Calendar,
+    title: 'Calendario Unificado',
+    description: 'Eventos con prioridad jerarquica y resolucion de conflictos',
+  },
+  {
+    icon: ChartBar,
+    title: 'Reportes y Finanzas',
+    description: 'Diezmos, ofrendas y reportes exportables en PDF y Excel',
+  },
+]
 
 export function RecoverPasswordPage() {
   const [step, setStep] = useState<RecoverStep>('form')
@@ -42,28 +66,19 @@ export function RecoverPasswordPage() {
           </p>
         </div>
 
-        {/* Illustration block — hidden on mobile */}
-        <div className="hidden flex-col gap-5 md:flex">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-white/[.13]">
-            <Mail className="size-8 text-white" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-xl font-semibold text-white">Recupera tu acceso</p>
-            <p className="max-w-[300px] text-sm leading-relaxed text-white/[.75]">
-              Te enviaremos un enlace seguro a tu correo para que puedas restablecer tu contrasena
-              en pocos pasos.
-            </p>
-          </div>
-          <div className="mt-2 flex flex-col gap-3">
-            {RECOVERY_STEPS.map((item, index) => (
-              <div key={item} className="flex items-center gap-3">
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white/[.18] text-xs font-bold text-white">
-                  {index + 1}
-                </span>
-                <p className="text-sm text-white/[.75]">{item}</p>
+        {/* Features — hidden on mobile */}
+        <div className="hidden flex-col gap-6 md:flex">
+          {BRAND_FEATURES.map((feature) => (
+            <div key={feature.title} className="flex items-start gap-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[.13]">
+                <feature.icon className="size-5 text-white" />
               </div>
-            ))}
-          </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-semibold text-white">{feature.title}</p>
+                <p className="text-xs text-white/[.67]">{feature.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Footer — hidden on mobile */}
@@ -75,7 +90,7 @@ export function RecoverPasswordPage() {
       {/* Content Panel */}
       <div
         className={cn(
-          'flex flex-1 items-center justify-center bg-[#F5F4F1]',
+          'flex flex-1 items-center justify-center bg-white',
           'px-6 py-10 md:w-1/2 md:px-20 md:py-[60px]',
         )}
       >
@@ -103,28 +118,25 @@ interface RecoverFormProps {
 
 function RecoverForm({ email, onEmailChange, onSubmit }: RecoverFormProps) {
   return (
-    <>
-      {/* Back link */}
-      <Link
-        href="/login"
-        className="mb-8 inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6D6C6A] transition-colors hover:text-[#1A1918]"
-      >
-        <ArrowLeft className="size-4" />
-        Volver al inicio de sesion
-      </Link>
+    <div className="flex flex-col items-center gap-6 text-center">
+      {/* Title */}
+      <h1 className="text-[28px] font-bold leading-tight text-[#1A1918]">Recuperar Contrasena</h1>
 
-      {/* Form Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-[28px] font-bold leading-tight text-[#1A1918]">Recuperar Contrasena</h1>
-        <p className="text-sm leading-relaxed text-[#6D6C6A]">
-          Ingresa tu correo electronico y te enviaremos las instrucciones para restablecer tu
-          contrasena.
-        </p>
+      {/* Lock icon */}
+      <div className="flex size-16 items-center justify-center rounded-full bg-[#C8F0D8]">
+        <Lock className="size-7 text-[#3D8A5A]" strokeWidth={2} />
       </div>
 
-      <form className="mt-8 flex flex-col gap-6" onSubmit={onSubmit}>
+      {/* Description */}
+      <p className="text-[14px] leading-relaxed text-[#6D6C6A]">
+        Ingresa tu correo electronico y te enviaremos un enlace
+        <br />
+        para restablecer tu contrasena
+      </p>
+
+      <form className="flex w-full flex-col gap-5" onSubmit={onSubmit}>
         {/* Email Field */}
-        <div className="flex flex-col gap-[6px]">
+        <div className="flex flex-col gap-[6px] text-left">
           <Label htmlFor="email" className="text-[13px] font-medium text-[#1A1918]">
             Correo electronico
           </Label>
@@ -135,11 +147,8 @@ function RecoverForm({ email, onEmailChange, onSubmit }: RecoverFormProps) {
             required
             value={email}
             onChange={(e) => onEmailChange(e.target.value)}
-            className="h-[42px] rounded-xl border border-[#E5E4E1] bg-white px-3 text-[13px] text-[#1A1918] placeholder:text-[#9C9B99] focus-visible:ring-[#3D8A5A]"
+            className="h-[42px] rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] text-[#1A1918] placeholder:text-[#9C9B99] focus-visible:ring-[#3D8A5A]"
           />
-          <p className="text-[11px] text-[#9C9B99]">
-            Usa el correo registrado en tu cuenta de Ekklesia
-          </p>
         </div>
 
         {/* Submit */}
@@ -147,18 +156,18 @@ function RecoverForm({ email, onEmailChange, onSubmit }: RecoverFormProps) {
           type="submit"
           className="h-11 w-full rounded-xl bg-[#3D8A5A] text-[15px] font-semibold text-white hover:bg-[#347A4E] active:bg-[#2E6B44]"
         >
-          Enviar instrucciones
+          Enviar Enlace de Recuperacion
         </Button>
 
-        {/* Back link — mobile */}
+        {/* Back to login */}
         <p className="text-center text-[13px] text-[#9C9B99]">
-          Recordaste tu contrasena?{' '}
+          Recuerdas tu contrasena?{' '}
           <Link href="/login" className="font-medium text-[#3D8A5A] hover:underline">
-            Iniciar sesion
+            Inicia Sesion
           </Link>
         </p>
       </form>
-    </>
+    </div>
   )
 }
 
