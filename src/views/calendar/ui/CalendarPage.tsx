@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Trash2, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
@@ -363,17 +363,15 @@ function EventDetail({ event, anchor, onClose, onDelete }: EventDetailProps) {
 interface EventCardProps {
   event: CalendarEvent
   onDragStart: (id: string) => void
-  onClick: (event: CalendarEvent, rect: DOMRect) => void
+  onClick: (event: CalendarEvent) => void
 }
 
 function EventCard({ event, onDragStart, onClick }: EventCardProps) {
   const config = TYPE_CONFIG[event.type]
-  const ref = useRef<HTMLDivElement>(null)
   const isConflict = event.type === 'conflicto'
 
   return (
     <div
-      ref={ref}
       draggable
       onDragStart={(e) => {
         e.dataTransfer.effectAllowed = 'move'
@@ -381,7 +379,7 @@ function EventCard({ event, onDragStart, onClick }: EventCardProps) {
       }}
       onClick={(e) => {
         e.stopPropagation()
-        if (ref.current) onClick(event, ref.current.getBoundingClientRect())
+        onClick(event)
       }}
       className={cn(
         'mx-2 mb-2 cursor-pointer rounded-xl px-3 py-2 transition-opacity hover:opacity-85 active:opacity-50',
@@ -464,22 +462,17 @@ function MobileDayStrip({ weekDays, selectedYmd, today, onSelect }: MobileDayStr
 interface MobileEventCardProps {
   event: CalendarEvent
   config: (typeof TYPE_CONFIG)[EventType]
-  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+  onEventClick: (event: CalendarEvent) => void
 }
 
 function MobileEventCard({ event, config, onEventClick }: MobileEventCardProps) {
-  const ref = useRef<HTMLDivElement>(null)
   return (
     <div
-      ref={ref}
       role="button"
       tabIndex={0}
-      onClick={() => {
-        if (ref.current) onEventClick(event, ref.current.getBoundingClientRect())
-      }}
+      onClick={() => onEventClick(event)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' && ref.current)
-          onEventClick(event, ref.current.getBoundingClientRect())
+        if (e.key === 'Enter') onEventClick(event)
       }}
       className="flex cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-colors hover:bg-[#FAFAF8]"
     >
@@ -503,7 +496,7 @@ function MobileEventCard({ event, config, onEventClick }: MobileEventCardProps) 
 interface MobileEventListProps {
   events: CalendarEvent[]
   selectedYmd: string
-  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+  onEventClick: (event: CalendarEvent) => void
   onAddEvent: (ymd: string) => void
 }
 
@@ -553,7 +546,7 @@ interface DayColumnProps {
   onDrop: (ymd: string) => void
   onDragLeave: () => void
   onDragStart: (id: string) => void
-  onEventClick: (event: CalendarEvent, rect: DOMRect) => void
+  onEventClick: (event: CalendarEvent) => void
   onDayClick: (ymd: string) => void
 }
 
@@ -645,8 +638,6 @@ export function CalendarPage() {
   const [dragOverYmd, setDragOverYmd] = useState<string | null>(null)
 
   const [createDate, setCreateDate] = useState<string | null>(null)
-  const [detailEvent, setDetailEvent] = useState<CalendarEvent | null>(null)
-  const [detailAnchor, setDetailAnchor] = useState<DOMRect | null>(null)
 
   // Monday-start week: 7 days from weekStart
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
@@ -746,10 +737,7 @@ export function CalendarPage() {
           <MobileEventList
             events={events}
             selectedYmd={selectedDay}
-            onEventClick={(ev, rect) => {
-              setDetailEvent(ev)
-              setDetailAnchor(rect)
-            }}
+            onEventClick={(ev) => router.push(`/calendar/${ev.id}`)}
             onAddEvent={(ymd) => setCreateDate(ymd)}
           />
         </div>
@@ -769,10 +757,7 @@ export function CalendarPage() {
                 onDragOver={setDragOverYmd}
                 onDrop={handleDrop}
                 onDragLeave={() => setDragOverYmd(null)}
-                onEventClick={(ev, rect) => {
-                  setDetailEvent(ev)
-                  setDetailAnchor(rect)
-                }}
+                onEventClick={(ev) => router.push(`/calendar/${ev.id}`)}
                 onDayClick={(d) => setCreateDate(d)}
               />
             )
@@ -785,18 +770,6 @@ export function CalendarPage() {
           initialDate={createDate}
           onClose={() => setCreateDate(null)}
           onSave={(data) => setEvents((prev) => [...prev, { ...data, id: generateId() }])}
-        />
-      )}
-
-      {detailEvent && detailAnchor && (
-        <EventDetail
-          event={detailEvent}
-          anchor={detailAnchor}
-          onClose={() => {
-            setDetailEvent(null)
-            setDetailAnchor(null)
-          }}
-          onDelete={(id) => setEvents((prev) => prev.filter((e) => e.id !== id))}
         />
       )}
     </div>
