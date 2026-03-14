@@ -389,7 +389,12 @@ export function ServiceListPage() {
       <PageHeader
         title="Servicios"
         subtitle="Plantillas y planificacion de servicios"
-        action={{ label: 'Nuevo Servicio', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nuevo Servicio',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => router.push('/services/create'),
+        }}
       />
 
       <div className="flex flex-1 flex-col gap-5 overflow-hidden px-4 py-4 lg:px-8 lg:py-6">
