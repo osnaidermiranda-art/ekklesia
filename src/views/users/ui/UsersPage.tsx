@@ -1,7 +1,18 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Mail, MoreVertical, Plus, Shield } from 'lucide-react'
-import { useState } from 'react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Mail,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Shield,
+  Trash2,
+  User,
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Avatar } from '@/components/ui/avatar'
 import { PageHeader } from '@/components/ui/page-header'
@@ -228,15 +239,33 @@ function TableHeader() {
 interface UserRowProps {
   user: SystemUser
   isLast: boolean
+  onViewDetail: (id: string) => void
 }
 
-function UserRow({ user, isLast }: UserRowProps) {
+function UserRow({ user, isLast, onViewDetail }: UserRowProps) {
   const statusConfig = STATUS_CONFIG[user.status]
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onViewDetail(user.id)}
+      onKeyDown={(e) => e.key === 'Enter' && onViewDetail(user.id)}
       className={cn(
-        'flex h-[60px] items-center bg-white px-5 transition-colors hover:bg-[#FAFAF9]',
+        'flex h-[60px] cursor-pointer items-center bg-white px-5 transition-colors hover:bg-[#FAFAF9]',
         !isLast && 'border-b border-[#E5E4E1]',
       )}
     >
@@ -270,14 +299,52 @@ function UserRow({ user, isLast }: UserRowProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex w-10 shrink-0 justify-end">
+      <div
+        className="relative flex w-10 shrink-0 justify-end"
+        ref={menuRef}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           aria-label="Opciones de usuario"
+          onClick={() => setMenuOpen((prev) => !prev)}
           className="flex size-8 items-center justify-center rounded-lg text-[#9C9B99] transition-colors hover:bg-[#F5F4F1] hover:text-[#6D6C6A]"
         >
           <MoreVertical className="size-4" />
         </button>
+
+        {menuOpen && (
+          <div className="absolute right-0 top-9 z-20 min-w-[160px] overflow-hidden rounded-xl border border-[#E5E4E1] bg-white py-1 shadow-[0_4px_20px_rgba(26,25,24,0.12)]">
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false)
+                onViewDetail(user.id)
+              }}
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1A1918] transition-colors hover:bg-[#F5F4F1]"
+            >
+              <User size={14} className="text-[#6D6C6A]" />
+              Ver detalles
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1A1918] transition-colors hover:bg-[#F5F4F1]"
+            >
+              <Pencil size={14} className="text-[#6D6C6A]" />
+              Editar
+            </button>
+            <div className="my-1 h-px bg-[#E5E4E1]" />
+            <button
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#D4453A] transition-colors hover:bg-[#FEF2F2]"
+            >
+              <Trash2 size={14} />
+              Eliminar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -450,6 +517,7 @@ function InviteModal({ open, onClose }: InviteModalProps) {
 // ---------------------------------------------------------------------------
 
 export function UsersPage() {
+  const router = useRouter()
   const [search, setSearch] = useState('')
   const [activeRole, setActiveRole] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -505,7 +573,12 @@ export function UsersPage() {
 
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user, i) => (
-              <UserRow key={user.id} user={user} isLast={i === filteredUsers.length - 1} />
+              <UserRow
+                key={user.id}
+                user={user}
+                isLast={i === filteredUsers.length - 1}
+                onViewDetail={(id) => router.push(`/users/${id}`)}
+              />
             ))
           ) : (
             <div className="flex h-40 items-center justify-center bg-white">
