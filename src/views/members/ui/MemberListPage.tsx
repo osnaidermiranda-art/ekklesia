@@ -373,7 +373,12 @@ export function MemberListPage() {
       <PageHeader
         title="Miembros"
         subtitle="Gestiona los miembros de tu concilio"
-        action={{ label: 'Nuevo Miembro', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nuevo Miembro',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => router.push('/members/create'),
+        }}
       />
 
       <div className="flex flex-col gap-6 px-4 py-4 lg:px-8 lg:py-8">
