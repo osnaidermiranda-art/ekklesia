@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Trash2, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
@@ -634,6 +635,7 @@ function DayColumn({
 // ---------------------------------------------------------------------------
 
 export function CalendarPage() {
+  const router = useRouter()
   const today = new Date()
   const [weekStart, setWeekStart] = useState(() => getWeekStart(today))
   const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_EVENTS)
@@ -684,7 +686,7 @@ export function CalendarPage() {
           label: 'Nuevo Evento',
           icon: Plus,
           variant: 'primary',
-          onClick: () => setCreateDate(selectedDay),
+          onClick: () => router.push('/calendar/create'),
         }}
       />
 
