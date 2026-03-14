@@ -289,7 +289,12 @@ export function ActivityListPage() {
       <PageHeader
         title="Actividades"
         subtitle="Gestiona las actividades y eventos recurrentes"
-        action={{ label: 'Nueva Actividad', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nueva Actividad',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => router.push('/activities/create'),
+        }}
       />
 
       <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
