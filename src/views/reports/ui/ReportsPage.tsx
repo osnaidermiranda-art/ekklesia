@@ -2,6 +2,7 @@
 
 import { CalendarCheck, Download, DollarSign, Info, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
@@ -232,6 +233,7 @@ function RecentReportRow({ report }: RecentReportRowProps) {
 // ---------------------------------------------------------------------------
 
 export function ReportsPage() {
+  const router = useRouter()
   const [generating, setGenerating] = useState<string | null>(null)
 
   function handleGenerate(type: ReportType, format: ReportFormat) {
@@ -282,6 +284,7 @@ export function ReportsPage() {
             <p className="text-[14px] font-semibold text-[#1A1918]">Reportes Recientes</p>
             <button
               type="button"
+              onClick={() => router.push('/reports/history')}
               className="text-[12px] font-semibold text-[#3D8A5A] transition-opacity hover:opacity-70"
             >
               Ver historial

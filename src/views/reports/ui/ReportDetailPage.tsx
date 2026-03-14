@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Bell, CheckCircle2, Share2, TableProperties } from 'lucide-react'
+import { ArrowLeft, Bell, CheckCircle2, Download, Share2, TableProperties } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 
 // ---------------------------------------------------------------------------
@@ -138,17 +138,10 @@ export function ReportDetailPage() {
           </button>
           <button
             type="button"
-            className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#EDECEA] sm:px-4"
+            className="flex h-[38px] items-center gap-2 rounded-xl bg-[#3D8A5A] px-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#2d6b44] sm:px-4"
           >
-            <TableProperties size={15} className="text-[#6D6C6A]" />
-            <span className="hidden sm:inline">Excel</span>
-          </button>
-          <button
-            type="button"
-            className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#EDECEA] sm:px-4"
-          >
-            <Share2 size={15} className="text-[#6D6C6A]" />
-            <span className="hidden sm:inline">Compartir</span>
+            <Download size={15} className="text-white" />
+            <span className="hidden sm:inline">Exportar PDF</span>
           </button>
         </div>
       </header>
@@ -156,11 +149,27 @@ export function ReportDetailPage() {
       {/* Body */}
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4 lg:p-8">
         {/* Status banner */}
-        <div>
+        <div className="flex items-center justify-between gap-3">
           <span className="inline-flex items-center gap-2 rounded-full bg-[#C8F0D8] px-4 py-2 text-[13px] font-semibold text-[#3D8A5A]">
             <CheckCircle2 size={15} />
             Reporte generado exitosamente
           </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-3 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#F5F4F1] sm:px-4"
+            >
+              <TableProperties size={15} className="text-[#6D6C6A]" />
+              <span className="hidden sm:inline">Excel</span>
+            </button>
+            <button
+              type="button"
+              className="flex h-[38px] items-center gap-2 rounded-xl border border-[#E5E4E1] bg-white px-3 text-[13px] font-semibold text-[#1A1918] transition-colors hover:bg-[#F5F4F1] sm:px-4"
+            >
+              <Share2 size={15} className="text-[#6D6C6A]" />
+              <span className="hidden sm:inline">Compartir</span>
+            </button>
+          </div>
         </div>
 
         {/* Stat cards */}
