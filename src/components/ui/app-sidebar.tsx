@@ -18,6 +18,7 @@ import {
   Wallet,
   Workflow,
   MailCheck,
+  Building2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -86,6 +87,7 @@ export const PAGES_DROPDOWN_ITEMS = [
   { icon: Cake, label: 'Cumpleanos', href: '/birthdays' },
   { icon: Workflow, label: 'Onboarding', href: '/onboarding' },
   { icon: MailCheck, label: 'Verificar Correo', href: '/verify-email' },
+  { icon: Building2, label: 'Seleccionar Concilio', href: '/select-council' },
 ]
 
 export function AppSidebar({ sections, activeHref, onNavigate, user, className }: AppSidebarProps) {
