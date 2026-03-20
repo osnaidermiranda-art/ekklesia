@@ -12,6 +12,7 @@ import {
   MapPin,
   MessageSquare,
   Settings,
+  ShieldCheck,
   UserCircle,
   UserCog,
   Users,
@@ -94,6 +95,7 @@ export const PAGES_DROPDOWN_ITEMS = [
   { icon: AlertTriangle, label: 'Error 404', href: '/error-404' },
   { icon: ServerCrash, label: 'Error 500', href: '/error-500' },
   { icon: Wrench, label: 'Mantenimiento', href: '/maintenance' },
+  { icon: ShieldCheck, label: 'Super Admin', href: '/super-admin' },
 ]
 
 export function AppSidebar({ sections, activeHref, onNavigate, user, className }: AppSidebarProps) {
