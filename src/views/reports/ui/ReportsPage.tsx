@@ -248,7 +248,12 @@ export function ReportsPage() {
       <PageHeader
         title="Reportes"
         subtitle="Genera y descarga reportes del concilio"
-        action={{ label: 'Nuevo Reporte', icon: Plus, variant: 'primary' }}
+        action={{
+          label: 'Nuevo Reporte',
+          icon: Plus,
+          variant: 'primary',
+          onClick: () => router.push('/reports/create'),
+        }}
       />
 
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4 lg:px-8 lg:py-8">
