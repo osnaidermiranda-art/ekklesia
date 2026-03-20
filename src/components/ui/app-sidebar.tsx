@@ -19,6 +19,9 @@ import {
   Workflow,
   MailCheck,
   Building2,
+  AlertTriangle,
+  ServerCrash,
+  Wrench,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -88,6 +91,9 @@ export const PAGES_DROPDOWN_ITEMS = [
   { icon: Workflow, label: 'Onboarding', href: '/onboarding' },
   { icon: MailCheck, label: 'Verificar Correo', href: '/verify-email' },
   { icon: Building2, label: 'Seleccionar Concilio', href: '/select-council' },
+  { icon: AlertTriangle, label: 'Error 404', href: '/error-404' },
+  { icon: ServerCrash, label: 'Error 500', href: '/error-500' },
+  { icon: Wrench, label: 'Mantenimiento', href: '/maintenance' },
 ]
 
 export function AppSidebar({ sections, activeHref, onNavigate, user, className }: AppSidebarProps) {

@@ -5,6 +5,8 @@ import {
   Building2,
   Check,
   Copy,
+  CreditCard,
+  Crown,
   Globe,
   Lock,
   Palette,
@@ -12,6 +14,7 @@ import {
   Shield,
   Upload,
   Users,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -22,7 +25,7 @@ import { cn } from '@/lib/utils'
 // Types
 // ---------------------------------------------------------------------------
 
-type SettingsTab = 'general' | 'branding' | 'roles' | 'notifications' | 'domain'
+type SettingsTab = 'general' | 'branding' | 'roles' | 'notifications' | 'domain' | 'billing'
 
 interface SettingsNavItem {
   key: SettingsTab
@@ -40,6 +43,7 @@ const NAV_ITEMS: SettingsNavItem[] = [
   { key: 'roles', label: 'Roles y Permisos', icon: Shield },
   { key: 'notifications', label: 'Notificaciones', icon: Bell },
   { key: 'domain', label: 'Dominio', icon: Globe },
+  { key: 'billing', label: 'Planes y Facturacion', icon: CreditCard },
 ]
 
 // ---------------------------------------------------------------------------
@@ -709,6 +713,165 @@ function DomainPanel() {
 }
 
 // ---------------------------------------------------------------------------
+// Billing panel
+// ---------------------------------------------------------------------------
+
+interface PlanFeature {
+  label: string
+  included: boolean
+}
+
+interface Plan {
+  key: string
+  name: string
+  price: string
+  description: string
+  features: PlanFeature[]
+  current?: boolean
+  upgrade?: boolean
+}
+
+const PLANS: Plan[] = [
+  {
+    key: 'basic',
+    name: 'Basico',
+    price: '$19.99',
+    description: 'Ideal para iglesias pequenas que inician su gestion digital.',
+    features: [
+      { label: 'Hasta 3 iglesias', included: true },
+      { label: '500 miembros', included: true },
+      { label: 'Reportes basicos', included: true },
+      { label: 'Sin soporte prioritario', included: false },
+    ],
+  },
+  {
+    key: 'premium',
+    name: 'Premium',
+    price: '$49.99',
+    description: 'Para concilios medianos con necesidades avanzadas.',
+    features: [
+      { label: 'Hasta 15 iglesias', included: true },
+      { label: '5,000 miembros', included: true },
+      { label: 'Reportes avanzados + exportacion', included: true },
+      { label: 'Soporte prioritario', included: true },
+    ],
+    current: true,
+  },
+  {
+    key: 'enterprise',
+    name: 'Empresarial',
+    price: '$99.99',
+    description: 'Para grandes concilios con multiples regiones y paises.',
+    features: [
+      { label: 'Iglesias ilimitadas', included: true },
+      { label: 'Miembros ilimitados', included: true },
+      { label: 'API + Integraciones', included: true },
+      { label: 'Soporte dedicado 24/7', included: true },
+    ],
+    upgrade: true,
+  },
+]
+
+function BillingPanel() {
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Current plan banner */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#E5E4E1] bg-white p-5 shadow-[0_2px_8px_rgba(26,25,24,0.06)]">
+        <div className="flex items-center gap-4">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#C8F0D8]">
+            <Crown className="size-6 text-[#3D8A5A]" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[16px] font-bold text-[#1A1918]">Plan Premium</span>
+              <span className="inline-flex h-5 items-center rounded-full bg-[#C8F0D8] px-2.5 text-[11px] font-semibold text-[#3D8A5A]">
+                Activo
+              </span>
+            </div>
+            <p className="text-[13px] text-[#9C9B99]">
+              Facturacion mensual · Proximo cobro: 15 Mar 2025
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-start sm:items-end">
+          <span className="text-[28px] font-black tracking-[-0.5px] text-[#1A1918]">$49.99</span>
+          <span className="text-[12px] text-[#9C9B99]">/ mes</span>
+        </div>
+      </div>
+
+      {/* Plan cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {PLANS.map((plan) => (
+          <div
+            key={plan.key}
+            className={cn(
+              'relative flex flex-col gap-4 rounded-2xl border bg-white p-6',
+              plan.current
+                ? 'border-[#3D8A5A] shadow-[0_0_0_1px_#3D8A5A,0_4px_16px_rgba(61,138,90,0.10)]'
+                : 'border-[#E5E4E1] shadow-[0_2px_8px_rgba(26,25,24,0.05)]',
+            )}
+          >
+            {/* Plan Actual badge */}
+            {plan.current && (
+              <span className="inline-flex w-fit items-center rounded-full bg-[#C8F0D8] px-3 py-1 text-[12px] font-semibold text-[#3D8A5A]">
+                Plan Actual
+              </span>
+            )}
+
+            {/* Name + price */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[20px] font-bold text-[#1A1918]">{plan.name}</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-[28px] font-black tracking-[-0.5px] text-[#3D8A5A]">
+                  {plan.price}
+                </span>
+                <span className="text-[13px] text-[#9C9B99]">/ mes</span>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p className="text-[13px] leading-relaxed text-[#6D6C6A]">{plan.description}</p>
+
+            <div className="h-px bg-[#E5E4E1]" />
+
+            {/* Features */}
+            <ul className="flex flex-col gap-2.5">
+              {plan.features.map((feature) => (
+                <li key={feature.label} className="flex items-center gap-2.5">
+                  {feature.included ? (
+                    <Check size={15} strokeWidth={2.5} className="shrink-0 text-[#3D8A5A]" />
+                  ) : (
+                    <X size={15} strokeWidth={2.5} className="shrink-0 text-[#C0BFBC]" />
+                  )}
+                  <span
+                    className={cn(
+                      'text-[13px]',
+                      feature.included ? 'text-[#1A1918]' : 'text-[#9C9B99]',
+                    )}
+                  >
+                    {feature.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Upgrade button */}
+            {plan.upgrade && (
+              <button
+                type="button"
+                className="mt-auto h-10 w-full rounded-xl border border-[#3D8A5A] text-[13px] font-semibold text-[#3D8A5A] transition-colors hover:bg-[#F0FAF4]"
+              >
+                Actualizar
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main page component
 // ---------------------------------------------------------------------------
 
@@ -796,6 +959,7 @@ export function SettingsPage() {
             {activeTab === 'roles' && <RolesPanel />}
             {activeTab === 'notifications' && <NotificationsPanel />}
             {activeTab === 'domain' && <DomainPanel />}
+            {activeTab === 'billing' && <BillingPanel />}
           </div>
         </div>
       </div>
