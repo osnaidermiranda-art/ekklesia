@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, CheckCheck, Paperclip, Search, Send, Smile } from 'lucide-react'
+import { Check, CheckCheck, Paperclip, Plus, Search, Send, Smile, Users, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
@@ -206,6 +206,15 @@ const CONVERSATIONS: Conversation[] = [
   },
 ]
 
+const MOCK_MEMBERS = [
+  { id: 'u1', name: 'Pedro Ramirez', initials: 'PR', avatarBg: '#C8F0D8', avatarColor: '#3D8A5A' },
+  { id: 'u2', name: 'Maria Lopez', initials: 'ML', avatarBg: '#D6E8F5', avatarColor: '#5B8DB8' },
+  { id: 'u3', name: 'Ana Garcia', initials: 'AG', avatarBg: '#FDE8D8', avatarColor: '#D89575' },
+  { id: 'u4', name: 'Roberto Mendez', initials: 'RM', avatarBg: '#C8F0D8', avatarColor: '#3D8A5A' },
+  { id: 'u5', name: 'Carlos Fuentes', initials: 'CF', avatarBg: '#E8E0F5', avatarColor: '#8B7CB8' },
+  { id: 'u6', name: 'Laura Castillo', initials: 'LC', avatarBg: '#FDE8D8', avatarColor: '#D89575' },
+]
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -301,12 +310,7 @@ interface ChatBubbleProps {
 
 function ChatBubble({ message }: ChatBubbleProps) {
   return (
-    <div
-      className={cn(
-        'flex w-full',
-        message.isMine ? 'justify-end' : 'justify-start',
-      )}
-    >
+    <div className={cn('flex w-full', message.isMine ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
           'max-w-[72%] rounded-2xl px-4 py-2.5',
@@ -315,7 +319,12 @@ function ChatBubble({ message }: ChatBubbleProps) {
             : 'rounded-bl-sm bg-white text-[#1A1918] shadow-[0_1px_4px_rgba(26,25,24,0.08)]',
         )}
       >
-        <p className={cn('text-[13px] leading-relaxed', message.isMine ? 'text-white' : 'text-[#1A1918]')}>
+        <p
+          className={cn(
+            'text-[13px] leading-relaxed',
+            message.isMine ? 'text-white' : 'text-[#1A1918]',
+          )}
+        >
           {message.body}
         </p>
         <div
@@ -324,17 +333,10 @@ function ChatBubble({ message }: ChatBubbleProps) {
             message.isMine ? 'justify-end' : 'justify-start',
           )}
         >
-          <span
-            className={cn(
-              'text-[10px]',
-              message.isMine ? 'text-white/70' : 'text-[#9C9B99]',
-            )}
-          >
+          <span className={cn('text-[10px]', message.isMine ? 'text-white/70' : 'text-[#9C9B99]')}>
             {message.sentAt}
           </span>
-          {message.isMine && message.status && (
-            <MessageStatusIcon status={message.status} />
-          )}
+          {message.isMine && message.status && <MessageStatusIcon status={message.status} />}
         </div>
       </div>
     </div>
@@ -408,10 +410,10 @@ function ChatView({ conversation, onSend }: ChatViewProps) {
 
       {/* Input */}
       <div className="border-t border-[#E5E4E1] bg-white px-4 py-3">
-        <div className="flex items-end gap-2 rounded-2xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 py-2 focus-within:border-[#3D8A5A] focus-within:bg-white transition-colors">
+        <div className="flex items-center gap-2 rounded-2xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 py-2 focus-within:border-[#3D8A5A] focus-within:bg-white transition-colors">
           <button
             type="button"
-            className="mb-0.5 shrink-0 text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
+            className="shrink-0 text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
             aria-label="Adjuntar archivo"
           >
             <Paperclip className="size-4.5" />
@@ -427,7 +429,7 @@ function ChatView({ conversation, onSend }: ChatViewProps) {
           />
           <button
             type="button"
-            className="mb-0.5 shrink-0 text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
+            className="shrink-0 text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
             aria-label="Emoji"
           >
             <Smile className="size-4.5" />
@@ -437,7 +439,7 @@ function ChatView({ conversation, onSend }: ChatViewProps) {
             onClick={handleSend}
             disabled={!inputValue.trim()}
             className={cn(
-              'mb-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl transition-colors',
+              'flex size-8 shrink-0 items-center justify-center rounded-xl transition-colors',
               inputValue.trim()
                 ? 'bg-[#3D8A5A] text-white hover:bg-[#336b49]'
                 : 'bg-[#E5E4E1] text-[#9C9B99]',
@@ -476,6 +478,129 @@ function NoConversationSelected() {
 }
 
 // ---------------------------------------------------------------------------
+// Create Group Modal
+// ---------------------------------------------------------------------------
+
+interface CreateGroupModalProps {
+  onClose: () => void
+  onConfirm: (name: string, memberIds: string[]) => void
+}
+
+function CreateGroupModal({ onClose, onConfirm }: CreateGroupModalProps) {
+  const [groupName, setGroupName] = useState('')
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+  function toggleMember(id: string) {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
+  }
+
+  const canCreate = groupName.trim().length > 0 && selectedIds.length >= 2
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      <div className="relative w-full max-w-md rounded-2xl bg-white shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#E5E4E1] px-6 py-4">
+          <div className="flex items-center gap-2">
+            <Users className="size-5 text-[#3D8A5A]" />
+            <h2 className="text-[15px] font-semibold text-[#1A1918]">Crear Grupo</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex size-7 items-center justify-center rounded-lg text-[#9C9B99] hover:bg-[#F5F4F1] hover:text-[#1A1918] transition-colors"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-4 flex flex-col gap-4">
+          {/* Group name */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-medium text-[#6D6C6A]">Nombre del Grupo</label>
+            <input
+              type="text"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              placeholder="Ej. Pastores del Concilio"
+              className="rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 py-2.5 text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99] focus:border-[#3D8A5A] focus:bg-white transition-colors"
+            />
+          </div>
+
+          {/* Members */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[12px] font-medium text-[#6D6C6A]">Agregar Miembros</label>
+              <span className="text-[11px] text-[#9C9B99]">{selectedIds.length} seleccionados</span>
+            </div>
+            <div className="flex flex-col divide-y divide-[#E5E4E1] rounded-xl border border-[#E5E4E1] overflow-hidden max-h-[220px] overflow-y-auto">
+              {MOCK_MEMBERS.map((member) => {
+                const selected = selectedIds.includes(member.id)
+                return (
+                  <button
+                    key={member.id}
+                    type="button"
+                    onClick={() => toggleMember(member.id)}
+                    className={cn(
+                      'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
+                      selected ? 'bg-[#F0FAF4]' : 'bg-white hover:bg-[#FAFAF8]',
+                    )}
+                  >
+                    <div
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                      style={{ backgroundColor: member.avatarBg, color: member.avatarColor }}
+                    >
+                      {member.initials}
+                    </div>
+                    <p className="flex-1 text-[13px] font-medium text-[#1A1918]">{member.name}</p>
+                    <div
+                      className={cn(
+                        'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
+                        selected ? 'border-[#3D8A5A] bg-[#3D8A5A]' : 'border-[#E5E4E1] bg-white',
+                      )}
+                    >
+                      {selected && <Check className="size-3 text-white" />}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            {selectedIds.length < 2 && (
+              <p className="text-[11px] text-[#9C9B99]">Selecciona al menos 2 miembros</p>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-2 border-t border-[#E5E4E1] px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-[#E5E4E1] px-4 py-2 text-[13px] font-medium text-[#6D6C6A] hover:bg-[#F5F4F1] transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => canCreate && onConfirm(groupName.trim(), selectedIds)}
+            disabled={!canCreate}
+            className={cn(
+              'rounded-xl px-4 py-2 text-[13px] font-medium text-white transition-colors',
+              canCreate
+                ? 'bg-[#3D8A5A] hover:bg-[#336b49]'
+                : 'bg-[#E5E4E1] text-[#9C9B99] cursor-not-allowed',
+            )}
+          >
+            Crear Grupo
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main page component
 // ---------------------------------------------------------------------------
 
@@ -483,6 +608,7 @@ export function MessagingPage() {
   const [conversations, setConversations] = useState<Conversation[]>(CONVERSATIONS)
   const [activeId, setActiveId] = useState<string | null>('1')
   const [searchValue, setSearchValue] = useState('')
+  const [showCreateGroup, setShowCreateGroup] = useState(false)
 
   const activeConversation = conversations.find((c) => c.id === activeId) ?? null
 
@@ -514,6 +640,30 @@ export function MessagingPage() {
     )
   }
 
+  function handleCreateGroup(name: string, memberIds: string[]) {
+    const initials = name
+      .split(' ')
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+    const newGroup: Conversation = {
+      id: `g${Date.now()}`,
+      name: `Grupo: ${name}`,
+      initials,
+      avatarBg: '#E8E0F5',
+      avatarColor: '#8B7CB8',
+      lastMessage: 'Grupo creado',
+      lastTime: 'Ahora',
+      unreadCount: 0,
+      isOnline: false,
+      messages: [],
+    }
+    setConversations((prev) => [newGroup, ...prev])
+    setActiveId(newGroup.id)
+    setShowCreateGroup(false)
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <PageHeader title="Mensajeria" subtitle="Comunicacion interna del concilio" />
@@ -529,15 +679,25 @@ export function MessagingPage() {
           >
             {/* Search */}
             <div className="border-b border-[#E5E4E1] px-4 py-3">
-              <div className="flex items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 py-2">
-                <Search className="size-3.5 shrink-0 text-[#9C9B99]" />
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="Buscar conversacion..."
-                  className="flex-1 bg-transparent text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99]"
-                />
+              <div className="flex items-center gap-2">
+                <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#E5E4E1] bg-[#F5F4F1] px-3 py-2">
+                  <Search className="size-3.5 shrink-0 text-[#9C9B99]" />
+                  <input
+                    type="text"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder="Buscar conversacion..."
+                    className="flex-1 bg-transparent text-[13px] text-[#1A1918] outline-none placeholder:text-[#9C9B99]"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateGroup(true)}
+                  title="Nuevo Grupo"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-[#3D8A5A] text-white hover:bg-[#336b49] transition-colors"
+                >
+                  <Plus className="size-4" />
+                </button>
               </div>
             </div>
 
@@ -574,6 +734,10 @@ export function MessagingPage() {
           </div>
         </div>
       </div>
+
+      {showCreateGroup && (
+        <CreateGroupModal onClose={() => setShowCreateGroup(false)} onConfirm={handleCreateGroup} />
+      )}
     </div>
   )
 }
