@@ -1242,12 +1242,15 @@ export function MessagingPage() {
   const [showNewChat, setShowNewChat] = useState(false)
   const [showCreateGroup, setShowCreateGroup] = useState(false)
 
-  // On desktop, pre-select the first conversation (runs once on mount)
-  const initialId =
-    typeof window !== 'undefined' && window.innerWidth >= 1024 && conversations.length > 0
-      ? conversations[0].id
-      : null
-  const [activeId, setActiveId] = useState<string | null>(initialId)
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  // After hydration, auto-select the first conversation on desktop
+  useEffect(() => {
+    if (window.innerWidth >= 1024 && conversations.length > 0) {
+      setActiveId(conversations[0].id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const activeConversation = conversations.find((c) => c.id === activeId) ?? null
 
