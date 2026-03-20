@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Layers,
   MapPin,
+  Megaphone,
   MessageSquare,
   Settings,
   ShieldCheck,
@@ -86,6 +87,7 @@ export const DEFAULT_NAV_SECTIONS: NavSection[] = [
 
 export const PAGES_DROPDOWN_ITEMS = [
   { icon: Bell, label: 'Notificaciones', href: '/notifications' },
+  { icon: Megaphone, label: 'Anuncios', href: '/announcements' },
   { icon: MessageSquare, label: 'Mensajeria', href: '/messaging' },
   { icon: ArrowLeftRight, label: 'Transferencias', href: '/transfers' },
   { icon: Cake, label: 'Cumpleanos', href: '/birthdays' },
