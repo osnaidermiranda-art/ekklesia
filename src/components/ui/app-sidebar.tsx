@@ -16,6 +16,7 @@ import {
   UserCog,
   Users,
   Wallet,
+  Workflow,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -82,6 +83,7 @@ export const PAGES_DROPDOWN_ITEMS = [
   { icon: MessageSquare, label: 'Mensajeria', href: '/messaging' },
   { icon: ArrowLeftRight, label: 'Transferencias', href: '/transfers' },
   { icon: Cake, label: 'Cumpleanos', href: '/birthdays' },
+  { icon: Workflow, label: 'Onboarding', href: '/onboarding' },
 ]
 
 export function AppSidebar({ sections, activeHref, onNavigate, user, className }: AppSidebarProps) {
