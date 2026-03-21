@@ -113,9 +113,10 @@ function FlyToSelected({
 
   useEffect(() => {
     const point = points.find((p) => p.id === selectedId)
-    if (point) {
-      map.flyTo([point.lat, point.lng], 15, { duration: 0.8 })
-    }
+    if (!point || !isFinite(point.lat) || !isFinite(point.lng)) return
+    const container = map.getContainer()
+    if (!container.clientWidth || !container.clientHeight) return
+    map.flyTo([point.lat, point.lng], 15, { duration: 0.8 })
   }, [selectedId, points, map])
 
   return null
