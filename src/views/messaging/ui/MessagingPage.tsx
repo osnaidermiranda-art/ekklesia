@@ -264,7 +264,7 @@ const EMOJI_GROUPS = [
 interface FileCategory {
   id: string
   label: string
-  icon: React.ComponentType<{ className?: string }>
+  icon: React.ComponentType<{ className?: string; color?: string }>
   accept: string
   capture?: string
   bg: string
@@ -417,7 +417,7 @@ function AttachmentIcon({
 }) {
   if (kind === 'document') return <FileText className={className} />
   if (kind === 'audio') return <Mic className={className} />
-  return <Image className={className} alt="" />
+  return <Image className={className} />
 }
 
 function ChatBubble({ message }: ChatBubbleProps) {
@@ -827,7 +827,7 @@ function ChatView({ conversation, onSend, onToggleFavorite, onBack }: ChatViewPr
                             className="flex size-10 items-center justify-center rounded-xl"
                             style={{ backgroundColor: cat.bg }}
                           >
-                            <cat.icon className="size-5" style={{ color: cat.color }} />
+                            <cat.icon className="size-5" color={cat.color} />
                           </div>
                           <span className="text-[11px] font-medium text-[#1A1918]">
                             {cat.label}
