@@ -1,4 +1,5 @@
+export { ContactAdminPage } from './ui/ContactAdminPage'
 export { LoginPage } from './ui/LoginPage'
 export { RecoverPasswordPage } from './ui/RecoverPasswordPage'
-export { VerifyEmailPage } from './ui/VerifyEmailPage'
 export { SelectCouncilPage } from './ui/SelectCouncilPage'
+export { VerifyEmailPage } from './ui/VerifyEmailPage'

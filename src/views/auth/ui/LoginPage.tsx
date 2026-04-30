@@ -230,9 +230,9 @@ export function LoginPage() {
             {/* Help Text */}
             <p className="text-center text-[13px] text-[#9C9B99]">
               No tienes cuenta?{' '}
-              <button type="button" className="font-medium text-[#3D8A5A] hover:underline">
+              <Link href="/contact-admin" className="font-medium text-[#3D8A5A] hover:underline">
                 Contacta al administrador
-              </button>
+              </Link>
             </p>
           </form>
         </div>
