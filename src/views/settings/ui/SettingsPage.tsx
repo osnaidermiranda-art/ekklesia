@@ -30,6 +30,7 @@ type SettingsTab = 'general' | 'branding' | 'roles' | 'notifications' | 'domain'
 interface SettingsNavItem {
   key: SettingsTab
   label: string
+  shortLabel: string
   icon: React.ComponentType<{ className?: string }>
 }
 
@@ -38,12 +39,12 @@ interface SettingsNavItem {
 // ---------------------------------------------------------------------------
 
 const NAV_ITEMS: SettingsNavItem[] = [
-  { key: 'general', label: 'General', icon: Building2 },
-  { key: 'branding', label: 'Branding', icon: Palette },
-  { key: 'roles', label: 'Roles y Permisos', icon: Shield },
-  { key: 'notifications', label: 'Notificaciones', icon: Bell },
-  { key: 'domain', label: 'Dominio', icon: Globe },
-  { key: 'billing', label: 'Planes y Facturacion', icon: CreditCard },
+  { key: 'general', label: 'General', shortLabel: 'General', icon: Building2 },
+  { key: 'branding', label: 'Branding', shortLabel: 'Branding', icon: Palette },
+  { key: 'roles', label: 'Roles y Permisos', shortLabel: 'Roles', icon: Shield },
+  { key: 'notifications', label: 'Notificaciones', shortLabel: 'Notifs.', icon: Bell },
+  { key: 'domain', label: 'Dominio', shortLabel: 'Dominio', icon: Globe },
+  { key: 'billing', label: 'Planes y Facturacion', shortLabel: 'Planes', icon: CreditCard },
 ]
 
 // ---------------------------------------------------------------------------
@@ -897,8 +898,32 @@ export function SettingsPage() {
         }}
       />
 
-      <div className="flex flex-1 gap-5 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
-        {/* Left nav */}
+      {/* Mobile nav grid — 3×2 icon+label grid, only below lg */}
+      <div className="grid shrink-0 grid-cols-3 gap-2 px-4 pb-2 pt-4 lg:hidden">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon
+          const isActive = activeTab === item.key
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setActiveTab(item.key)}
+              className={cn(
+                'flex flex-col items-center gap-1.5 rounded-xl border py-3 text-[11px] font-medium transition-colors',
+                isActive
+                  ? 'border-[#3D8A5A] bg-[#F0FAF4] text-[#3D8A5A]'
+                  : 'border-[#E5E4E1] bg-white text-[#6D6C6A]',
+              )}
+            >
+              <Icon className={cn('size-4', isActive ? 'text-[#3D8A5A]' : 'text-[#9C9B99]')} />
+              {item.shortLabel}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="flex flex-1 gap-5 overflow-hidden px-4 pb-4 pt-0 lg:px-8 lg:py-8">
+        {/* Desktop left nav */}
         <div className="hidden w-[240px] shrink-0 lg:block">
           <div className="flex flex-col gap-1 rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(26,25,24,0.08)]">
             <p className="mb-2 px-1 text-[11px] font-semibold tracking-[1px] text-[#9C9B99]">
@@ -932,28 +957,9 @@ export function SettingsPage() {
           </div>
         </div>
 
-        {/* Mobile tab pills */}
-        <div className="absolute left-4 right-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setActiveTab(item.key)}
-              className={cn(
-                'flex h-8 shrink-0 items-center rounded-full px-3 text-[12px] transition-colors',
-                activeTab === item.key
-                  ? 'bg-[#3D8A5A] font-semibold text-white'
-                  : 'border border-[#E5E4E1] bg-white text-[#6D6C6A]',
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
         {/* Content panel */}
         <div className="flex-1 overflow-y-auto">
-          <div className="rounded-2xl border border-[#E5E4E1] bg-white p-7 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+          <div className="rounded-2xl border border-[#E5E4E1] bg-white p-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)] sm:p-7">
             {activeTab === 'general' && <GeneralPanel />}
             {activeTab === 'branding' && <BrandingPanel />}
             {activeTab === 'roles' && <RolesPanel />}

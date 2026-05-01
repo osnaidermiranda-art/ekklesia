@@ -549,9 +549,7 @@ export function UsersPage() {
 
       <div className="flex flex-col gap-6 px-4 py-4 lg:px-8 lg:py-8">
         {/* Role filter tabs */}
-        <div className="overflow-x-auto">
-          <PillTabs tabs={ROLE_TABS} value={activeRole} onChange={setActiveRole} />
-        </div>
+        <PillTabs tabs={ROLE_TABS} value={activeRole} onChange={setActiveRole} />
 
         {/* Search toolbar */}
         <div className="flex flex-wrap items-center gap-2">
@@ -560,7 +558,7 @@ export function UsersPage() {
             placeholder="Buscar por nombre o email..."
             value={search}
             onChange={setSearch}
-            className="w-full sm:w-[300px]"
+            className="w-full sm:w-75"
           />
           <p className="ml-auto text-[13px] text-[#9C9B99]">
             {TOTAL_USERS.toLocaleString('es')} usuarios

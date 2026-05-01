@@ -140,7 +140,7 @@ function ChurchIcon({ size = 56 }: { size?: number }) {
 // Stat box — bordered box with number + label
 function StatBox({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex w-[88px] flex-col items-center justify-center gap-0.5 rounded-xl border border-[#E5E4E1] py-3">
+    <div className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl border border-[#E5E4E1] py-3 lg:w-[88px] lg:flex-none">
       <span className="text-[22px] font-bold tracking-[-0.5px] text-[#1A1918]">{value}</span>
       <span className="text-[12px] text-[#9C9B99]">{label}</span>
     </div>
@@ -270,7 +270,7 @@ export function ChurchDetailPage() {
             placeholder="Buscar..."
             value={search}
             onChange={setSearch}
-            className="hidden w-[220px] md:flex"
+            className="hidden w-[220px] lg:flex"
           />
           <button
             type="button"
@@ -292,7 +292,7 @@ export function ChurchDetailPage() {
       {/* Scrollable body */}
       <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5 lg:gap-6 lg:p-8">
         {/* Banner card */}
-        <div className="flex items-center justify-between gap-6 rounded-2xl bg-white px-6 py-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+        <div className="flex flex-col gap-4 rounded-2xl bg-white px-6 py-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)] lg:flex-row lg:items-center lg:justify-between lg:gap-6">
           {/* Left — icon + name + meta */}
           <div className="flex min-w-0 items-center gap-4">
             <ChurchIcon size={60} />
@@ -316,16 +316,16 @@ export function ChurchDetailPage() {
             </div>
           </div>
 
-          {/* Right — stat boxes */}
-          <div className="flex shrink-0 items-center gap-3">
+          {/* Stat boxes — full width row on mobile, compact row on desktop */}
+          <div className="flex w-full items-center gap-3 lg:w-auto lg:shrink-0">
             <StatBox value={church.members} label="Miembros" />
             <StatBox value={church.societies} label="Sociedades" />
             <StatBox value={church.daughters} label="Hijas" />
           </div>
         </div>
 
-        {/* Bottom two-column layout */}
-        <div className="flex gap-5 lg:gap-6">
+        {/* Bottom layout — single column on mobile/tablet, two columns on desktop */}
+        <div className="flex flex-col gap-5 lg:flex-row lg:gap-6">
           {/* LEFT — Hierarchical tree */}
           <div className="flex flex-1 flex-col gap-4 rounded-2xl bg-white p-6 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
             <h3 className="text-[15px] font-bold text-[#1A1918]">Arbol Jerarquico</h3>
@@ -333,7 +333,7 @@ export function ChurchDetailPage() {
           </div>
 
           {/* RIGHT — Info + Activity stacked */}
-          <div className="flex w-[340px] shrink-0 flex-col gap-5 lg:gap-6">
+          <div className="flex w-full shrink-0 flex-col gap-5 lg:w-[340px] lg:gap-6">
             {/* General info card */}
             <div className="rounded-2xl bg-white px-6 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
               <h3 className="py-5 text-[15px] font-bold text-[#1A1918]">Informacion General</h3>

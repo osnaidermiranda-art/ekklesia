@@ -109,7 +109,6 @@ function StepIndicator({ current }: { current: Step }) {
       {STEPS.map((step, i) => {
         const done = step.id < current
         const active = step.id === current
-        const upcoming = step.id > current
 
         return (
           <div key={step.id} className="flex items-center gap-0">
@@ -117,16 +116,16 @@ function StepIndicator({ current }: { current: Step }) {
               <div
                 className={cn(
                   'flex size-7 items-center justify-center rounded-full text-[12px] font-bold transition-colors',
-                  done && 'bg-[#3D8A5A] text-white',
-                  active && 'bg-[#3D8A5A] text-white',
-                  upcoming && 'border border-[#E5E4E1] bg-[#F5F4F1] text-[#9C9B99]',
+                  done || active
+                    ? 'bg-[#3D8A5A] text-white'
+                    : 'border border-[#E5E4E1] bg-[#F5F4F1] text-[#9C9B99]',
                 )}
               >
                 {done ? <Check size={13} strokeWidth={3} /> : step.id}
               </div>
               <span
                 className={cn(
-                  'hidden text-[11px] font-medium sm:block',
+                  'text-[11px] font-medium',
                   done || active ? 'text-[#3D8A5A]' : 'text-[#9C9B99]',
                 )}
               >
@@ -136,7 +135,7 @@ function StepIndicator({ current }: { current: Step }) {
             {i < STEPS.length - 1 && (
               <div
                 className={cn(
-                  'mb-[18px] h-0.5 w-8 sm:w-10',
+                  'mb-[18px] h-0.5 w-10',
                   step.id < current ? 'bg-[#3D8A5A]' : 'bg-[#E5E4E1]',
                 )}
               />
@@ -144,6 +143,30 @@ function StepIndicator({ current }: { current: Step }) {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+function StepIndicatorMobile({ current }: { current: Step }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[12px] font-semibold text-[#3D8A5A]">
+          Paso {current} de 4 &middot; {STEPS[current - 1].label}
+        </span>
+        <span className="text-[11px] text-[#9C9B99]">{current * 25}%</span>
+      </div>
+      <div className="flex gap-1">
+        {STEPS.map((s) => (
+          <div
+            key={s.id}
+            className={cn(
+              'h-1.5 flex-1 rounded-full transition-colors',
+              s.id <= current ? 'bg-[#3D8A5A]' : 'bg-[#E5E4E1]',
+            )}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -650,26 +673,37 @@ export function OnboardingPage() {
   return (
     <div className="flex min-h-dvh flex-col">
       {/* Top bar */}
-      <header className="flex h-16 shrink-0 items-center justify-between bg-white px-5 shadow-[0_1px_8px_rgba(26,25,24,0.06)] md:px-8">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-[#3D8A5A] text-[14px] font-bold text-white">
-            E
+      <header className="shrink-0 bg-white shadow-[0_1px_8px_rgba(26,25,24,0.06)]">
+        {/* Brand + skip row */}
+        <div className="flex h-14 items-center justify-between px-5 sm:h-16 md:px-8">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-[#3D8A5A] text-[14px] font-bold text-white">
+              E
+            </div>
+            <span className="text-[17px] font-bold tracking-[-0.3px] text-[#1A1918]">Ekklesia</span>
           </div>
-          <span className="text-[17px] font-bold tracking-[-0.3px] text-[#1A1918]">Ekklesia</span>
+
+          {/* Step indicator — sm+ only, inline */}
+          <div className="hidden sm:block">
+            <StepIndicator current={step} />
+          </div>
+
+          {/* Skip */}
+          <button
+            type="button"
+            onClick={finish}
+            className="text-[13px] font-medium text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
+          >
+            <span className="sm:hidden">Saltar</span>
+            <span className="hidden sm:inline">Saltar configuracion</span>
+          </button>
         </div>
 
-        {/* Step indicator */}
-        <StepIndicator current={step} />
-
-        {/* Skip */}
-        <button
-          type="button"
-          onClick={finish}
-          className="text-[13px] font-medium text-[#9C9B99] transition-colors hover:text-[#6D6C6A]"
-        >
-          Saltar configuracion
-        </button>
+        {/* Mobile step progress — below brand row, hidden on sm+ */}
+        <div className="px-5 pb-3 sm:hidden">
+          <StepIndicatorMobile current={step} />
+        </div>
       </header>
 
       {/* Body */}

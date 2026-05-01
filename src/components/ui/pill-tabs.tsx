@@ -15,10 +15,9 @@ export interface PillTabsProps {
 
 export function PillTabs({ tabs, value, onChange, className }: PillTabsProps) {
   return (
-    <div className={cn('flex flex-row gap-3', className)}>
+    <div className={cn('flex flex-wrap gap-2', className)}>
       {tabs.map((tab) => {
         const isActive = tab.value === value
-        const label = tab.count !== undefined ? `${tab.label} (${tab.count})` : tab.label
 
         return (
           <button
@@ -26,13 +25,23 @@ export function PillTabs({ tabs, value, onChange, className }: PillTabsProps) {
             type="button"
             onClick={() => onChange(tab.value)}
             className={cn(
-              'flex h-9 items-center rounded-full px-4 text-[13px] transition-colors',
+              'flex h-8 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium transition-colors sm:h-9 sm:px-4 sm:text-[13px]',
               isActive
                 ? 'bg-[#3D8A5A] font-semibold text-white'
-                : 'border border-[#E5E4E1] bg-white font-medium text-[#6D6C6A]',
+                : 'border border-[#E5E4E1] bg-white text-[#6D6C6A]',
             )}
           >
-            {label}
+            {tab.label}
+            {tab.count !== undefined && (
+              <span
+                className={cn(
+                  'inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold',
+                  isActive ? 'bg-white/25 text-white' : 'bg-[#F0EFED] text-[#9C9B99]',
+                )}
+              >
+                {tab.count}
+              </span>
+            )}
           </button>
         )
       })}

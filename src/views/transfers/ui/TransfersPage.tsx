@@ -4,6 +4,7 @@ import { ArrowRight, ArrowRightLeft, ArrowUpDown, Building2, CheckCircle, X } fr
 import { useState } from 'react'
 
 import { PageHeader } from '@/components/ui/page-header'
+import { PillTabs } from '@/components/ui/pill-tabs'
 import { cn } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
@@ -31,16 +32,11 @@ interface Transfer {
 // Config
 // ---------------------------------------------------------------------------
 
-interface FilterTabConfig {
-  key: FilterTab
-  label: string
-}
-
-const FILTER_TABS: FilterTabConfig[] = [
-  { key: 'all', label: 'Todas (12)' },
-  { key: 'pending', label: 'Pendientes (4)' },
-  { key: 'approved', label: 'Aprobadas (6)' },
-  { key: 'rejected', label: 'Rechazadas (2)' },
+const FILTER_TABS = [
+  { value: 'all', label: 'Todas', count: 12 },
+  { value: 'pending', label: 'Pendientes', count: 4 },
+  { value: 'approved', label: 'Aprobadas', count: 6 },
+  { value: 'rejected', label: 'Rechazadas', count: 2 },
 ]
 
 const STATUS_CONFIG: Record<
@@ -115,7 +111,7 @@ function StatusBadge({ status }: { status: TransferStatus }) {
   const cfg = STATUS_CONFIG[status]
   return (
     <span
-      className="inline-flex items-center rounded-full px-3 py-0.5 text-[11px] font-semibold"
+      className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3 py-0.5 text-[11px] font-semibold"
       style={{ backgroundColor: cfg.badgeBg, color: cfg.badgeText }}
     >
       {cfg.label}
@@ -134,73 +130,70 @@ function TransferCard({ transfer, onApprove, onReject }: TransferCardProps) {
 
   return (
     <div
-      className="flex rounded-2xl border border-[#E5E4E1] bg-white border-l-4"
-      style={{ borderLeftColor: cfg.borderColor }}
+      className="flex rounded-2xl border border-[#E5E4E1] bg-white"
+      style={{ borderLeftColor: cfg.borderColor, borderLeftWidth: 4 }}
     >
-      <div className="flex flex-1 items-start gap-4 px-5 py-4">
-        {/* Left content */}
-        <div className="flex flex-1 flex-col gap-2">
-          {/* Row 1: Avatar + Name + Role */}
-          <div className="flex items-center gap-3">
-            <div
-              className="flex size-11 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white"
-              style={{ backgroundColor: transfer.avatarBg }}
-            >
-              {transfer.initials}
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <p className="text-[16px] font-bold text-[#1A1918]">{transfer.memberName}</p>
-              <p className="text-[12px] text-[#6D6C6A]">
-                {transfer.memberRole} &middot; Miembro desde {transfer.memberSince}
-              </p>
-            </div>
+      <div className="flex flex-1 flex-col gap-3 px-4 py-4 sm:px-5">
+        {/* Avatar + name + role */}
+        <div className="flex items-center gap-3">
+          <div
+            className="flex size-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white sm:size-11"
+            style={{ backgroundColor: transfer.avatarBg }}
+          >
+            {transfer.initials}
           </div>
-
-          {/* Row 2: Churches */}
-          <div className="flex items-center gap-1.5 text-[13px] text-[#1A1918]">
-            <Building2 className="size-3.5 shrink-0 text-[#9C9B99]" />
-            <span>{transfer.origin}</span>
-            <ArrowRight className="size-3.5 shrink-0 text-[#9C9B99]" />
-            <Building2 className="size-3.5 shrink-0 text-[#9C9B99]" />
-            <span>{transfer.destination}</span>
-          </div>
-
-          {/* Row 3: Date + Status badge */}
-          <div className="flex items-center gap-3">
-            <p className="text-[12px] text-[#6D6C6A]">{transfer.dateLabel}</p>
-            <StatusBadge status={transfer.status} />
+          <div className="min-w-0 flex flex-col gap-0.5">
+            <p className="text-[15px] font-bold leading-tight text-[#1A1918] sm:text-[16px]">
+              {transfer.memberName}
+            </p>
+            <p className="text-[12px] text-[#6D6C6A]">
+              {transfer.memberRole} &middot; Miembro desde {transfer.memberSince}
+            </p>
           </div>
         </div>
 
-        {/* Right actions */}
-        {transfer.status !== 'approved' && (
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            {transfer.status === 'pending' && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => onApprove(transfer.id)}
-                  className="flex h-9 items-center gap-2 rounded-xl bg-[#3D8A5A] px-4 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
-                >
-                  <CheckCircle className="size-4" />
-                  Aprobar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onReject(transfer.id)}
-                  className="flex h-9 items-center gap-2 rounded-xl border border-[#E5E4E1] px-4 text-[13px] font-medium text-[#D08068] transition-colors hover:bg-[#FDE8D8]"
-                >
-                  <X className="size-4" />
-                  Rechazar
-                </button>
-              </>
-            )}
-            {transfer.status === 'rejected' && transfer.rejectionReason && (
-              <div className="max-w-[180px] rounded-xl bg-[#F5F4F1] p-3 text-[12px] text-[#6D6C6A]">
-                <span className="font-semibold text-[#1A1918]">Motivo: </span>
-                {transfer.rejectionReason}
-              </div>
-            )}
+        {/* Church route */}
+        <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-[#1A1918]">
+          <Building2 className="size-3.5 shrink-0 text-[#9C9B99]" />
+          <span>{transfer.origin}</span>
+          <ArrowRight className="size-3.5 shrink-0 text-[#9C9B99]" />
+          <Building2 className="size-3.5 shrink-0 text-[#9C9B99]" />
+          <span>{transfer.destination}</span>
+        </div>
+
+        {/* Date + badge */}
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[12px] text-[#6D6C6A]">{transfer.dateLabel}</p>
+          <StatusBadge status={transfer.status} />
+        </div>
+
+        {/* Rejection reason — full width */}
+        {transfer.status === 'rejected' && transfer.rejectionReason && (
+          <div className="rounded-xl bg-[#F5F4F1] p-3 text-[12px] text-[#6D6C6A]">
+            <span className="font-semibold text-[#1A1918]">Motivo: </span>
+            {transfer.rejectionReason}
+          </div>
+        )}
+
+        {/* Pending actions — full width row */}
+        {transfer.status === 'pending' && (
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => onApprove(transfer.id)}
+              className="flex flex-1 h-9 items-center justify-center gap-2 rounded-xl bg-[#3D8A5A] text-[13px] font-medium text-white transition-opacity hover:opacity-90 sm:flex-none sm:px-4"
+            >
+              <CheckCircle className="size-4" />
+              Aprobar
+            </button>
+            <button
+              type="button"
+              onClick={() => onReject(transfer.id)}
+              className="flex flex-1 h-9 items-center justify-center gap-2 rounded-xl border border-[#E5E4E1] text-[13px] font-medium text-[#D08068] transition-colors hover:bg-[#FDE8D8] sm:flex-none sm:px-4"
+            >
+              <X className="size-4" />
+              Rechazar
+            </button>
           </div>
         )}
       </div>
@@ -241,31 +234,19 @@ export function TransfersPage() {
       />
 
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 lg:px-8 lg:py-6">
-        {/* Filter bar */}
-        <div className="flex items-center justify-between gap-3">
-          {/* Pill tabs */}
-          <div className="flex items-center gap-2">
-            {FILTER_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveFilter(tab.key)}
-                className={cn(
-                  'flex h-9 items-center rounded-full px-4 text-[13px] font-medium transition-colors',
-                  activeFilter === tab.key
-                    ? 'bg-[#3D8A5A] text-white'
-                    : 'border border-[#E5E4E1] bg-white text-[#6D6C6A] hover:text-[#1A1918]',
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Sort button */}
+        {/* Filter bar: pills wrap, sort button aligned right on sm+ */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <PillTabs
+            tabs={FILTER_TABS}
+            value={activeFilter}
+            onChange={(v) => setActiveFilter(v as FilterTab)}
+          />
           <button
             type="button"
-            className="flex h-9 items-center gap-1.5 rounded-xl border border-[#E5E4E1] bg-white px-3 text-[13px] text-[#6D6C6A] transition-colors hover:text-[#1A1918]"
+            className={cn(
+              'flex h-8 w-fit items-center gap-1.5 rounded-xl border border-[#E5E4E1] bg-white px-3',
+              'text-[12px] text-[#6D6C6A] transition-colors hover:text-[#1A1918] sm:h-9 sm:text-[13px]',
+            )}
           >
             <ArrowUpDown className="size-3.5" />
             Mas recientes

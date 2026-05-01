@@ -372,7 +372,7 @@ export function MemberDetailPage() {
             placeholder="Buscar..."
             value={search}
             onChange={setSearch}
-            className="hidden w-[220px] md:flex"
+            className="hidden w-[220px] lg:flex"
           />
           <button
             type="button"
@@ -392,9 +392,9 @@ export function MemberDetailPage() {
       </header>
 
       {/* Body */}
-      <div className="flex flex-1 gap-5 overflow-hidden p-5 lg:gap-6 lg:p-8">
+      <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5 lg:flex-row lg:overflow-hidden lg:gap-6 lg:p-8">
         {/* LEFT CARD */}
-        <div className="flex w-[310px] shrink-0 flex-col overflow-y-auto rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+        <div className="flex w-full shrink-0 flex-col rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)] lg:w-[310px] lg:overflow-y-auto">
           {/* Profile */}
           <div className="flex flex-col items-center gap-1 px-6 pb-5 pt-8">
             <Avatar
@@ -457,16 +457,19 @@ export function MemberDetailPage() {
         </div>
 
         {/* RIGHT CARD */}
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+        <div
+          className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(26,25,24,0.06)]"
+          style={{ minHeight: '480px' }}
+        >
           {/* Tabs */}
-          <div className="flex shrink-0 border-b border-[#E5E4E1] px-6">
+          <div className="flex shrink-0 overflow-x-auto border-b border-[#E5E4E1] px-4 lg:px-6">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={cn(
-                  'relative mr-7 flex h-12 items-center text-[14px] font-medium transition-colors',
+                  'relative mr-5 flex h-12 shrink-0 items-center text-[14px] font-medium transition-colors lg:mr-7',
                   activeTab === tab.key
                     ? 'text-[#3D8A5A] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:rounded-t-sm after:bg-[#3D8A5A]'
                     : 'text-[#9C9B99] hover:text-[#6D6C6A]',
@@ -478,7 +481,7 @@ export function MemberDetailPage() {
           </div>
 
           {/* Tab content */}
-          <div className="flex-1 overflow-y-auto px-6">
+          <div className="flex-1 overflow-y-auto px-4 lg:px-6">
             {activeTab === 'history' ? (
               <div>
                 {HISTORY_ENTRIES.map((entry, i) => (

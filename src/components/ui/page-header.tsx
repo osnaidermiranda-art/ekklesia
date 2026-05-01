@@ -82,7 +82,7 @@ export function PageHeader({
           placeholder={searchPlaceholder ?? 'Buscar...'}
           value={searchValue}
           onChange={handleSearchChange}
-          className="hidden w-[220px] md:flex"
+          className="hidden w-[220px] lg:flex"
         />
 
         <button

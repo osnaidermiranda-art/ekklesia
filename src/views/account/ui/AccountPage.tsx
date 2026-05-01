@@ -298,7 +298,7 @@ function SecurityPanel() {
       <SectionTitle>Autenticacion de dos factores</SectionTitle>
       <div className="flex items-center justify-between rounded-xl border border-[#E5E4E1] bg-[#FAFAF8] p-5">
         <div className="flex items-center gap-4">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-[#C8F0D8]">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#C8F0D8]">
             <Shield className="size-5 text-[#3D8A5A]" />
           </div>
           <div>
@@ -308,7 +308,7 @@ function SecurityPanel() {
             </p>
           </div>
         </div>
-        <span className="inline-flex h-6 items-center rounded-full bg-[#EDECEA] px-[10px] text-[11px] font-semibold text-[#6D6C6A]">
+        <span className="inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full bg-[#EDECEA] px-[10px] text-[11px] font-semibold text-[#6D6C6A]">
           No activado
         </span>
       </div>
@@ -578,8 +578,28 @@ export function AccountPage() {
     <div className="flex h-full flex-col overflow-hidden">
       <PageHeader title="Mi Cuenta" subtitle="Administra tu perfil, seguridad y preferencias" />
 
-      <div className="flex flex-1 gap-5 overflow-hidden px-4 py-4 lg:px-8 lg:py-8">
-        {/* Left nav */}
+      {/* Mobile tab pills — above content, only below lg */}
+      <div className="flex shrink-0 gap-2 overflow-x-auto px-4 pb-2 pt-4 lg:hidden">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => setActiveTab(item.key)}
+            className={cn(
+              'flex h-8 shrink-0 items-center rounded-full px-3 text-[12px] transition-colors',
+              activeTab === item.key
+                ? 'bg-[#3D8A5A] font-semibold text-white'
+                : 'border border-[#E5E4E1] bg-white text-[#6D6C6A]',
+            )}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Main area: sidebar + content */}
+      <div className="flex flex-1 gap-5 overflow-hidden px-4 pb-4 pt-0 lg:px-8 lg:py-8">
+        {/* Desktop left nav */}
         <div className="hidden w-[240px] shrink-0 lg:block">
           <div className="flex flex-col gap-1 rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(26,25,24,0.08)]">
             <p className="mb-2 px-1 text-[11px] font-semibold tracking-[1px] text-[#9C9B99]">
@@ -613,30 +633,9 @@ export function AccountPage() {
           </div>
         </div>
 
-        {/* Mobile tab pills */}
-        <div className="lg:hidden">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {NAV_ITEMS.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => setActiveTab(item.key)}
-                className={cn(
-                  'flex h-8 shrink-0 items-center rounded-full px-3 text-[12px] transition-colors',
-                  activeTab === item.key
-                    ? 'bg-[#3D8A5A] font-semibold text-white'
-                    : 'border border-[#E5E4E1] bg-white text-[#6D6C6A]',
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Content panel */}
         <div className="flex-1 overflow-y-auto">
-          <div className="rounded-2xl border border-[#E5E4E1] bg-white p-7 shadow-[0_2px_12px_rgba(26,25,24,0.06)]">
+          <div className="rounded-2xl border border-[#E5E4E1] bg-white p-5 shadow-[0_2px_12px_rgba(26,25,24,0.06)] sm:p-7">
             {activeTab === 'profile' && <ProfilePanel />}
             {activeTab === 'security' && <SecurityPanel />}
             {activeTab === 'sessions' && <SessionsPanel />}
